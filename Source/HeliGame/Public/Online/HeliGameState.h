@@ -23,45 +23,45 @@ public:
 
 	/* NetMulticast will send this event to all clients that know about this object, in the case of GameState that means every client. */
 	UFUNCTION(Reliable, NetMulticast)
-		void BroadcastGameMessage(const FString& NewMessage);
+	void BroadcastGameMessage(const FString& NewMessage);
 
 	/** number of teams in current game (doesn't deprecate when no players are left in a team) */
 	UPROPERTY(Transient, Replicated)
-		int32 NumTeams;
+	int32 NumTeams;
 
 	/** accumulated score per team */
-	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = GameSettings)
-		TArray<int32> TeamScores;
+	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = "GameSettings")
+	TArray<int32> TeamScores;
 
 	/** time left for warmup / match */
-	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = GameSettings)
-		int32 RemainingTime;
+	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = "GameSettings")
+	int32 RemainingTime;
 
 	/** name of the server */
-	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = GameSettings)
-		FString ServerName;
+	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = "GameSettings")
+	FString ServerName;
 
 	/** current game mode */
-	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = GameSettings)
-		FString GameModeName;
+	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = "GameSettings")
+	FString GameModeName;
 
 	/** current map name */
-	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = GameSettings)
-		FString MapName;
+	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = "GameSettings")
+	FString MapName;
 
 	/** number of players in game */
-	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = GameSettings)
-		int32 MaxNumberOfPlayers;
+	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = "GameSettings")
+	int32 MaxNumberOfPlayers;
 
 	/** number of players in game */
-	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = GameSettings)
-		int32 MaxRoundTime;
+	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = "GameSettings")
+	int32 MaxRoundTime;
 
-	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = GameSettings)
-		int32 MaxWarmupTime;
+	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = "GameSettings")
+	int32 MaxWarmupTime;
 
-	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = GameSettings)
-		uint8 bAllowFriendFireDamage;
+	UPROPERTY(BlueprintReadWrite, Transient, Replicated, Category = "GameSettings")
+	uint8 bAllowFriendFireDamage;
 
 	/** gets ranked PlayerState map for specific team */
 	void GetRankedMap(int32 TeamIndex, RankedPlayerMap& OutRankedMap) const;

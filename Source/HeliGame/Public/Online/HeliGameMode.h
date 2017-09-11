@@ -43,7 +43,7 @@ public:
 	virtual void HandleMatchHasStarted() override;
 
 	/** hides the onscreen hud and restarts the map */
-	UFUNCTION(BlueprintCallable, Category = GameRules)
+	UFUNCTION(BlueprintCallable, Category = "GameRules")
 	virtual void RestartGame() override;
 
 	/* end the game, end session, load main menu */
@@ -51,7 +51,7 @@ public:
 
 
 	/** finish current match and lock players */
-	UFUNCTION(BlueprintCallable, Category = GameRules, exec)
+	UFUNCTION(BlueprintCallable, Category = "GameRules", exec)
 	void FinishMatch();
 
 	/*Finishes the match and bumps everyone to main menu.*/
@@ -88,23 +88,23 @@ public:
 	FTimerHandle TimerHandle_DefaultTimer;
 
 	/** delay between first player login and starting match */
-	UPROPERTY(BlueprintReadWrite, Category = GameRules)
+	UPROPERTY(BlueprintReadWrite, Category = "GameRules")
 	int32 WarmupTime;
 
 	/** match duration */
-	UPROPERTY(BlueprintReadWrite, Category = GameRules)
+	UPROPERTY(BlueprintReadWrite, Category = "GameRules")
 	int32 RoundTime;
 
-	UPROPERTY(BlueprintReadWrite, Category = GameRules)
+	UPROPERTY(BlueprintReadWrite, Category = "GameRules")
 	int32 TimeBetweenMatches;
 
-	UPROPERTY(BlueprintReadWrite, Category = GameRules)
+	UPROPERTY(BlueprintReadWrite, Category = "GameRules")
 	FString MapName;
 
-	UPROPERTY(BlueprintReadWrite, Category = GameRules)
+	UPROPERTY(BlueprintReadWrite, Category = "GameRules")
 	FString ServerName;
 
-	UPROPERTY(BlueprintReadWrite, Category = GameRules)
+	UPROPERTY(BlueprintReadWrite, Category = "GameRules")
 	int32 MaxNumberOfPlayers;
 
 	/* check if immediately player restart after the player is dead is allowed */

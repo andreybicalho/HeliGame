@@ -13,8 +13,8 @@ class HELIGAME_API AHeliHud : public AHUD
 {
 	GENERATED_BODY()		
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Crosshair, meta = (AllowPrivateAccess = "true"))
-		float AimDistanceForDeprojectionOfCrosshair;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crosshair", meta = (AllowPrivateAccess = "true"))
+	float AimDistanceForDeprojectionOfCrosshair;
 
 public:
 	AHeliHud();
@@ -25,23 +25,23 @@ public:
 	/** Primary draw call for the HUD */
 	virtual void DrawHUD() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Crosshair)
-		float CrossSpread;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crosshair")
+	float CrossSpread;
 
 	// whether draw the crosshair
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Crosshair)
-		bool CrosshairOn;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crosshair")
+	bool CrosshairOn;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Crosshair)
-		bool DotCrosshairOn;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crosshair")
+	bool DotCrosshairOn;
 
 	// crosshair color
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Crosshair)
-		FColor CrosshairColor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crosshair")
+	FColor CrosshairColor;
 
 	// hit notify crosshair color
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Crosshair)
-		FColor CrosshairHitNotifyColor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crosshair")
+	FColor CrosshairHitNotifyColor;
 
 	/** Notifies we have hit the enemy. */
 	void NotifyEnemyHit();
@@ -50,8 +50,8 @@ public:
 	*                                       Heli HUD Widget                                *
 	****************************************************************************************/	
 	// Reference UMG Asset in the Editor
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUDHeliInfo)
-		TSubclassOf<class UUserWidget> HeliHudWidgetTemplate; // assigned in blueprint
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUDHeliInfo")
+	TSubclassOf<class UUserWidget> HeliHudWidgetTemplate; // assigned in blueprint
 
 	// heli hud widget
 	//UUserWidget *HeliHudWidget; // that's ok, but
@@ -61,11 +61,11 @@ public:
 	*                                      Scoreboard                                      *
 	****************************************************************************************/
 	// Reference UMG Asset in the Editor
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Scoreboard)
-		TSubclassOf<class UUserWidget> ScoreboardWidgetTemplate; // assigned in blueprint
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scoreboard")
+	TSubclassOf<class UUserWidget> ScoreboardWidgetTemplate; // assigned in blueprint
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InGameMenu)
-		TSubclassOf<class UUserWidget> InGameMenuWidgetTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InGameMenu")
+	TSubclassOf<class UUserWidget> InGameMenuWidgetTemplate;
 
 	TWeakObjectPtr<UUserWidget> ScoreboardWidget;
 
@@ -104,11 +104,11 @@ private:
 protected:
 	/** Large font - used for ammo display etc. */
 	UPROPERTY()
-		UFont* BigFont;
+	UFont* BigFont;
 
 	/** Normal font - used for death messages and such. */
 	UPROPERTY()
-		UFont* NormalFont;
+	UFont* NormalFont;
 
 	/************************************************************************ /
 	/*                             Crosshair                                */
@@ -119,13 +119,13 @@ protected:
 
 	/** Crosshair icons (left, top, right, bottom and center). */
 	UPROPERTY()
-		FCanvasIcon Crosshair[5];
+	FCanvasIcon Crosshair[5];
 
 	FCanvasIcon CenterDotIcon;
 
 	/** On crosshair indicator that we hit someone. */
 	UPROPERTY()
-		FCanvasIcon HitNotifyCrosshair;
+	FCanvasIcon HitNotifyCrosshair;
 
 	/** Draws weapon crosshair. */
 	void DrawCrosshair();
@@ -136,8 +136,8 @@ protected:
 	float LastEnemyHitTime;
 
 	/** How long till enemy hit notify fades out completely. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Crosshair, meta = (AllowPrivateAccess = "true"))
-		float LastEnemyHitDisplayTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crosshair", meta = (AllowPrivateAccess = "true"))
+	float LastEnemyHitDisplayTime;
 
 
 	/************************************************************************ /

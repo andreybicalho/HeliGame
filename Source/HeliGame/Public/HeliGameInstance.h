@@ -55,25 +55,25 @@ struct FServerEntry
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(BlueprintReadWrite, Category = ServerInfo)
+	UPROPERTY(BlueprintReadWrite, Category = "ServerInfo")
 	FString ServerName;
 	
-	UPROPERTY(BlueprintReadWrite, Category = ServerInfo)
+	UPROPERTY(BlueprintReadWrite, Category = "ServerInfo")
 	FString CurrentPlayers;
 	
-	UPROPERTY(BlueprintReadWrite, Category = ServerInfo)
+	UPROPERTY(BlueprintReadWrite, Category = "ServerInfo")
 	FString MaxPlayers;
 	
-	UPROPERTY(BlueprintReadWrite, Category = ServerInfo)
+	UPROPERTY(BlueprintReadWrite, Category = "ServerInfo")
 	FString GameType;
 	
-	UPROPERTY(BlueprintReadWrite, Category = ServerInfo)
+	UPROPERTY(BlueprintReadWrite, Category = "ServerInfo")
 	FString MapName;
 	
-	UPROPERTY(BlueprintReadWrite, Category = ServerInfo)
+	UPROPERTY(BlueprintReadWrite, Category = "ServerInfo")
 	FString Ping;
 	
-	UPROPERTY(BlueprintReadWrite, Category = ServerInfo)
+	UPROPERTY(BlueprintReadWrite, Category = "ServerInfo")
 	int32 SearchResultsIndex;
 
 	FServerEntry()
@@ -110,11 +110,11 @@ struct FTeamPlayer
 	GENERATED_USTRUCT_BODY()
 
 	/** The team the player belongs to */
-	UPROPERTY(BlueprintReadWrite, Category = ScoreBoardInfo)
+	UPROPERTY(BlueprintReadWrite, Category = "ScoreBoardInfo")
 		uint8 TeamNum;
 
 	/** The number within that team */
-	UPROPERTY(BlueprintReadWrite, Category = ScoreBoardInfo)
+	UPROPERTY(BlueprintReadWrite, Category = "ScoreBoardInfo")
 		int32 PlayerId;
 
 	/** defaults */
@@ -152,23 +152,23 @@ class HELIGAME_API UHeliGameInstance : public UGameInstance
 	GENERATED_BODY()
 	
 	// Reference UMG Asset in the Editor
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UiMenu, meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<class UUserWidget> MainMenuWidgetTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UiMenu", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> MainMenuWidgetTemplate;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UiMenu, meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<class UUserWidget> LoadingScreenWidgetTemplate;	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UiMenu", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> LoadingScreenWidgetTemplate;	
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UiMenu, meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<class UUserWidget> HostingMenuWidgetTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UiMenu", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> HostingMenuWidgetTemplate;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UiMenu, meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<class UUserWidget> FindServerMenuWidgetTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UiMenu", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> FindServerMenuWidgetTemplate;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UiMenu, meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<class UUserWidget> OptionsMenuWidgetTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UiMenu", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> OptionsMenuWidgetTemplate;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UiMenu, meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<class UUserWidget> LobbyMenuWidgetTemplate; 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UiMenu", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> LobbyMenuWidgetTemplate; 
 
 	
 public:
@@ -176,7 +176,7 @@ public:
 
 	bool Tick(float DeltaSeconds);
 
-	UFUNCTION(BlueprintCallable, Category = GameSession)
+	UFUNCTION(BlueprintCallable, Category = "GameSession")
 	AHeliGameSession* GetGameSession() const;
 
 	virtual void Init() override;
@@ -195,63 +195,63 @@ public:
 
 
 	/** host a team death match game, to be called via blueprint, it will call HostGame(ULocalPlayer* LocalPlayer, const FString& GameType, const FString& InTravelURL)*/
-	UFUNCTION(BlueprintCallable, Category = GameType)
-		void HostTeamDeathMatch(ULocalPlayer* LocalPlayer, EHeliMap SelectedMap);
+	UFUNCTION(BlueprintCallable, Category = "GameType")
+	void HostTeamDeathMatch(ULocalPlayer* LocalPlayer, EHeliMap SelectedMap);
 
 	/* host a lobby for players to join */
-	UFUNCTION(BlueprintCallable, Category = GameType)
-		void HostLobby(ULocalPlayer* LocalPlayer);
+	UFUNCTION(BlueprintCallable, Category = "GameType")
+	void HostLobby(ULocalPlayer* LocalPlayer);
 
-	UFUNCTION(BlueprintCallable, Category = GameType)
-		void BegingTeamDeathmatch(EHeliMap SelectedMap);
+	UFUNCTION(BlueprintCallable, Category = "GameType")
+	void BegingTeamDeathmatch(EHeliMap SelectedMap);
 
-	UFUNCTION(BlueprintCallable, Category = PlayerSettings)
-		void SwitchTeam();
+	UFUNCTION(BlueprintCallable, Category = "PlayerSettings")
+	void SwitchTeam();
 
-	UFUNCTION(BlueprintCallable, Category = GameType)
-		void EndRoundAndRestartMatch();
+	UFUNCTION(BlueprintCallable, Category = "GameType")
+	void EndRoundAndRestartMatch();
 
-	UFUNCTION(BlueprintCallable, Category = GameType)
-		void EndRoundAndGoToLobby();
+	UFUNCTION(BlueprintCallable, Category = "GameType")
+	void EndRoundAndGoToLobby();
 
 
-	UFUNCTION(BlueprintCallable, Category = ServerInfo)
+	UFUNCTION(BlueprintCallable, Category = "ServerInfo")
 	void BeginServerSearch(ULocalPlayer* PlayerOwner, bool bLANMatch);
 
-	UFUNCTION(BlueprintCallable, Category = ServerInfo)
+	UFUNCTION(BlueprintCallable, Category = "ServerInfo")
 	void JoinFromServerList(ULocalPlayer* LocalPlayer, FServerEntry Server);
 
 	/* updates current session settings */
-	UFUNCTION(BlueprintCallable, Category = GameType)
-		bool UpdateSessionSettings(ULocalPlayer* LocalPlayer, const FString& GameType, FName SessionName, const FString& MapName, FName CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
+	UFUNCTION(BlueprintCallable, Category = "GameType")
+	bool UpdateSessionSettings(ULocalPlayer* LocalPlayer, const FString& GameType, FName SessionName, const FString& MapName, FName CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
 
 
 	/** Travel directly to the named session */
 	void TravelToSession(const FName& SessionName);
 
 	/** Begin a hosted quick match */
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
 	void BeginHostingQuickMatch();
 
 	/** Initiates the session searching */
 	bool FindSessions(ULocalPlayer* PlayerOwner, bool bLANMatch);
 
 	// keep some servers info for displaying it in a UMG Widget
-	UPROPERTY(BlueprintReadWrite, Category = ServerInfo)
+	UPROPERTY(BlueprintReadWrite, Category = "ServerInfo")
 	TArray<FServerEntry> AvailableServers;
 
-	UPROPERTY(BlueprintReadWrite, Category = ServerInfo)
+	UPROPERTY(BlueprintReadWrite, Category = "ServerInfo")
 	bool IsInSearchingServerProcess;
 
 	/** Sends the game to the specified state. */
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
 	void GotoState(EHeliGameInstanceState NewState);
 
 	/** Obtains the initial welcome state, which can be different based on platform */	
 	EHeliGameInstanceState GetInitialState();
 
 	/** Sends the game to the initial startup/frontend state  */
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
 	void GotoInitialState();
 
 
@@ -262,11 +262,11 @@ public:
 	TSharedPtr< const FUniqueNetId > GetUniqueNetIdFromControllerId(const int ControllerId);
 
 	/** Returns true if the game is in online mode */
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
 	bool GetIsOnline() const { return bIsOnline; }
 
 	/** Sets the online mode of the game */
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
 	void SetIsOnline(bool bInIsOnline);
 
 	/** Sets the controller to ignore for pairing changes. Useful when we are showing external UI for manual profile switching. */
@@ -295,81 +295,81 @@ public:
 	/** Show approved dialogs for various privileges failures */
 	void DisplayOnlinePrivilegeFailureDialogs(const FUniqueNetId& UserId, EUserPrivileges::Type Privilege, uint32 PrivilegeResults);
 
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
 	EHeliGameInstanceState GetCurrentState();
 
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
 	void SetMaxNumberOfPlayers(int32 NewMaxNumberOfPlayers);
 
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
 	int32 GetMaxNumberOfPlayers();
 
-	UFUNCTION(BlueprintCallable, Category = LobbySettings)
+	UFUNCTION(BlueprintCallable, Category = "LobbySettings")
 	void SetSelectedMapName(const FString& NewMapName);
 
-	UFUNCTION(BlueprintCallable, Category = LobbySettings)
+	UFUNCTION(BlueprintCallable, Category = "LobbySettings")
 	void SetSelectedGameMode(const FString& NewGameMode);
 
 
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
 	void ShowLoadingScreen(const FString& NewLoadingMessage);
 
-	UPROPERTY(BlueprintReadWrite, Category = Loading)
+	UPROPERTY(BlueprintReadWrite, Category = "Loading")
 	FString LoadingMessage;
 
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
-		void StopLoadingScreen();
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
+	void StopLoadingScreen();
 
 
 	// will be sent to game mode in the AHeliGameMode::InitGame function
 	/** delay between first player login and starting match */
-	UPROPERTY(BlueprintReadWrite, Category = GameSettings)
-		int32 WarmupTime;
+	UPROPERTY(BlueprintReadWrite, Category = "GameSettings")
+	int32 WarmupTime;
 
 	/** match duration */
-	UPROPERTY(BlueprintReadWrite, Category = GameSettings)
-		int32 RoundTime;
+	UPROPERTY(BlueprintReadWrite, Category = "GameSettings")
+	int32 RoundTime;
 
-	UPROPERTY(BlueprintReadWrite, Category = GameSettings)
-		int32 TimeBetweenMatches;
+	UPROPERTY(BlueprintReadWrite, Category = "GameSettings")
+	int32 TimeBetweenMatches;
 
-	UPROPERTY(BlueprintReadWrite, Category = GameSettings)
-		FString CustomServerName;
+	UPROPERTY(BlueprintReadWrite, Category = "GameSettings")
+	FString CustomServerName;
 
-	UPROPERTY(BlueprintReadWrite, Category = GameSettings)
-		FString SelectedGameMode;
+	UPROPERTY(BlueprintReadWrite, Category = "GameSettings")
+	FString SelectedGameMode;
 
-	UPROPERTY(BlueprintReadWrite, Category = GameSettings)
-		FString SelectedMapName;
+	UPROPERTY(BlueprintReadWrite, Category = "GameSettings")
+	FString SelectedMapName;
 
-	UPROPERTY(BlueprintReadWrite, Category = PlayerSettings)
-		FString CustomPlayerName;
+	UPROPERTY(BlueprintReadWrite, Category = "PlayerSettings")
+	FString CustomPlayerName;
 
-	UPROPERTY(BlueprintReadWrite, Category = GameSettings)
-		int32 MaxNumberOfPlayers;
+	UPROPERTY(BlueprintReadWrite, Category = "GameSettings")
+	int32 MaxNumberOfPlayers;
 	
-	UPROPERTY(BlueprintReadWrite, Category = GameSettings)
-		bool bAllowFriendFireDamage;
+	UPROPERTY(BlueprintReadWrite, Category = "GameSettings")
+	bool bAllowFriendFireDamage;
 
 
 
 	// enum helpers
 	FString GetEHeliGameInstanceStateEnumAsString(EHeliGameInstanceState EnumValue);
 
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
-		FString GetEHeliMapEnumAsString(EHeliMap EnumValue);
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
+	FString GetEHeliMapEnumAsString(EHeliMap EnumValue);
 
-	UFUNCTION(BlueprintCallable, Category = GameInstanceState)
-		EHeliMap GetEHeliMapEnumValueFromString(const FString& EnumName);
+	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
+	EHeliMap GetEHeliMapEnumValueFromString(const FString& EnumName);
 
 private:
 	 
 
 	UPROPERTY(config)
-		FString WelcomeScreenMap;
+	FString WelcomeScreenMap;
 
 	UPROPERTY(config)
-		FString MainMenuMap;
+	FString MainMenuMap;
 		
 	EHeliGameInstanceState CurrentState;
 	EHeliGameInstanceState PendingState;
@@ -559,31 +559,31 @@ public:
 	*****************************************************************************************************/
 	// updates the ranked PlayerState map
 	// this function will be called from the score board widget inside the widget tick function
-	UFUNCTION(BlueprintCallable, Category = ScoreBoard)
+	UFUNCTION(BlueprintCallable, Category = "ScoreBoard")
 	void UpdatePlayerStateMaps();
 
 	// return the player state of the player which is in that ranked map, in order to allow access of player infos (name, team, kills, deaths, etc) in the blueprint row player widget
-	UFUNCTION(BlueprintCallable, Category = ScoreBoard)
-		AHeliPlayerState* GetPlayerStateFromPlayerInRankedPlayerMap(const FTeamPlayer& TeamPlayer) const;
+	UFUNCTION(BlueprintCallable, Category = "ScoreBoard")
+	AHeliPlayerState* GetPlayerStateFromPlayerInRankedPlayerMap(const FTeamPlayer& TeamPlayer) const;
 
 	// returns the number of teams in the ranked map
-	UFUNCTION(BlueprintCallable, Category = ScoreBoard)
-		uint8 GetNumberOfTeams();
+	UFUNCTION(BlueprintCallable, Category = "ScoreBoard")
+	uint8 GetNumberOfTeams();
 
 	// returns the number of players in a team in the ranked map
-	UFUNCTION(BlueprintCallable, Category = ScoreBoard)
-		int32 GetNumberOfPlayersInTeam(uint8 TeamNum);
+	UFUNCTION(BlueprintCallable, Category = "ScoreBoard")
+	int32 GetNumberOfPlayersInTeam(uint8 TeamNum);
 
 	// for checking whether we need to update the widget scoreboard
-	UPROPERTY(BlueprintReadWrite, Category = ScoreBoard)
-		bool bRequiresWidgetUpdate;
+	UPROPERTY(BlueprintReadWrite, Category = "ScoreBoard")
+	bool bRequiresWidgetUpdate;
 
 	/****************************************************************************************************
 	*                                              Lobby                                                *
 	*****************************************************************************************************/
-	UFUNCTION(BlueprintCallable, Category = Lobby)
-		void UpdatePlayerStateMapsForLobby();
+	UFUNCTION(BlueprintCallable, Category = "Lobby")
+	void UpdatePlayerStateMapsForLobby();
 
-	UPROPERTY(BlueprintReadWrite, Category = Lobby)
-		bool bShouldUpdateLobbyWidget;
+	UPROPERTY(BlueprintReadWrite, Category = "Lobby")
+	bool bShouldUpdateLobbyWidget;
 };

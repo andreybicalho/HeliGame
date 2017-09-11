@@ -17,9 +17,9 @@ public:
 	AHeliTeamStart(const FObjectInitializer& ObjectInitializer);
 
 	/** Which team can start at this point */
-	UPROPERTY(EditInstanceOnly, Category = Team)
+	UPROPERTY(EditInstanceOnly, Category = "Team")
 	int32 SpawnTeam;
 	
-	UPROPERTY(EditInstanceOnly, Category = Team)
+	UPROPERTY(EditInstanceOnly, Category = "Team")
 	bool isTaken;
 };

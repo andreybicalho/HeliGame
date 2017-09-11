@@ -11,27 +11,27 @@ struct FProjectileWeaponData
 	GENERATED_USTRUCT_BODY()
 
 	/** projectile class */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<class AHeliProjectile> ProjectileClass;
 
 	/** life time */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	float ProjectileLife;
 
 	/** damage at impact point */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponStat")
 	int32 ExplosionDamage;
 
 	/** radius of damage */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponStat")
 	float ExplosionRadius;
 
 	/** type of damage */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponStat")
 	TSubclassOf<UDamageType> DamageType;
 
 	/** weapon range */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponStat")
 	float WeaponRange;
 	
 
@@ -71,15 +71,15 @@ public:
 protected:
 
 	/** weapon config */
-	UPROPERTY(EditDefaultsOnly, Category = Config)
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	FProjectileWeaponData ProjectileConfig;
 
-		/** trail FX */
-	UPROPERTY(EditDefaultsOnly, Category=Effects)
+	/** trail FX */
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	UParticleSystem* TrailFX;
 
 	/** param name for beam target in trail FX */
-	UPROPERTY(EditDefaultsOnly, Category=Effects)
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	FName TrailTargetParam;
 
 	//////////////////////////////////////////////////////////////////////////

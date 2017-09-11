@@ -31,39 +31,39 @@ struct FWeaponData
 	GENERATED_USTRUCT_BODY()
 
 	/** infinite ammo for reloads */
-	UPROPERTY(EditDefaultsOnly, Category = Ammo)
+	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
 	bool bInfiniteAmmo;
 
 	/** infinite ammo in clip, no reload required */
-	UPROPERTY(EditDefaultsOnly, Category = Ammo)
+	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
 	bool bInfiniteClip;
 
 	/** max ammo */
-	UPROPERTY(EditDefaultsOnly, Category = Ammo)
+	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
 	int32 MaxAmmo = 400;
 
 	/** clip size */
-	UPROPERTY(EditDefaultsOnly, Category = Ammo)
+	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
 	int32 AmmoPerClip = 100;
 
 	/** initial clips */
-	UPROPERTY(EditDefaultsOnly, Category = Ammo)
+	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
 	int32 InitialClips;
 
 	/** time between two consecutive shots */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponStat")
 	float TimeBetweenShots = 0.05f;
 
 	/** failsafe reload duration if weapon doesn't have any animation for it */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponStat")
 	float NoAnimReloadDuration = 1.f;
 
 	/** name of bone/socket for muzzle in weapon mesh */
-	UPROPERTY(EditDefaultsOnly, Category = Effects)
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	FName MuzzleAttachPoint;
 
 	/** type of weapon in the game (primary or secondary) */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponStat")
 	bool bPrimaryWeapon;
 
 
@@ -90,11 +90,11 @@ class HELIGAME_API AWeapon : public AActor
 	GENERATED_BODY()
 
 	/** arrow to show weapon directions on blueprint viewport*/
-	UPROPERTY(Category = Weapon, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Weapon", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UArrowComponent* WeaponArrow;
 
 	/** weapon mesh: 1st person view */
-	UPROPERTY(Category = Weapon, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Weapon", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* Mesh1P;
 
 public:
@@ -162,15 +162,15 @@ public:
 	EWeaponState::Type GetCurrentState() const;
 
 	/** get current ammo amount (total) */
-	UFUNCTION(BlueprintCallable, Category = WeaponConfig)
+	UFUNCTION(BlueprintCallable, Category = "WeaponConfig")
 	int32 GetCurrentAmmo() const;
 
 	/** get current ammo amount (clip) */
-	UFUNCTION(BlueprintCallable, Category = WeaponConfig)
+	UFUNCTION(BlueprintCallable, Category = "WeaponConfig")
 	int32 GetCurrentAmmoInClip() const;
 
 	/** get clip size */
-	UFUNCTION(BlueprintCallable, Category = WeaponConfig)
+	UFUNCTION(BlueprintCallable, Category = "WeaponConfig")
 	int32 GetAmmoPerClip() const;
 
 	/** get max ammo amount */
@@ -181,11 +181,11 @@ public:
 	class AHelicopter* GetPawnOwner() const;
 
 	/** check if weapon has infinite ammo (include owner's cheats) */
-	UFUNCTION(BlueprintCallable, Category = WeaponConfig)
+	UFUNCTION(BlueprintCallable, Category = "WeaponConfig")
 	bool HasInfiniteAmmo() const;
 
 	/** check if weapon has infinite clip (include owner's cheats) */
-	UFUNCTION(BlueprintCallable, Category = WeaponConfig)
+	UFUNCTION(BlueprintCallable, Category = "WeaponConfig")
 	bool HasInfiniteClip() const;
 
 	/** set the weapon's owning pawn */
@@ -205,7 +205,7 @@ protected:
 	class AHelicopter* MyPawn;
 
 	/** weapon data */
-	UPROPERTY(EditDefaultsOnly, Category = Config)
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	FWeaponData WeaponConfig;
 
 	/** current weapon state */
@@ -252,7 +252,7 @@ protected:
 	FTimerHandle TimerHandle_HandleFiring;
 
 	/** FX for muzzle flash */
-	UPROPERTY(EditDefaultsOnly, Category = Effects)
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	UParticleSystem* MuzzleFX;
 
 	/** spawned component for muzzle FX */
@@ -309,16 +309,16 @@ protected:
 	UAudioComponent* FireAC;
 
 	/** looped fire sound */
-	UPROPERTY(EditDefaultsOnly, Category = Sound)
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundCue* FireLoopSound;
 
 	/** finished burst sound */
-	UPROPERTY(EditDefaultsOnly, Category = Sound)
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundCue* FireFinishSound;
 
 	// camera shaking
 	/** camera shake on firing */
-	UPROPERTY(EditDefaultsOnly, Category = Effects)
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TSubclassOf<UCameraShake> FireCameraShake;
 
 	//////////////////////////////////////////////////////////////////////////

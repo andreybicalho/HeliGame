@@ -24,28 +24,28 @@ public:
 
 	/* FX spawned on standard materials */
 	UPROPERTY(EditDefaultsOnly)
-		UParticleSystem* DefaultFX;
+	UParticleSystem* DefaultFX;
 
 	UPROPERTY(EditDefaultsOnly)
-		UParticleSystem* HeliFuselageFX;
+	UParticleSystem* HeliFuselageFX;
 
 	UPROPERTY(EditDefaultsOnly)
-		UParticleSystem* HeliCockpitFX;
+	UParticleSystem* HeliCockpitFX;
 
 	UPROPERTY(EditDefaultsOnly)
-		USoundCue* DefaultSound;
+	USoundCue* DefaultSound;
 
 	UPROPERTY(EditDefaultsOnly)
-		USoundCue* HeliFuselageSound;
+	USoundCue* HeliFuselageSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Decal")
-		UMaterial* DecalMaterial;
+	UMaterial* DecalMaterial;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Decal")
-		float DecalSize;
+	float DecalSize;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Decal")
-		float DecalLifeSpan;
+	float DecalLifeSpan;
 
 	FHitResult SurfaceHit;
 

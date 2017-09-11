@@ -88,7 +88,7 @@ class HELIGAME_API UHeliMovementComponent : public UPawnMovementComponent
 	/*
 		Thrust
 	*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings", meta = (AllowPrivateAccess = "true"))
 	float BaseThrust = 1.f;
 
 	FVector ComputeThrust(UPrimitiveComponent* BaseComp, float InThrust);

@@ -11,9 +11,9 @@ class HELIGAME_API AHeliProjectile : public AActor
 {
 	GENERATED_BODY()
 
-		/** FX projectile, it will be it's representation in the world */
-		UPROPERTY(Category = Effects, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-		UParticleSystemComponent* ProjectileFX;
+	/** FX projectile, it will be it's representation in the world */
+	UPROPERTY(Category = "Effects", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UParticleSystemComponent* ProjectileFX;
 
 public:
 	// Sets default values for this actor's properties
@@ -27,20 +27,20 @@ public:
 
 	/** handle hit */
 	UFUNCTION()
-		void OnImpact(const FHitResult& HitResult);
+	void OnImpact(const FHitResult& HitResult);
 
 private:
 	/** movement component */
-	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
-		UProjectileMovementComponent* MovementComp;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
+	UProjectileMovementComponent* MovementComp;
 
 	/** collisions */
-	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
-		USphereComponent* CollisionComp;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
+	USphereComponent* CollisionComp;
 
 	/* Particle FX played when a surface is hit. */
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<class AImpactEffect> ImpactTemplate;
+	TSubclassOf<class AImpactEffect> ImpactTemplate;
 
 protected:
 	/** controller that fired me (cache for damage calculations) */
@@ -51,11 +51,11 @@ protected:
 
 	/** did it explode? */
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_Exploded)
-		bool bExploded;
+	bool bExploded;
 
 	/** [client] explosion happened */
 	UFUNCTION()
-		void OnRep_Exploded();
+	void OnRep_Exploded();
 
 	/** trigger explosion */
 	void Explode(const FHitResult& Impact);

@@ -117,7 +117,7 @@ class HELIGAME_API AHelicopter : public APawn
 	*/
 
 	/** StaticMesh component that will be the visuals for our flying pawn */
-	UPROPERTY(Category = Mesh, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Mesh", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* HeliMeshComponent;
 
 
@@ -132,7 +132,7 @@ class HELIGAME_API AHelicopter : public APawn
 	void OnCrashImpact(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	// Server should apply damage
-	UFUNCTION(Reliable, Server, WithValidation, Category = CrashImpact)
+	UFUNCTION(Reliable, Server, WithValidation, Category = "CrashImpact")
 	void Server_CrashImpactTakeDamage(float Damage);
 
 	/* Time handler to restore controls after crashing */
@@ -140,10 +140,10 @@ class HELIGAME_API AHelicopter : public APawn
 
 	void RestoreControlsAfterCrashImpact();
 
-	UPROPERTY(EditDefaultsOnly, Category = CrashImpact, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "CrashImpact", meta = (AllowPrivateAccess = "true"))
 	float RestoreControlsDelay = 2.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = CrashImpact, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "CrashImpact", meta = (AllowPrivateAccess = "true"))
 	float CrashImpactDamageThreshold = 0.1f;
 
 	void CrashControls();
@@ -165,23 +165,23 @@ class HELIGAME_API AHelicopter : public APawn
 	FTimerHandle RotorAnimTimerHandle;
 
 	// max speed of the main and tail rotors
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RotorAnimation, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RotorAnimation", meta = (AllowPrivateAccess = "true"))
 	float RotorMaxSpeed;
 
 	// max time to wait to apply rotation onto the rotors
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RotorAnimation, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RotorAnimation", meta = (AllowPrivateAccess = "true"))
 	float MaxTimeRotorAnimation;
 
-	UPROPERTY(Category = Mesh, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Mesh", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* MainRotorMeshComponent = nullptr;
 
-	UPROPERTY(Category = Mesh, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Mesh", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* TailRotorMeshComponent = nullptr;
 
-	UPROPERTY(Category = Mesh, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Mesh", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FName MainRotorAttachSocketName = TEXT("MainRotorSocket");
 
-	UPROPERTY(Category = Mesh, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Mesh", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FName TailRotorAttachSocketName = TEXT("TailRotorSocket");
 
 
@@ -189,15 +189,15 @@ class HELIGAME_API AHelicopter : public APawn
 		Movement Component
 	*/
 
-	UPROPERTY(Category = MovementSettings, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "MovementSettings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UPawnMovementComponent* HeliMovementComponent = nullptr;
 
 	// mouse sensitivity
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings", meta = (AllowPrivateAccess = "true"))
 	float MouseSensitivity = 1.f;
 
 	// keyboard sensitivity
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings", meta = (AllowPrivateAccess = "true"))
 	float KeyboardSensitivity = 1.f;
 
 
@@ -206,15 +206,15 @@ class HELIGAME_API AHelicopter : public APawn
 	*/
 
 	/** Spring arm that will offset the first person viewpoint for the camera */
-	UPROPERTY(Category = Camera, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Camera", EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArmFirstPerson;
 
 	/** Spring arm that will offset the third person viewpoint for the camera */
-	UPROPERTY(Category = Camera, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Camera", EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArmThirdPerson;
 
 	/** Camera component */
-	UPROPERTY(Category = Camera, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Camera", EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
 
 
@@ -223,7 +223,7 @@ class HELIGAME_API AHelicopter : public APawn
 	*/
 	
 	/** socket or bone name for attaching Primary weapon mesh */
-	UPROPERTY(Category = Weapon, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Weapon", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FName PrimaryWeaponAttachPoint;
 
 
@@ -235,23 +235,23 @@ class HELIGAME_API AHelicopter : public APawn
 	float Throttle;
 
 	// for using in widget blueprints
-	UFUNCTION(BlueprintCallable, Category = HUDInfo)
+	UFUNCTION(BlueprintCallable, Category = "HUDInfo")
 	float GetThrottle();
 
 	// base throttle value to display in hud
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUDInfo, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUDInfo", meta = (AllowPrivateAccess = "true"))
 	float BaseThrottle;
 
 	// minimum throttle value to display in hud
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUDInfo, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUDInfo", meta = (AllowPrivateAccess = "true"))
 	float MinThrottle;
 
 	// update time for the throttle display info
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUDInfo, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUDInfo", meta = (AllowPrivateAccess = "true"))
 	float RefreshThrottleTime;
 
 	// minimum throttle increasing and decreasing step
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUDInfo, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUDInfo", meta = (AllowPrivateAccess = "true"))
 	float MinThrottleIncreasingDecreasingStep;
 
 	/* Handle to manage the timer for the hud display throttle info */
@@ -273,21 +273,21 @@ class HELIGAME_API AHelicopter : public APawn
 	*/
 	
 	/** Main rotor loop sound cue */
-	UPROPERTY(Category = HelicopterSound, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "HelicopterSound", EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	class USoundCue* MainRotorLoopSound;
 	
 	/** Play Heli sounds */
 	UAudioComponent*  PlayHeliSound(USoundCue* Sound);
 	
 	// heli audio component
-	UPROPERTY(BlueprintReadWrite, Category = HelicopterSound, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, Category = "HelicopterSound", meta = (AllowPrivateAccess = "true"))
 	UAudioComponent* HeliAC;
 
 	// max pitch for rotor sound
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HelicopterSound, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HelicopterSound", meta = (AllowPrivateAccess = "true"))
 	float MaxRotorPitch;
 	// min pitch for rotor sound
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HelicopterSound, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HelicopterSound", meta = (AllowPrivateAccess = "true"))
 	float MinRotorPitch;
 
 
@@ -295,25 +295,25 @@ class HELIGAME_API AHelicopter : public APawn
 		Health Regen
 	*/
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = HealthSettings, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
 	float MaxHealth;
 
-	UFUNCTION(Reliable, Server, WithValidation, BlueprintCallable, Category = RepairSettings)
+	UFUNCTION(Reliable, Server, WithValidation, BlueprintCallable, Category = "RepairSettings")
 	void Server_AddHealth(float Value);
 
 	void HandleRepairing();
 
-	UPROPERTY(EditDefaultsOnly, Category = HealthSettings, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
 	float MinRestoreHealthValue;
 
 	FTimerHandle TimerHandle_RestoreHealth;
 
-	UPROPERTY(EditDefaultsOnly, Category = HealthSettings, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
 	float HealthRegenRate;
 
 	float LastHealedTime;
 
-	UPROPERTY(EditDefaultsOnly, Category = HealthSettings, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
 	float RepairVelocityThreshould;
 	
 public:
@@ -357,7 +357,7 @@ public:
 	*/
 
 	/** default weapon to spawn on begin play function */
-	UPROPERTY(EditDefaultsOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<class AWeapon>  DefaultPrimaryWeaponToSpawn;	
 
 	/** get Primary weapon attach point */
@@ -373,7 +373,7 @@ public:
 	class AWeapon* CurrentWeapon;
 
 	// actor can have a lot of weapons, but it can uses only one at a time
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	AWeapon* GetCurrentWeaponEquiped();
 
 	/* OnRep functions can use a parameter to hold the previous value of the variable. Very useful when you need to handle UnEquip etc. */
@@ -437,7 +437,7 @@ protected:
 	*/
 
 	// Current health
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = HealthSettings, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
 	float Health;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
@@ -446,7 +446,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundCue* DeathExplosionSound;
 
-	UPROPERTY(EditDefaultsOnly, Category = Effects)
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	UParticleSystem* DeathExplosionFX;
 
 	/* Holds hit data to replicate hits and death to clients */

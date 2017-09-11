@@ -59,11 +59,11 @@ public:
 	UPROPERTY(Transient, Replicated)
 	float Level;
 
-	UPROPERTY(Transient, Replicated, BlueprintReadWrite, Category = PlayerStatus)
+	UPROPERTY(Transient, Replicated, BlueprintReadWrite, Category = "PlayerStatus")
 	bool bDead;
 	
 	/* tell whether the player is ready or not*/
-	UPROPERTY(Category = PlayerStatus, EditAnywhere, BlueprintReadWrite, Transient, Replicated)
+	UPROPERTY(Category = "PlayerStatus", EditAnywhere, BlueprintReadWrite, Transient, Replicated)
 	bool bPlayerReady;
 
 	/* Copy properties when travelling player */
@@ -134,7 +134,7 @@ public:
 	bool IsQuitter() const;
 
 	// RPC for the Server tell clients they should update lobby widget
-	UFUNCTION(Reliable, Client, BlueprintCallable, Category = Lobby)
+	UFUNCTION(Reliable, Client, BlueprintCallable, Category = "Lobby")
 	void Client_UpdateLobbyWidget();
 
 	// RPC for clients tell the server that other players should update theirs Lobby Widget
@@ -149,7 +149,7 @@ public:
 	void Server_SwitchTeams();
 
 	// Clients tell the server they are ready to play
-	UFUNCTION(Reliable, Server, WithValidation, BlueprintCallable, Category = Lobby)
+	UFUNCTION(Reliable, Server, WithValidation, BlueprintCallable, Category = "Lobby")
 	void Server_SetPlayerReady(bool bNewPlayerReady);
 
 private:

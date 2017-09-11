@@ -100,7 +100,7 @@ public:
 	*/
 	virtual void GameHasEnded(class AActor* EndGameFocus = NULL, bool bIsWinner = false) override;
 
-	UFUNCTION(BlueprintCallable, Category = Inputs)
+	UFUNCTION(BlueprintCallable, Category = "Inputs")
 	void SetAllowGameActions(bool bNewAllowGameActions);
 
 	UFUNCTION(Reliable, Client)
@@ -129,7 +129,7 @@ protected:
 	void ClientReturnToMainMenu_Implementation(const FString& ReturnReason) override;	
 
 	/** Causes the player to commit suicide */
-	UFUNCTION(BlueprintCallable, exec, Category = Inputs)
+	UFUNCTION(BlueprintCallable, exec, Category = "Inputs")
 	virtual void Suicide();
 
 	/** Notifies the server that the client has suicided */
