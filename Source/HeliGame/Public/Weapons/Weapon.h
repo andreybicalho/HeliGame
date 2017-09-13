@@ -341,10 +341,9 @@ protected:
 	FVector GetCrossHairLocationIn3DSpace();
 
 	/** Get the aim of the weapon, allowing for adjustments to be made by the weapon */
-	virtual FVector GetAdjustedAim() const;
+	virtual FVector GetAimFromViewpoint() const;
 
-	/** Get the aim of the camera */
-	FVector GetCameraAim() const;
+	void GetAimViewpoint(FVector& out_Location, FVector& out_Rotation) const;
 
 	/** get the originating location for camera damage */
 	FVector GetCameraDamageStartLocation(const FVector& AimDir) const;

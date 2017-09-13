@@ -76,6 +76,19 @@ void AHeliProjectile::OnImpact(const FHitResult& HitResult)
 
 		DisableAndDestroy();
 	}
+
+	if(bShowImpactPoint)
+	{ 
+		DrawDebugSphere(
+			GetWorld(),
+			HitResult.Location,
+			24,
+			8,
+			FColor(255, 0, 0),
+			false,
+			15.0f
+		);
+	}
 }
 
 void AHeliProjectile::SpawnImpactEffects(const FHitResult& Impact)

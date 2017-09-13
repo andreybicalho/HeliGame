@@ -77,8 +77,13 @@ class HELIGAME_API UHeliMovementComponent : public UPawnMovementComponent
 		Lift
 	*/
 
+	/** Whether to apply lift. Lift will be computed based on gravity and actor inclination regarded the actor UpVector. */
 	UPROPERTY(Category = "6DoFPhysics", EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool bAddLift;
+
+	/** Percentage of the gravityZ used for lift */
+	UPROPERTY(Category = "6DoFPhysics", EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	float GravityWeight;
 
 	FVector ComputeLift(UPrimitiveComponent* BaseComp);
 

@@ -19,6 +19,7 @@ UHeliMovementComponent::UHeliMovementComponent(const FObjectInitializer& ObjectI
 	bUseAddForceForThrust = true;
 
 	bAddLift = true;
+	GravityWeight = 1.f;
 
 	BaseThrust = 10000.f;
 
@@ -144,7 +145,7 @@ FVector UHeliMovementComponent::ComputeLift(UPrimitiveComponent* BaseComp)
 
 	if (BaseComp && BaseComp->IsSimulatingPhysics())
 	{
-		float GravityAcceleration = FMath::Abs(GetGravityZ());
+		float GravityAcceleration = FMath::Abs(GetGravityZ()) * GravityWeight;
 
 		float InclinationAngle = FVector::DotProduct(FVector::UpVector, BaseComp->GetForwardVector());
 		float TiltAngle = FVector::DotProduct(FVector::UpVector, BaseComp->GetRightVector());

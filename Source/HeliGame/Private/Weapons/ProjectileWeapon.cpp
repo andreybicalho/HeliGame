@@ -22,86 +22,44 @@ void AProjectileWeapon::FireWeapon()
 
 	if(MyPawn->IsFirstPersonView())
 	{
-		ShootDir = GetFirstPersonShootDirection(Origin);
+		ShootDir = GetAdjustedShootDirectionForFirstPersonView();
 	}
-	
-	//UE_LOG(LogHeliWeapon, Log, TEXT("Impact.ImpactPoint = %s"), *Impact.ImpactPoint.ToString());
-	//UE_LOG(LogHeliWeapon, Log, TEXT("Impact.Location = %s"), *Impact.Location.ToString());
 
-	// debug line - from weapon location to aim point
-	/*DrawDebugLine(
-		GetWorld(),
-		Origin,
-		ShootDir * ProjectileAdjustRange,
-		FColor(0, 255, 0),
-		true, -1, 0,
-		12.333
-	);*/
+	if (bShowShotDirection)
+	{
+		DrawDebugLine(
+			GetWorld(),
+			GetMuzzleLocation(),
+			GetMuzzleLocation() + (ShootDir * ProjectileConfig.WeaponRange),
+			FColor(0, 0, 255),
+			false,
+			15.f,
+			0,
+			12.333
+		);
+	}
 
 	// Server spawn the projectile
-	ServerFireProjectile(Origin, ShootDir);	
+	ServerFireProjectile(Origin, ShootDir);
 }
 
-FVector AProjectileWeapon::GetFirstPersonShootDirection(FVector& Origin)
+FVector AProjectileWeapon::GetAdjustedShootDirectionForFirstPersonView()
 {
-	FVector ShootDir = GetAdjustedAim();
-
-	// trace from camera to check what's under crosshair
-	const float ProjectileAdjustRange = ProjectileConfig.WeaponRange;
-	const FVector StartTrace = GetCameraDamageStartLocation(ShootDir);
-	const FVector EndTrace = StartTrace + ShootDir * ProjectileAdjustRange;
+	FVector StartTrace;
+	FVector TraceDirection;
+	GetAimViewpoint(StartTrace, TraceDirection);
+	FVector EndTrace = StartTrace + (TraceDirection * ProjectileConfig.WeaponRange);
 	FHitResult Impact = WeaponTrace(StartTrace, EndTrace);
+
+	FVector AdjustedDir = GetActorForwardVector();
 
 	// and adjust directions to hit that actor
 	if (Impact.bBlockingHit)
 	{
-		const FVector AdjustedDir = (Impact.ImpactPoint - Origin).GetSafeNormal();
-		bool bWeaponPenetration = false;
-
-		const float DirectionDot = FVector::DotProduct(AdjustedDir, ShootDir);
-		if (DirectionDot < 0.0f)
-		{
-			// shooting backwards = weapon is penetrating
-			bWeaponPenetration = true;
-		}
-		else if (DirectionDot < 0.5f)
-		{
-			// check for weapon penetration if angle difference is big enough
-			// raycast along weapon mesh to check if there's blocking hit
-
-			FVector MuzzleStartTrace = Origin - GetMuzzleDirection() * 150.0f;
-			FVector MuzzleEndTrace = Origin;
-			FHitResult MuzzleImpact = WeaponTrace(MuzzleStartTrace, MuzzleEndTrace);
-
-			if (MuzzleImpact.bBlockingHit)
-			{
-				bWeaponPenetration = true;
-			}
-		}
-
-		if (bWeaponPenetration)
-		{
-			// spawn at crosshair position
-			//Origin = Impact.ImpactPoint - ShootDir * 10.0f;
-		}
-		else
-		{
-			// adjust direction to hit
-			ShootDir = AdjustedDir;
-		}
+		AdjustedDir = (Impact.Location - GetMuzzleLocation()).GetSafeNormal();
 	}
 
-	// debug line - from eye to aim point
-	/*DrawDebugLine(
-		GetWorld(),
-		StartTrace,
-		EndTrace,
-		FColor(255, 0, 0),
-		true, -1, 0,
-		12.333
-		);*/
-
-	return ShootDir;
+	return AdjustedDir;
 }
 
 bool AProjectileWeapon::ServerFireProjectile_Validate(FVector Origin, FVector_NetQuantizeNormal ShootDir)

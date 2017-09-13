@@ -76,6 +76,14 @@ protected:
 	/** find hit */
 	FHitResult Trace(const FVector& TraceFrom, const FVector& TraceTo) const;
 
+
+	/*
+	* Debuggers
+	*/
+
+	UPROPERTY(Category = "Debug", EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	bool bShowImpactPoint = false;
+
 protected:
 	/** Returns MovementComp subobject **/
 	FORCEINLINE UProjectileMovementComponent* GetMovementComp() const { return MovementComp; }

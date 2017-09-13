@@ -92,8 +92,8 @@ protected:
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerFireProjectile(FVector Origin, FVector_NetQuantizeNormal ShootDir);
 
-private:
-	FVector GetFirstPersonShootDirection(FVector& Origin);
+private:	
+	FVector GetAdjustedShootDirectionForFirstPersonView();
 
 	/** spawn trail effect */
 	void SpawnTrailEffect(const FVector& Origin, const FVector& ShootDir);
@@ -101,4 +101,13 @@ private:
 	/* spawn trail effects in all clients */
 	UFUNCTION(NetMulticast, Unreliable)
 	void Client_SpawnTrailEffect(const FVector& Origin, const FVector& ShootDir);
+
+
+
+	/*
+	* Debuggers
+	*/
+
+	UPROPERTY(Category = "Debug", EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	bool bShowShotDirection = false;
 };

@@ -533,6 +533,12 @@ FHitResult AWeapon::WeaponTrace(const FVector& TraceFrom, const FVector& TraceTo
 	FCollisionQueryParams TraceParams(TEXT("WeaponTrace"), true, Instigator);
 	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = true;
+	
+	// actors to ignore
+	TArray<TWeakObjectPtr<AActor>> IgnoredActors;
+	IgnoredActors.Add(Cast<AActor>(this));
+	IgnoredActors.Add(GetPawnOwner());
+	TraceParams.AddIgnoredActors(IgnoredActors);
 
 	FHitResult Hit(ForceInit);
 	GetWorld()->LineTraceSingleByChannel(Hit, TraceFrom, TraceTo, COLLISION_WEAPON, TraceParams);
@@ -657,7 +663,7 @@ void AWeapon::ReloadWeapon()
 
 FVector AWeapon::GetCameraDamageStartLocation(const FVector& AimDir) const
 {
-	AHeliPlayerController* PC = MyPawn ? Cast<AHeliPlayerController>(MyPawn->Controller) : NULL;
+	AHeliPlayerController* PC = MyPawn ? Cast<AHeliPlayerController>(MyPawn->Controller) : nullptr;
 	FVector OutStartTrace = FVector::ZeroVector;
 
 	if (PC)
@@ -673,11 +679,11 @@ FVector AWeapon::GetCameraDamageStartLocation(const FVector& AimDir) const
 	return OutStartTrace;
 }
 
-FVector AWeapon::GetCameraAim() const
+FVector AWeapon::GetAimFromViewpoint() const
 {
-	AHeliPlayerController* const PlayerController = MyPawn ? Cast<AHeliPlayerController>(MyPawn->GetController()) : NULL;
+	AHeliPlayerController* const PlayerController = MyPawn ? Cast<AHeliPlayerController>(MyPawn->GetController()) : nullptr;
 	FVector FinalAim = FVector::ZeroVector;
-
+	
 	if (PlayerController)
 	{
 		FVector CamLoc;
@@ -685,23 +691,22 @@ FVector AWeapon::GetCameraAim() const
 		PlayerController->GetPlayerViewPoint(CamLoc, CamRot);
 		FinalAim = CamRot.Vector();
 	}
+
 	return FinalAim;
 }
 
-FVector AWeapon::GetAdjustedAim() const
+void AWeapon::GetAimViewpoint(FVector& out_Location, FVector& out_Rotation) const
 {
-	AHeliPlayerController* const PlayerController = MyPawn ? Cast<AHeliPlayerController>(MyPawn->GetController()) : NULL;
+	AHeliPlayerController* const PlayerController = MyPawn ? Cast<AHeliPlayerController>(MyPawn->GetController()) : nullptr;
 	FVector FinalAim = FVector::ZeroVector;
-	// If we have a player controller use it for the aim
+
 	if (PlayerController)
 	{
-		FVector CamLoc;
 		FRotator CamRot;
-		PlayerController->GetPlayerViewPoint(CamLoc, CamRot);
-		FinalAim = CamRot.Vector();
+		PlayerController->GetPlayerViewPoint(out_Location, CamRot);
+		out_Rotation = CamRot.Vector();
 	}
 
-	return FinalAim;
 }
 
 
