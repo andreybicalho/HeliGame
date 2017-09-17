@@ -184,7 +184,6 @@ class HELIGAME_API AHelicopter : public APawn
 	UPROPERTY(Category = "Mesh", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FName TailRotorAttachSocketName = TEXT("TailRotorSocket");
 
-
 	/*
 		Movement Component
 	*/
@@ -314,7 +313,17 @@ class HELIGAME_API AHelicopter : public APawn
 	float LastHealedTime;
 
 	UPROPERTY(EditDefaultsOnly, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
-	float RepairVelocityThreshould;
+	float RepairVelocityThreshould;	
+
+	void SetTeamNumber();
+
+	UPROPERTY(Category = "HealthSettings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FName HealthBarSocketName = TEXT("HealthBarSocket");
+
+	UPROPERTY(Category = "HealthSettings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* HealthBarWidgetComponent;
+
+	void SetupHealthBar();
 	
 public:
 	AHelicopter(const FObjectInitializer& ObjectInitializer);
@@ -419,7 +428,13 @@ public:
 	/** Pawn suicide */
 	virtual void Suicide();	
 
+	float GetHealthPercent();
+
+	int32 GetTeamNumber();
+
 protected:
+	int32 TeamNumber;
+
 	/*
 	*	Weapons
 	*/

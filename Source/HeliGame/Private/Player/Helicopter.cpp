@@ -9,6 +9,9 @@
 #include "HeliHud.h"
 #include "HeliGameMode.h"
 #include "HeliProjectile.h"
+#include "HeliPlayerState.h"
+#include "Components/WidgetComponent.h"
+#include "HealthBarUserWidget.h"
 
 
 
@@ -67,7 +70,7 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	SpringArmFirstPerson->CameraRotationLagSpeed = 60.f;
 
 	SpringArmThirdPerson = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmThirdPerson"));
-	SpringArmThirdPerson->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);	
+	SpringArmThirdPerson->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	SpringArmThirdPerson->bInheritPitch = false;
 	SpringArmThirdPerson->bInheritYaw = true;
 	SpringArmThirdPerson->bInheritRoll = false;
@@ -131,6 +134,9 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	// crash impact settings
 	RestoreControlsDelay = 2.f;
 	CrashImpactDamageThreshold = 0.05f;
+
+	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
+	HealthBarWidgetComponent->AttachToComponent(HeliMeshComponent, FAttachmentTransformRules::KeepRelativeTransform, HealthBarSocketName);
 }
 
 /*
@@ -233,7 +239,7 @@ void AHelicopter::EnableFirstPersonViewpoint()
 }
 
 void AHelicopter::EnableThirdPersonViewpoint()
-{ 	
+{
 	if (!SpringArmThirdPerson->IsActive()) {
 		SpringArmFirstPerson->Deactivate();
 
@@ -247,7 +253,7 @@ void AHelicopter::SwitchCameraViewpoint()
 	if (SpringArmFirstPerson->IsActive())
 	{
 		EnableThirdPersonViewpoint();
-		DisableFirstPersonHud();		
+		DisableFirstPersonHud();
 	}
 	else {
 		EnableFirstPersonViewpoint();
@@ -274,11 +280,11 @@ void AHelicopter::SpawnDefaultPrimaryWeaponAndEquip()
 
 		AWeapon* PrimaryWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultPrimaryWeaponToSpawn);
 		EquipWeapon(PrimaryWeapon);
-	}		
+	}
 }
 
 void AHelicopter::DebugSomething()
-{	
+{
 }
 
 void AHelicopter::OnStartFire()
@@ -287,7 +293,7 @@ void AHelicopter::OnStartFire()
 	if (MyPC && MyPC->IsGameInputAllowed())
 	{
 		StartWeaponFire();
-	}	
+	}
 }
 
 void AHelicopter::OnStopFire()
@@ -304,7 +310,7 @@ void AHelicopter::ThrottleUpInput()
 	}
 
 	isThrottleReleased = false;
-	
+
 	GetWorld()->GetTimerManager().SetTimer(ThrottleDisplayTimerHandle, this, &AHelicopter::UpdatesThrottleForDisplayingAdd, RefreshThrottleTime, true);
 
 	if (HeliAC)
@@ -322,8 +328,8 @@ void AHelicopter::ThrottleDownInput()
 	}
 
 	isThrottleReleased = false;
-	
-	GetWorld()->GetTimerManager().SetTimer(ThrottleDisplayTimerHandle, this, &AHelicopter::UpdatesThrottleForDisplayingSub, RefreshThrottleTime, true);	
+
+	GetWorld()->GetTimerManager().SetTimer(ThrottleDisplayTimerHandle, this, &AHelicopter::UpdatesThrottleForDisplayingSub, RefreshThrottleTime, true);
 
 	if (HeliAC)
 	{
@@ -332,7 +338,7 @@ void AHelicopter::ThrottleDownInput()
 }
 
 void AHelicopter::ThrottleReleased()
-{			
+{
 
 	isThrottleReleased = true;
 
@@ -406,7 +412,7 @@ void AHelicopter::ApplyRotationOnRotors()
 
 		// add pitch rotation for the tail rotor
 		TailRotorMeshComponent->AddLocalRotation(FRotator(RotorMaxSpeed, 0, 0));
-	}	
+	}
 }
 
 void AHelicopter::DisableFirstPersonHud()
@@ -435,7 +441,7 @@ void AHelicopter::EnableFirstPersonHud()
 		}
 	}
 
-	if(SpringArmThirdPerson && SpringArmThirdPerson->IsActive())
+	if (SpringArmThirdPerson && SpringArmThirdPerson->IsActive())
 	{
 		SpringArmThirdPerson->Deactivate();
 		EnableFirstPersonViewpoint();
@@ -477,7 +483,7 @@ void AHelicopter::StopWeaponFire()
 void AHelicopter::OnRep_Weapon(AWeapon* LastWeapon)
 {
 	// NetworkInfo(FString(TEXT("OnRep_Weapon()")) );
-    // UE_LOG(LogHeliWeapon, Log, TEXT("OnRep_Weapon(AWeapon* LastWeapon) ---> CurrentWeapon is %s, LastWeapon is %s"), CurrentWeapon ? *FString(TEXT("valid")) : *FString(TEXT("NULL")), LastWeapon ? *FString(TEXT("valid")) : *FString(TEXT("NULL")) );
+	// UE_LOG(LogHeliWeapon, Log, TEXT("OnRep_Weapon(AWeapon* LastWeapon) ---> CurrentWeapon is %s, LastWeapon is %s"), CurrentWeapon ? *FString(TEXT("valid")) : *FString(TEXT("NULL")), LastWeapon ? *FString(TEXT("valid")) : *FString(TEXT("NULL")) );
 	SetWeapon(CurrentWeapon, LastWeapon);
 }
 
@@ -536,8 +542,8 @@ void AHelicopter::SetWeapon(class AWeapon* NewWeapon, class AWeapon* LastWeapon)
 	}
 
 	// CurrentWeapon will replicate
-	 CurrentWeapon = NewWeapon;
-	 // UE_LOG(LogHeliWeapon, Log, TEXT("AHelicopter::SetWeapon(...) --- > CurrentWeapon was set, CurrentWeapon will replicate."));
+	CurrentWeapon = NewWeapon;
+	// UE_LOG(LogHeliWeapon, Log, TEXT("AHelicopter::SetWeapon(...) --- > CurrentWeapon was set, CurrentWeapon will replicate."));
 
 	if (NewWeapon)
 	{
@@ -660,9 +666,9 @@ float AHelicopter::TakeDamage(float Damage, struct FDamageEvent const& DamageEve
 			APawn* Pawn = EventInstigator ? EventInstigator->GetPawn() : nullptr;
 			PlayHit(ActualDamage, DamageEvent, Pawn, DamageCauser, false);
 		}
-	}	
+	}
 
-	return ActualDamage; 
+	return ActualDamage;
 }
 
 
@@ -682,7 +688,7 @@ bool AHelicopter::CanDie(float KillingDamage, FDamageEvent const& DamageEvent, A
 }
 
 bool AHelicopter::Die(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser)
-{	
+{
 	if (!CanDie(KillingDamage, DamageEvent, Killer, DamageCauser))
 	{
 		return false;
@@ -693,11 +699,11 @@ bool AHelicopter::Die(float KillingDamage, FDamageEvent const& DamageEvent, ACon
 	/* Fallback to default DamageType if none is specified */
 	UDamageType const* const DamageType = DamageEvent.DamageTypeClass ? DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
 	Killer = GetDamageInstigator(Killer, *DamageType);
-	
+
 	/* Notify the gamemode we got killed for scoring and game over state */
 	AController* const KilledPlayer = Controller ? Controller : Cast<AController>(GetOwner());
 	GetWorld()->GetAuthGameMode<AHeliGameMode>()->Killed(Killer, KilledPlayer, this, DamageType);
-	
+
 
 	OnDeath(KillingDamage, DamageEvent, Killer ? Killer->GetPawn() : NULL, DamageCauser);
 	return true;
@@ -716,8 +722,8 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, 
 	Health = 0.0f;
 	//client will take authoritative control
 	bTearOff = true;
-	
-		
+
+
 	// hide meshes on game
 	HeliMeshComponent->SetVisibility(false);
 	MainRotorMeshComponent->SetVisibility(false);
@@ -735,15 +741,15 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, 
 	// turn off rotors anim
 	GetWorldTimerManager().ClearTimer(RotorAnimTimerHandle);
 	// turn sound off
-	HeliAC->Stop();	
-	
+	HeliAC->Stop();
+
 	// play sound and FX for death
-	PlayHit(KillingDamage, DamageEvent, PawnInstigator, DamageCauser, true);	
+	PlayHit(KillingDamage, DamageEvent, PawnInstigator, DamageCauser, true);
 
 	RemoveWeapons();
-	
+
 	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
-	if(MyPC)
+	if (MyPC)
 	{
 		// remove inputs
 		MyPC->SetIgnoreMoveInput(true);
@@ -759,15 +765,15 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, 
 		}
 	}
 
-	
+
 	AHeliGameMode* MyGameMode = Cast<AHeliGameMode>(GetWorld()->GetAuthGameMode());
 	if (MyGameMode && MyGameMode->IsImmediatelyPlayerRestartAllowedAfterDeath())
 	{
 		// destroy and restart the pawn immediately		
 		DetachFromControllerPendingDestroy();
 	}
-	
-	
+
+
 }
 
 void AHelicopter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser, bool bKilled)
@@ -777,7 +783,7 @@ void AHelicopter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEv
 		ReplicateHit(DamageTaken, DamageEvent, PawnInstigator, DamageCauser, bKilled);
 	}
 
-	
+
 	if (GetNetMode() != NM_DedicatedServer)
 	{
 		if (bKilled && DeathExplosionSound && DeathExplosionFX)
@@ -790,7 +796,7 @@ void AHelicopter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEv
 		else if (SoundTakeHit)
 		{
 			// sound
-			UGameplayStatics::SpawnSoundAttached(SoundTakeHit, RootComponent, NAME_None, FVector::ZeroVector, EAttachLocation::SnapToTarget, true);			
+			UGameplayStatics::SpawnSoundAttached(SoundTakeHit, RootComponent, NAME_None, FVector::ZeroVector, EAttachLocation::SnapToTarget, true);
 		}
 	}
 
@@ -845,9 +851,9 @@ void AHelicopter::OnCrashImpact(UPrimitiveComponent* HitComponent, AActor* Other
 	// TODO(andrey): 
 	// 1 - notify on HUD that controls are damaged
 	// 2 - impact crash sound
-	
+
 	float Damage = ComputeCrashImpactDamage();
-	
+
 	if (Damage >= (MaxHealth * CrashImpactDamageThreshold))
 	{
 		CrashControls();
@@ -870,7 +876,7 @@ void AHelicopter::CrashControls()
 		{
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle_RestoreControls, this, &AHelicopter::RestoreControlsAfterCrashImpact, RestoreControlsDelay, false);
 		}
-	}	
+	}
 
 	if (HeliAC)
 	{
@@ -879,7 +885,7 @@ void AHelicopter::CrashControls()
 }
 
 void AHelicopter::RestoreControlsAfterCrashImpact()
-{	
+{
 	UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
 	if (MovementComponent)
 	{
@@ -895,7 +901,7 @@ void AHelicopter::RestoreControlsAfterCrashImpact()
 }
 
 float AHelicopter::ComputeCrashImpactDamage()
-{	
+{
 	float ActualDamage = 0.f;
 
 	if (CrashImpactDamageCurve)
@@ -915,7 +921,7 @@ float AHelicopter::ComputeCrashImpactDamage()
 		//UE_LOG(LogTemp, Warning, TEXT("Inclination = %f   Tilt = %f   TiltInclinationWeight = %f   ImpactMomentum = %f   BaseDamage = %f   ActualDamage = %f"), InclinationAngle, TiltAngle, TiltInclinationWeight, ImpactMomentum, BaseDamage, ActualDamage);
 	}
 
-	
+
 	return ActualDamage;
 }
 
@@ -993,10 +999,41 @@ void AHelicopter::OnStopRepair()
 	GetWorldTimerManager().ClearTimer(TimerHandle_RestoreHealth);
 }
 
+float AHelicopter::GetHealthPercent()
+{
+	return Health / MaxHealth;
+}
 
+int32 AHelicopter::GetTeamNumber()
+{
+	return TeamNumber;
+}
 
+void AHelicopter::SetTeamNumber()
+{
+	AHeliPlayerController* HeliPlayerController = Cast<AHeliPlayerController>(Controller);
+	if (HeliPlayerController)
+	{
+		AHeliPlayerState* HeliPlayerState = Cast<AHeliPlayerState>(HeliPlayerController->PlayerState);
+		if (HeliPlayerState)
+		{
+			TeamNumber = HeliPlayerState->GetTeamNumber();
+		}
+	}
+}
 
-
+void AHelicopter::SetupHealthBar()
+{
+	// widget for health
+	if (HealthBarWidgetComponent)
+	{
+		UHealthBarUserWidget* HealthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
+		if (HealthBarUserWidget)
+		{
+			HealthBarUserWidget->SetOwningPawn(this);
+		}
+	}
+}
 
 
 
@@ -1031,7 +1068,7 @@ void AHelicopter::SetupPlayerInputComponent(class UInputComponent* HeliInputComp
 	InputComponent->BindAction("SwitchCam", IE_Pressed, this, &AHelicopter::SwitchCameraViewpoint);
 
 	// Repair
-	InputComponent->BindAction("Repair", IE_Pressed, this, &AHelicopter::OnStartRepair);	
+	InputComponent->BindAction("Repair", IE_Pressed, this, &AHelicopter::OnStartRepair);
 	InputComponent->BindAction("Repair", IE_Released, this, &AHelicopter::OnStopRepair);
 
 	// Fire
@@ -1060,7 +1097,7 @@ void AHelicopter::PostInitializeComponents()
 		HeliMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
 
-	if(HeliMovementComponent && !HeliMovementComponent->IsActive())
+	if (HeliMovementComponent && !HeliMovementComponent->IsActive())
 	{
 		HeliMovementComponent->SetActive(true);
 	}
@@ -1071,7 +1108,7 @@ void AHelicopter::PostInitializeComponents()
 		SpawnDefaultPrimaryWeaponAndEquip();
 
 		// set default health
-		Health = MaxHealth;		
+		Health = MaxHealth;
 	}
 
 }
@@ -1089,8 +1126,12 @@ void AHelicopter::BeginPlay()
 	if ((HeliAC == nullptr) || (HeliAC && !HeliAC->IsPlaying()))
 		HeliAC = PlayHeliSound(MainRotorLoopSound);
 
-	// 
-	EnableFirstPersonHud();	
+	EnableFirstPersonHud();
+
+	// set team number accordingly to the playerstate team number
+	SetTeamNumber();
+
+	SetupHealthBar();
 }
 
 
@@ -1123,10 +1164,10 @@ void AHelicopter::PawnClientRestart()
 void AHelicopter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
+
 	DOREPLIFETIME_CONDITION(AHelicopter, LastTakeHitInfo, COND_Custom);
-	
-	
+
+
 	// everyone
 	DOREPLIFETIME(AHelicopter, Health);
 	DOREPLIFETIME(AHelicopter, CurrentWeapon);
