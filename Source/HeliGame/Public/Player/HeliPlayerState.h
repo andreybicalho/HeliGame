@@ -26,12 +26,12 @@ class HELIGAME_API AHeliPlayerState : public APlayerState
 	virtual void ClientInitialize(class AController* InController) override;
 	
 	/* Team number assigned to player */
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_TeamColor)
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_TeamNumber)
 	int32 TeamNumber;
 
-	/** replicate team colors. Updated the players colors appropriately */
+	/** replicate team number. Updated the players colors appropriately */
 	UFUNCTION()
-	void OnRep_TeamColor();
+	void OnRep_TeamNumber();
 
 protected:
 	UPROPERTY(Transient, Replicated)
@@ -48,9 +48,6 @@ protected:
 
 	UPROPERTY(Transient, Replicated)
 	float RankInCurrentMatch;
-
-	/** Set the colors based on the current teamnum variable */
-	void UpdateTeamColors();
 
 public:
 	AHeliPlayerState();	

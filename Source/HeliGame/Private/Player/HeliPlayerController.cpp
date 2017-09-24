@@ -232,33 +232,6 @@ void AHeliPlayerController::HandleReturnToMainMenu()
 	CleanupSessionOnReturnToMenu();
 }
 
-void AHeliPlayerController::ClientReturnToMainMenu_Implementation(const FString& InReturnReason)
-{
-	UHeliGameInstance* SGI = GetWorld() != NULL ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : NULL;
-
-	if (!ensure(SGI != NULL))
-	{
-		return;
-	}
-
-	if (GetNetMode() == NM_Client)
-	{
-		//const FText ReturnReason = NSLOCTEXT("NetworkErrors", "HostQuit", "The host has quit the match.");
-		//const FText OKButton = NSLOCTEXT("DialogButtons", "OKAY", "OK");
-
-		//SGI->ShowMessageThenGotoState(ReturnReason, OKButton, FText::GetEmpty(), ShooterGameInstanceState::MainMenu);
-
-		SGI->GotoState(EHeliGameInstanceState::MainMenu);
-	}
-	else
-	{
-		SGI->GotoState(EHeliGameInstanceState::MainMenu);
-	}
-
-	// Clear the flag so we don't do normal end of round stuff next
-	//bGameEndedFrame = false;
-}
-
 void AHeliPlayerController::ClientReturnToLobbyState_Implementation()
 {
 	UHeliGameInstance* SGI = GetWorld() != NULL ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : NULL;
@@ -299,28 +272,6 @@ void AHeliPlayerController::CleanupSessionOnReturnToMenu()
 		SGI->CleanupSessionOnReturnToMenu();
 	}
 }
-
-void AHeliPlayerController::SetupInputComponent()
-{
-	Super::SetupInputComponent();
-
-	InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHeliPlayerController::OnShowScoreboard);
-	InputComponent->BindAction("Scoreboard", IE_Released, this, &AHeliPlayerController::OnHideScoreboard);
-
-	InputComponent->BindAction("InGameMenu", IE_Released, this, &AHeliPlayerController::OnShowInGameMenu);
-
-
-	InputComponent->BindAction("FlushDebugLines", IE_Released, this, &AHeliPlayerController::FlushDebugLines);
-
-	InputComponent->BindAction("Suicide", IE_Pressed, this, &AHeliPlayerController::Suicide);
-
-}
-
-void AHeliPlayerController::UnFreeze()
-{
-	ServerRestartPlayer();
-}
-
 
 void AHeliPlayerController::OnShowInGameMenu()
 {
@@ -505,18 +456,6 @@ void AHeliPlayerController::OnKill()
 	}
 }
 
-void AHeliPlayerController::InitInputSystem()
-{
-	Super::InitInputSystem();
-
-	// TODO: UHeliPersistentUser class
-	/*UHeliPersistentUser* PersistentUser = GetPersistentUser();
-	if (PersistentUser)
-	{
-		PersistentUser->TellInputAboutKeybindings();
-	}*/
-}
-
 void AHeliPlayerController::OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful)
 {
 	UE_LOG(LogOnline, Display, TEXT("AHeliPlayerController::OnQueryAchievementsComplete(bWasSuccessful = %s)"), bWasSuccessful ? TEXT("TRUE") : TEXT("FALSE"));
@@ -617,15 +556,6 @@ void AHeliPlayerController::UpdateAchievementProgress(const FString& Id, float P
 	}
 }
 
-void AHeliPlayerController::GameHasEnded(class AActor* EndGameFocus, bool bIsWinner)
-{	
-	// TODO: UpdateSaveFileOnGameEnd(bIsWinner);
-	// TODO: UpdateAchievementsOnGameEnd();
-	// TODO: UpdateLeaderboardsOnGameEnd();
-
-	Super::GameHasEnded(EndGameFocus, bIsWinner);
-}
-
 void AHeliPlayerController::Suicide()
 {
 	if (IsInState(NAME_Playing) && bAllowGameActions)
@@ -652,15 +582,6 @@ void AHeliPlayerController::ServerSuicide_Implementation()
 	}
 }
 
-void AHeliPlayerController::FailedToSpawnPawn()
-{
-	if (StateName == NAME_Inactive)
-	{
-		BeginInactiveState();
-	}
-	Super::FailedToSpawnPawn();
-}
-
 void AHeliPlayerController::SetPlayer(UPlayer* InPlayer)
 {
 	Super::SetPlayer(InPlayer);
@@ -673,11 +594,120 @@ void AHeliPlayerController::SetPlayer(UPlayer* InPlayer)
 	SetInputMode(InputMode);
 }
 
+void AHeliPlayerController::SetAllowGameActions(bool bNewAllowGameActions)
+{
+	this->bAllowGameActions = bNewAllowGameActions;
+}
+
+
+/*
+Debug Helpers
+*/
+void AHeliPlayerController::FlushDebugLines()
+{
+	FlushPersistentDebugLines(GetWorld());
+}
 
 
 
 
 
+
+
+
+
+
+
+
+/*
+* overrides
+*/
+
+void AHeliPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHeliPlayerController::OnShowScoreboard);
+	InputComponent->BindAction("Scoreboard", IE_Released, this, &AHeliPlayerController::OnHideScoreboard);
+
+	InputComponent->BindAction("InGameMenu", IE_Released, this, &AHeliPlayerController::OnShowInGameMenu);
+
+
+	InputComponent->BindAction("FlushDebugLines", IE_Released, this, &AHeliPlayerController::FlushDebugLines);
+
+	InputComponent->BindAction("Suicide", IE_Pressed, this, &AHeliPlayerController::Suicide);
+
+}
+
+void AHeliPlayerController::UnFreeze()
+{
+	ServerRestartPlayer();
+}
+
+void AHeliPlayerController::ClientReturnToMainMenu_Implementation(const FString& InReturnReason)
+{
+	UHeliGameInstance* SGI = GetWorld() != NULL ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : NULL;
+
+	if (!ensure(SGI != NULL))
+	{
+		return;
+	}
+
+	if (GetNetMode() == NM_Client)
+	{
+		//const FText ReturnReason = NSLOCTEXT("NetworkErrors", "HostQuit", "The host has quit the match.");
+		//const FText OKButton = NSLOCTEXT("DialogButtons", "OKAY", "OK");
+
+		//SGI->ShowMessageThenGotoState(ReturnReason, OKButton, FText::GetEmpty(), ShooterGameInstanceState::MainMenu);
+
+		SGI->GotoState(EHeliGameInstanceState::MainMenu);
+	}
+	else
+	{
+		SGI->GotoState(EHeliGameInstanceState::MainMenu);
+	}
+
+	// Clear the flag so we don't do normal end of round stuff next
+	//bGameEndedFrame = false;
+}
+
+void AHeliPlayerController::FailedToSpawnPawn()
+{
+	if (StateName == NAME_Inactive)
+	{
+		BeginInactiveState();
+	}
+	Super::FailedToSpawnPawn();
+}
+
+/** Pawn has been possessed. Start it walking and begin playing with it. */
+void AHeliPlayerController::BeginPlayingState()
+{
+	Super::BeginPlayingState();
+
+	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
+	if (helicopter)
+	{
+		helicopter->UpdatePlayerInfo();
+	}
+}
+
+void AHeliPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void AHeliPlayerController::InitInputSystem()
+{
+	Super::InitInputSystem();
+
+	// TODO: UHeliPersistentUser class
+	/*UHeliPersistentUser* PersistentUser = GetPersistentUser();
+	if (PersistentUser)
+	{
+	PersistentUser->TellInputAboutKeybindings();
+	}*/
+}
 
 void AHeliPlayerController::PreClientTravel(const FString& PendingURL, ETravelType TravelType, bool bIsSeamlessTravel)
 {
@@ -689,9 +719,9 @@ void AHeliPlayerController::PreClientTravel(const FString& PendingURL, ETravelTy
 	{
 		UHeliGameInstance* SGI = GetWorld() != NULL ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : NULL;
 
-		if (SGI) 
+		if (SGI)
 		{
-			UGameViewportClient* MyViewport = Cast<UGameViewportClient>(SGI->GetGameViewportClient());			
+			UGameViewportClient* MyViewport = Cast<UGameViewportClient>(SGI->GetGameViewportClient());
 
 			if (MyViewport)
 			{
@@ -712,17 +742,11 @@ void AHeliPlayerController::PreClientTravel(const FString& PendingURL, ETravelTy
 	}
 }
 
-
-void AHeliPlayerController::SetAllowGameActions(bool bNewAllowGameActions)
+void AHeliPlayerController::GameHasEnded(class AActor* EndGameFocus, bool bIsWinner)
 {
-	this->bAllowGameActions = bNewAllowGameActions;
-}
+	// TODO: UpdateSaveFileOnGameEnd(bIsWinner);
+	// TODO: UpdateAchievementsOnGameEnd();
+	// TODO: UpdateLeaderboardsOnGameEnd();
 
-
-/*
-Debug Helpers
-*/
-void AHeliPlayerController::FlushDebugLines()
-{
-	FlushPersistentDebugLines(GetWorld());
+	Super::GameHasEnded(EndGameFocus, bIsWinner);
 }

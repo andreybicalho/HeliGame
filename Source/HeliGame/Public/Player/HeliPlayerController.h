@@ -14,7 +14,40 @@ class HELIGAME_API AHeliPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
-	
+	/** Handle for efficient management of ClientStartOnlineGame timer */
+	FTimerHandle TimerHandle_ClientStartOnlineGame;
+
+	void AddHeliHudWidgetInHudForFirstPersonView();
+
+	void AddHeliHudWidgetInHudForThirdPersonView();
+
+protected:
+	/** if set, gameplay related actions (movement, weapon usage, etc) are allowed */
+	uint8 bAllowGameActions : 1;
+
+	// For tracking whether or not to send the end event
+	bool bHasSentStartEvents;
+
+	/** Achievements write object */
+	FOnlineAchievementsWritePtr WriteObject;
+
+	/** Causes the player to commit suicide */
+	UFUNCTION(BlueprintCallable, exec, Category = "Inputs")
+	virtual void Suicide();
+
+	/** Notifies the server that the client has suicided */
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerSuicide();
+
+
+	/** Updates achievements based on the PersistentUser stats at the end of a round */
+	// TODO: void UpdateAchievementsOnGameEnd();
+
+	/** Updates leaderboard stats at the end of a round */
+	// TODO: void UpdateLeaderboardsOnGameEnd();
+
+	/** Updates the save file at the end of a round */
+	// TODO: void UpdateSaveFileOnGameEnd(bool bIsWinner);
 public:
 	AHeliPlayerController();
 
@@ -29,8 +62,6 @@ public:
 
 	/** check if gameplay related actions (movement, weapon usage, etc) are allowed right now */
 	bool IsGameInputAllowed() const;
-
-
 
 	/** notify player about started match */
 	UFUNCTION(reliable, client)
@@ -63,9 +94,6 @@ public:
 	/** Informs that player fragged someone */
 	void OnKill();
 
-	/** initialize the input system from the player settings */
-	virtual void InitInputSystem() override;
-
 	/**
 	* Called when the read achievements request from the server is complete
 	*
@@ -90,16 +118,6 @@ public:
 	/** Associate a new UPlayer with this PlayerController. */
 	virtual void SetPlayer(UPlayer* Player);
 
-	virtual void PreClientTravel(const FString& PendingURL, ETravelType TravelType, bool bIsSeamlessTravel) override;
-
-	/**
-	* Called from game info upon end of the game, used to transition to proper state.
-	*
-	* @param EndGameFocus Actor to set as the view target on end game
-	* @param bIsWinner true if this controller is on winning team
-	*/
-	virtual void GameHasEnded(class AActor* EndGameFocus = NULL, bool bIsWinner = false) override;
-
 	UFUNCTION(BlueprintCallable, Category = "Inputs")
 	void SetAllowGameActions(bool bNewAllowGameActions);
 
@@ -109,6 +127,14 @@ public:
 	UFUNCTION(Reliable, Client)
 	void ClientGoToPlayingState();
 	
+public:
+	/* Debug helpers */
+	void FlushDebugLines();
+
+/*
+* overrides
+*/
+
 protected:
 	/** respawn after dying */
 	virtual void UnFreeze() override;
@@ -116,48 +142,28 @@ protected:
 	/** sets up input */
 	virtual void SetupInputComponent() override;
 
-	/** if set, gameplay related actions (movement, weapon usage, etc) are allowed */
-	uint8 bAllowGameActions : 1;
-
-	// For tracking whether or not to send the end event
-	bool bHasSentStartEvents;
-
-	/** Achievements write object */
-	FOnlineAchievementsWritePtr WriteObject;	
-
 	/** Return the client to the main menu gracefully.  ONLY sets GI state. */
-	void ClientReturnToMainMenu_Implementation(const FString& ReturnReason) override;	
-
-	/** Causes the player to commit suicide */
-	UFUNCTION(BlueprintCallable, exec, Category = "Inputs")
-	virtual void Suicide();
-
-	/** Notifies the server that the client has suicided */
-	UFUNCTION(reliable, server, WithValidation)
-	void ServerSuicide();
-
-
-	/** Updates achievements based on the PersistentUser stats at the end of a round */
-	// TODO: void UpdateAchievementsOnGameEnd();
-
-	/** Updates leaderboard stats at the end of a round */
-	// TODO: void UpdateLeaderboardsOnGameEnd();
-
-	/** Updates the save file at the end of a round */
-	// TODO: void UpdateSaveFileOnGameEnd(bool bIsWinner);
+	void ClientReturnToMainMenu_Implementation(const FString& ReturnReason) override;
 
 	/** transition to dead state, retries spawning later */
 	virtual void FailedToSpawnPawn() override;
 
-private:
-	/** Handle for efficient management of ClientStartOnlineGame timer */
-	FTimerHandle TimerHandle_ClientStartOnlineGame;
-
-	void AddHeliHudWidgetInHudForFirstPersonView();
-
-	void AddHeliHudWidgetInHudForThirdPersonView();
+	/** Pawn has been possessed, so changing state to NAME_Playing. Start it walking and begin playing with it. */
+	void BeginPlayingState() override;
 
 public:
-	/* Debug helpers */
-	void FlushDebugLines();
+	void BeginPlay() override;
+
+	/** initialize the input system from the player settings */
+	virtual void InitInputSystem() override;
+
+	virtual void PreClientTravel(const FString& PendingURL, ETravelType TravelType, bool bIsSeamlessTravel) override;
+
+	/**
+	* Called from game info upon end of the game, used to transition to proper state.
+	*
+	* @param EndGameFocus Actor to set as the view target on end game
+	* @param bIsWinner true if this controller is on winning team
+	*/
+	virtual void GameHasEnded(class AActor* EndGameFocus = NULL, bool bIsWinner = false) override;
 };

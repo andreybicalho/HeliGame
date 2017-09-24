@@ -22,20 +22,29 @@ class HELIGAME_API UHealthBarUserWidget : public UUserWidget
 
 	TWeakObjectPtr<class AHelicopter> OwningPawn;
 
+	void SetupCurrentColor();
+
 protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
 	struct FLinearColor CurrentColor;
 
-	UFUNCTION(BlueprintCallable, Category = "Display")
-	void SetupCurrentColor();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
+	FString PlayerName;	
 
 	UFUNCTION(BlueprintPure, Category = "Display")
 	float GetCurrentHealth();
 
+	UFUNCTION(BlueprintPure, Category = "Display")
+	FName GetPlayerName();
+
+
 public:
 	UHealthBarUserWidget(const FObjectInitializer& ObjectInitializer);
 
-	void SetOwningPawn(TWeakObjectPtr<class AHelicopter> InOwningPawn);	
+	void SetOwningPawn(TWeakObjectPtr<class AHelicopter> InOwningPawn);
+
+	UFUNCTION(BlueprintCallable, Category = "Display")
+	void SetupWidget();
 };

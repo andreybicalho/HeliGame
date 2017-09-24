@@ -765,6 +765,15 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, 
 		}
 	}
 
+	if(HealthBarWidgetComponent)
+	{ 
+		UHealthBarUserWidget* HealthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
+		if (HealthBarUserWidget)
+		{
+			HealthBarUserWidget->RemoveFromViewport();
+		}
+	}
+
 
 	AHeliGameMode* MyGameMode = Cast<AHeliGameMode>(GetWorld()->GetAuthGameMode());
 	if (MyGameMode && MyGameMode->IsImmediatelyPlayerRestartAllowedAfterDeath())
@@ -1004,35 +1013,87 @@ float AHelicopter::GetHealthPercent()
 	return Health / MaxHealth;
 }
 
-int32 AHelicopter::GetTeamNumber()
-{
-	return TeamNumber;
-}
-
-void AHelicopter::SetTeamNumber()
-{
-	AHeliPlayerController* HeliPlayerController = Cast<AHeliPlayerController>(Controller);
-	if (HeliPlayerController)
-	{
-		AHeliPlayerState* HeliPlayerState = Cast<AHeliPlayerState>(HeliPlayerController->PlayerState);
-		if (HeliPlayerState)
-		{
-			TeamNumber = HeliPlayerState->GetTeamNumber();
-		}
-	}
-}
-
 void AHelicopter::SetupHealthBar()
 {
-	// widget for health
 	if (HealthBarWidgetComponent)
 	{
 		UHealthBarUserWidget* HealthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
 		if (HealthBarUserWidget)
 		{
 			HealthBarUserWidget->SetOwningPawn(this);
+			HealthBarUserWidget->SetupWidget();
 		}
 	}
+}
+
+FName AHelicopter::GetPlayerName()
+{
+	return PlayerName;
+}
+
+void AHelicopter::SetPlayerName(FName NewPlayerName)
+{
+	PlayerName = NewPlayerName;
+}
+
+int32 AHelicopter::GetTeamNumber()
+{
+	return TeamNumber;
+}
+
+void AHelicopter::SetTeamNumber(int32 NewTeamNumber)
+{
+	TeamNumber = NewTeamNumber;
+}
+
+void AHelicopter::SetPlayerInfo(FName NewPlayerName, int32 NewTeamNumber)
+{
+	if (HasAuthority())
+	{
+		PlayerName = NewPlayerName;
+		TeamNumber = NewTeamNumber;
+	}
+}
+
+
+void AHelicopter::OnRep_PlayerInfo()
+{
+	if (HealthBarWidgetComponent)
+	{
+		UHealthBarUserWidget* HealthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
+		if (HealthBarUserWidget)
+		{
+			HealthBarUserWidget->SetupWidget();
+		}
+	}
+}
+
+void AHelicopter::UpdatePlayerInfo()
+{	
+	AHeliPlayerController* HeliPlayerController = Cast<AHeliPlayerController>(Controller);
+	if (HeliPlayerController)
+	{
+		AHeliPlayerState* HeliPlayerState = Cast<AHeliPlayerState>(HeliPlayerController->PlayerState);
+		if (HeliPlayerState)
+		{
+			Server_UpdatePlayerInfo(FName(*HeliPlayerState->GetPlayerName()), HeliPlayerState->GetTeamNumber());
+		}
+		else
+		{
+			// Keep retrying until player state is replicated
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_PlayerState, this, &AHelicopter::UpdatePlayerInfo, 0.5f, false);
+		}
+	}
+}
+
+bool AHelicopter::Server_UpdatePlayerInfo_Validate(FName NewPlayerName, int32 NewTeamNumber)
+{
+	return true;
+}
+
+void AHelicopter::Server_UpdatePlayerInfo_Implementation(FName NewPlayerName, int32 NewTeamNumber)
+{
+	SetPlayerInfo(NewPlayerName, NewTeamNumber);
 }
 
 
@@ -1108,9 +1169,8 @@ void AHelicopter::PostInitializeComponents()
 		SpawnDefaultPrimaryWeaponAndEquip();
 
 		// set default health
-		Health = MaxHealth;
+		Health = MaxHealth;		
 	}
-
 }
 
 // Called when the game starts or when spawned
@@ -1128,12 +1188,8 @@ void AHelicopter::BeginPlay()
 
 	EnableFirstPersonHud();
 
-	// set team number accordingly to the playerstate team number
-	SetTeamNumber();
-
 	SetupHealthBar();
 }
-
 
 // this is called after PostInitializeComponents and BeginPlay
 void AHelicopter::PawnClientRestart()
@@ -1157,6 +1213,10 @@ void AHelicopter::PawnClientRestart()
 		}
 	}
 
+	UpdatePlayerInfo();
+
+	SetupHealthBar();
+
 	EnableFirstPersonHud();
 }
 
@@ -1171,4 +1231,33 @@ void AHelicopter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	// everyone
 	DOREPLIFETIME(AHelicopter, Health);
 	DOREPLIFETIME(AHelicopter, CurrentWeapon);
+	DOREPLIFETIME(AHelicopter, PlayerName);
+	DOREPLIFETIME(AHelicopter, TeamNumber);
+}
+
+void AHelicopter::LogNetRole()
+{
+	if (Role == ROLE_None)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s = ROLE_None"), *GetName());
+	}
+	else if (Role == ROLE_SimulatedProxy)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s = ROLE_SimulatedProxy"), *GetName());
+	}
+	else if (Role == ROLE_AutonomousProxy)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s = ROLE_AutonomousProxy"), *GetName());
+	}
+	else if (Role == ROLE_Authority)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s = ROLE_Authority"), *GetName());
+	}
+	else if (Role == ROLE_MAX)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s = ROLE_MAX"), *GetName());
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("%s = Role Unknown"), *GetName());
+	}
 }

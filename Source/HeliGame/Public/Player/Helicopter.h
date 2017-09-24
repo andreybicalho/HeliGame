@@ -230,7 +230,7 @@ class HELIGAME_API AHelicopter : public APawn
 	*	HUD
 	*/
 
-		/** float property to display throttle power in hud */
+	/** float property to display throttle power in hud */
 	float Throttle;
 
 	// for using in widget blueprints
@@ -266,6 +266,24 @@ class HELIGAME_API AHelicopter : public APawn
 	void DisableFirstPersonHud();
 
 	void EnableFirstPersonHud();
+
+	/*
+	* Player Info (HUD)
+	*/
+
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerInfo, Transient)
+	int32 TeamNumber = -1;
+
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerInfo, Transient)
+	FName PlayerName = FName(TEXT("unknown"));
+
+	UFUNCTION()
+	void OnRep_PlayerInfo();
+
+	FTimerHandle TimerHandle_PlayerState;	
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_UpdatePlayerInfo(FName NewPlayerName, int32 NewTeamNumber);
 
 	/*
 	*	Sounds
@@ -313,9 +331,7 @@ class HELIGAME_API AHelicopter : public APawn
 	float LastHealedTime;
 
 	UPROPERTY(EditDefaultsOnly, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
-	float RepairVelocityThreshould;	
-
-	void SetTeamNumber();
+	float RepairVelocityThreshould;		
 
 	UPROPERTY(Category = "HealthSettings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FName HealthBarSocketName = TEXT("HealthBarSocket");
@@ -325,6 +341,60 @@ class HELIGAME_API AHelicopter : public APawn
 
 	void SetupHealthBar();
 	
+protected:
+	/*
+	*	Weapons
+	*/
+
+	/** current firing state */
+	uint8 bWantsToFire : 1;
+
+	/** [server] remove all weapons and destroy them */
+	void RemoveWeapons();
+
+	/* [server] spawn default primary weapon and equip it */
+	void SpawnDefaultPrimaryWeaponAndEquip();
+
+	/*
+	*	Damaging & Death
+	*/
+
+	// Current health
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
+	float Health;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	USoundCue* SoundTakeHit;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	USoundCue* DeathExplosionSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	UParticleSystem* DeathExplosionFX;
+
+	/* Holds hit data to replicate hits and death to clients */
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_LastTakeHitInfo)
+	struct FTakeHitData LastTakeHitInfo;
+
+	UFUNCTION()
+	void OnRep_LastTakeHitInfo();
+
+	bool bIsDying;
+
+	virtual void PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser, bool bKilled);
+
+	void ReplicateHit(float DamageTaken, struct FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser, bool bKilled);
+
+
+
+	/** Kill this pawn */
+	virtual bool CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const;
+
+	/** Returns True if the pawn can die in the current state */
+	virtual bool Die(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser);
+
+	virtual void OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser);
+
 public:
 	AHelicopter(const FObjectInitializer& ObjectInitializer);
 
@@ -428,67 +498,29 @@ public:
 	/** Pawn suicide */
 	virtual void Suicide();	
 
-	float GetHealthPercent();
+
+	/*
+	* Player Info (HUD)
+	*/
+
+	void SetTeamNumber(int32 NewTeamNumber);
 
 	int32 GetTeamNumber();
 
-protected:
-	int32 TeamNumber;
+	FName GetPlayerName();
 
-	/*
-	*	Weapons
-	*/
-	/** current firing state */
-	uint8 bWantsToFire : 1;
+	void SetPlayerName(FName NewPlayerName);
 
-	/** [server] remove all weapons and destroy them */
-	void RemoveWeapons();
+	float GetHealthPercent();
 
-	/* [server] spawn default primary weapon and equip it */
-	void SpawnDefaultPrimaryWeaponAndEquip();
+	void SetPlayerInfo(FName NewPlayerName, int32 NewTeamNumber);
 
-	/*
-	*	Damaging & Death
-	*/
+	void UpdatePlayerInfo();
 
-	// Current health
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
-	float Health;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	USoundCue* SoundTakeHit;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	USoundCue* DeathExplosionSound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Effects")
-	UParticleSystem* DeathExplosionFX;
-
-	/* Holds hit data to replicate hits and death to clients */
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_LastTakeHitInfo)
-	struct FTakeHitData LastTakeHitInfo;
-
-	UFUNCTION()
-	void OnRep_LastTakeHitInfo();
-
-	bool bIsDying;
-
-	virtual void PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser, bool bKilled);
-
-	void ReplicateHit(float DamageTaken, struct FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser, bool bKilled);
-
-
-
-	/** Kill this pawn */
-	virtual bool CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const;
-
-	/** Returns True if the pawn can die in the current state */
-	virtual bool Die(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser);
-
-	virtual void OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser);
 
 	
 /* overrides */
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -508,4 +540,9 @@ public:
 	virtual UPawnMovementComponent* GetMovementComponent() const override { return HeliMovementComponent; }
 	
 	virtual void PawnClientRestart() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	// TODO(andrey): remove
+	void LogNetRole();
 };

@@ -17,7 +17,8 @@ UCLASS()
 class HELIGAME_API AHeliGameState : public AGameState
 {
 	GENERATED_BODY()
-	
+
+	// TODO(andrey): make properties private with respectively accessors
 public:
 	AHeliGameState(const FObjectInitializer& ObjectInitializer);
 

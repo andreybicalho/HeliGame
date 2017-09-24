@@ -6,6 +6,7 @@
 #include "HeliGameInstance.h"
 #include "HeliPlayerController.h"
 #include "HeliLobbyGameState.h"
+#include "Helicopter.h"
 
 
 
@@ -57,11 +58,7 @@ void AHeliPlayerState::ClientInitialize(AController* InController)
 		{
 			LobbyGameState->bShouldUpdateLobbyWidget++;
 		}
-	}	
-
-
-
-	UpdateTeamColors();
+	}
 }
 
 void AHeliPlayerState::Reset()
@@ -118,8 +115,6 @@ void AHeliPlayerState::ScoreHit(int Points)
 void AHeliPlayerState::SetTeamNumber(int32 NewTeamNumber)
 {
 	TeamNumber = NewTeamNumber;
-
-	UpdateTeamColors();
 }
 
 
@@ -169,14 +164,26 @@ FString AHeliPlayerState::GetPlayerName() const
 	return PlayerName;
 }
 
-void AHeliPlayerState::UpdateTeamColors()
+void AHeliPlayerState::OnRep_TeamNumber()
 {
-	// TODO: update player team color
-}
-
-void AHeliPlayerState::OnRep_TeamColor()
-{
-	UpdateTeamColors();
+	// all local players get death messages so they can update their huds.
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		// all local players get death messages so they can update their huds.
+		AHeliPlayerController* testPC = Cast<AHeliPlayerController>(*It);
+		if (testPC)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerState - Found Controller!"));
+			if (testPC->IsLocalController())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerState - Controller is local!"));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerState - Controller is NOT local!"));
+			}			
+		}
+	}
 }
 
 void AHeliPlayerState::SetQuitter(bool bInQuitter)
@@ -295,8 +302,6 @@ void AHeliPlayerState::Server_SwitchTeams_Implementation()
 	{
 		TeamNumber = 0;
 	}
-
-	UpdateTeamColors();
 }
 
 bool AHeliPlayerState::Server_SetPlayerReady_Validate(bool bNewPlayerReady)
