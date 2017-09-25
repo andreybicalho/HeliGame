@@ -15,6 +15,9 @@ class HELIGAME_API UHealthBarUserWidget : public UUserWidget
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, Category = "Health Display", meta = (AllowPrivateAccess = "true"))
+	struct FLinearColor OwnColor;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Health Display", meta = (AllowPrivateAccess = "true"))
 	struct FLinearColor EnemyColor;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Health Display", meta = (AllowPrivateAccess = "true"))
