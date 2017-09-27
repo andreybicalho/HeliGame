@@ -1,7 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "Helicopter.h"
+#include "HeliGame.h"
 #include "HeliMovementComponent.h"
 #include "HeliPlayerController.h"
 #include "Weapon.h"
@@ -10,8 +10,18 @@
 #include "HeliGameMode.h"
 #include "HeliProjectile.h"
 #include "HeliPlayerState.h"
-#include "Components/WidgetComponent.h"
 #include "HealthBarUserWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Camera/CameraComponent.h"
+#include "Curves/CurveFloat.h"
+#include "Sound/SoundCue.h"
+#include "Public/TimerManager.h"
+#include "Components/AudioComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Net/UnrealNetwork.h"
+
 
 
 

@@ -1,11 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "HeliGameModeTDM.h"
+#include "HeliGame.h"
 #include "HeliPlayerState.h"
 #include "HeliGameState.h"
 #include "HeliTeamStart.h"
 #include "HeliGameInstance.h"
+#include "Public/TimerManager.h"
+#include "GameFramework/WorldSettings.h"
 
 AHeliGameModeTDM::AHeliGameModeTDM(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {

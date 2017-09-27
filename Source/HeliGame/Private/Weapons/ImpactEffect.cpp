@@ -1,7 +1,15 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "ImpactEffect.h"
+#include "HeliGame.h"
+#include "Materials/Material.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "Particles/ParticleSystem.h"
+#include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/PrimitiveComponent.h"
+#include "Components/DecalComponent.h"
+#include "Engine/EngineTypes.h"
 
 // Sets default values
 AImpactEffect::AImpactEffect()

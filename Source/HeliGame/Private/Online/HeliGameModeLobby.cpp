@@ -1,12 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "HeliGameModeLobby.h"
+#include "HeliGame.h"
 #include "HeliPlayerController.h"
 #include "HeliGameSession.h"
 #include "HeliPlayerState.h"
 #include "HeliLobbyGameState.h"
 #include "HeliGameInstance.h"
+#include "Engine/World.h"
 
 
 AHeliGameModeLobby::AHeliGameModeLobby(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -235,65 +236,5 @@ void AHeliGameModeLobby::RequestClientsGoToPlayingState()
 		{
 			Controller->ClientGoToPlayingState();
 		}
-	}
-}
-
-
-// DEBUG HELPERS
-void AHeliGameModeLobby::PrintNetModeInfo(ENetMode netMode)
-{
-
-	switch (netMode)
-	{
-	case ENetMode::NM_Standalone: GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "NetMode = NM_Standalone: Standalone: a game without networking, with one or more local players. Still considered a server because it has all server functionality.");
-		break;
-	case ENetMode::NM_DedicatedServer: GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "NetMode = NM_DedicatedServer: Dedicated server: server with no local players.");
-		break;
-	case ENetMode::NM_ListenServer: GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "NetMode = NM_ListenServer: Listen server: a server that also has a local player who is hosting the game, available to other players on the network.");
-		break;
-	case ENetMode::NM_Client: GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "NetMode = NM_Client: Network client: client connected to a remote server.");
-		break;
-	case ENetMode::NM_MAX: GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "NetMode: NM_MAX");
-		break;
-	default:
-		break;
-	}
-}
-
-void AHeliGameModeLobby::PrintRoleInfo(ENetRole role)
-{
-	switch (role)
-	{
-	case ENetRole::ROLE_None: GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Role = ROLE_None: No role at all.");
-		break;
-	case ENetRole::ROLE_SimulatedProxy: GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Role = ROLE_SimulatedProxy: Locally simulated proxy of this actor.");
-		break;
-	case ENetRole::ROLE_AutonomousProxy: GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Role = ROLE_AutonomousProxy: Locally autonomous proxy of this actor.");
-		break;
-	case ENetRole::ROLE_Authority: GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Role = ROLE_Authority: Authoritative control over the actor.");
-		break;
-	case ENetRole::ROLE_MAX: GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Role: ROLE_MAX");
-		break;
-	default:
-		break;
-	}
-}
-
-void AHeliGameModeLobby::PrintController(APlayerController* PlayerController)
-{
-	if (PlayerController->IsLocalPlayerController())
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "1 - IsLocalPlayerController: this Controller is a locally controlled PlayerController.");
-	}
-	else { 
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "1 - this Controller is NOT a locally controlled PlayerController."); 
-	}
-
-	if (PlayerController->IsLocalController())
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "2 - IsLocalController: this Controller is a local controller.");
-	}
-	else { 
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "2 - this Controller is NOT a local controller."); 
 	}
 }

@@ -1,7 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2016 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "HeliGameMode.h"
+#include "HeliGame.h"
 #include "HeliPlayerController.h"
 #include "HeliPlayerState.h"
 #include "Helicopter.h"
@@ -10,6 +10,15 @@
 #include "HeliGameSession.h"
 #include "HeliTeamStart.h"
 #include "HeliGameInstance.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Public/TimerManager.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/WorldSettings.h"
+#include "GameFramework/PlayerStart.h"
+#include "Public/EngineUtils.h"
+#include "Engine/PlayerStartPIE.h"
+#include "Engine/World.h"
 
 AHeliGameMode::AHeliGameMode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {

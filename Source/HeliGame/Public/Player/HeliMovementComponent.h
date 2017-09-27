@@ -1,9 +1,11 @@
-// Copyright 2016 Andrey Bicalho Santos. All Rights Reserved.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #pragma once
 
 #include "GameFramework/PawnMovementComponent.h"
 #include "HeliMovementComponent.generated.h"
+
+class UPrimitiveComponent;
 
 USTRUCT()
 struct FMovementReplication

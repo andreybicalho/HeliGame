@@ -1,9 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #pragma once
 
 #include "GameFramework/GameMode.h"
 #include "HeliGameMode.generated.h"
+
+class APlayerStart;
 
 /**
  * 

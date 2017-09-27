@@ -1,10 +1,15 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #pragma once
 
 #include "GameFramework/Actor.h"
 #include "ProjectileWeapon.h"
+#include "Templates/Casts.h"
 #include "HeliProjectile.generated.h"
+
+class UParticleSystemComponent;
+class UProjectileMovementComponent;
+class USphereComponent;
 
 UCLASS()
 class HELIGAME_API AHeliProjectile : public AActor

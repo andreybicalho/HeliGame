@@ -1,9 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "ProjectileWeapon.h"
+#include "HeliGame.h"
 #include "HeliProjectile.h"
 #include "Helicopter.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Public/DrawDebugHelpers.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Weapon usage

@@ -1,9 +1,15 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #pragma once
 
 #include "GameFramework/Pawn.h"
+#include "GameFramework/DamageType.h"
 #include "Helicopter.generated.h"
+
+class UStaticMeshComponent;
+class UCurveFloat;
+class USoundCue;
+class UAudioComponent;
 
 USTRUCT()
 struct FTakeHitData
@@ -291,7 +297,7 @@ class HELIGAME_API AHelicopter : public APawn
 	
 	/** Main rotor loop sound cue */
 	UPROPERTY(Category = "HelicopterSound", EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-	class USoundCue* MainRotorLoopSound;
+	USoundCue* MainRotorLoopSound;
 	
 	/** Play Heli sounds */
 	UAudioComponent*  PlayHeliSound(USoundCue* Sound);

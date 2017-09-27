@@ -1,7 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "HeliGameInstance.h"
+#include "HeliGame.h"
 #include "Online.h"
 #include "OnlineKeyValuePair.h"
 #include "HeliPlayerController.h"
@@ -10,6 +10,17 @@
 #include "HeliGameState.h"
 #include "HeliLobbyGameState.h"
 #include "Helicopter.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Blueprint/UserWidget.h"
+#include "Misc/CoreDelegates.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+#include "GameFramework/GameMode.h"
+#include "Public/Engine.h" // avoid the monolithic header file Runtime\Engine\Classes\Engine\Engine.h
+#include "Engine/Canvas.h"
+#include "Engine/GameViewportClient.h"
+#include "Engine/LocalPlayer.h"
+#include "Engine/World.h"
 
 UHeliGameInstance::UHeliGameInstance(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -218,6 +229,7 @@ void UHeliGameInstance::OnUserCanPlayInvite(const FUniqueNetId& UserId, EUserPri
 
 void UHeliGameInstance::StartGameInstance()
 {
+
 #if PLATFORM_PS4 == 0
 	TCHAR Parm[4096] = TEXT("");
 
@@ -261,6 +273,7 @@ void UHeliGameInstance::StartGameInstance()
 		}
 	}
 #endif
+
 
 	GotoInitialState();
 }

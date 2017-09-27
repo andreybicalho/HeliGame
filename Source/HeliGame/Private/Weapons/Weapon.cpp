@@ -1,10 +1,20 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "Weapon.h"
+#include "HeliGame.h"
 #include "HeliPlayerController.h"
-#include "Components/ArrowComponent.h"
 #include "Helicopter.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/ArrowComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/World.h"
+#include "Public/TimerManager.h"
+
+
 
 // Sets default values
 AWeapon::AWeapon(const FObjectInitializer& ObjectInitializer)

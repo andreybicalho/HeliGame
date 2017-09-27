@@ -1,7 +1,11 @@
-// Copyright 2016 Andrey Bicalho Santos. All Rights Reserved.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "HeliMovementComponent.h"
+#include "HeliGame.h"
+#include "Components/PrimitiveComponent.h"
+#include "GameFramework/Pawn.h"
+#include "Net/UnrealNetwork.h"
+#include "Public/Engine.h"
 
 UHeliMovementComponent::UHeliMovementComponent(const FObjectInitializer& ObjectInitializer)
 {

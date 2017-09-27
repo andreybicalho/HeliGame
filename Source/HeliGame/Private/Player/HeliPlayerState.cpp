@@ -1,12 +1,16 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
+#include "HeliPlayerState.h"
 #include "HeliGame.h"
 #include "HeliGameState.h"
-#include "HeliPlayerState.h"
 #include "HeliGameInstance.h"
 #include "HeliPlayerController.h"
 #include "HeliLobbyGameState.h"
 #include "Helicopter.h"
+#include "UObject/CoreOnline.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/LocalPlayer.h"
+#include "Engine/World.h"
 
 
 

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 /** This weapon system is based on the ShooterGame and SurvivalGame
 * ShooterGame doc: https://docs.unrealengine.com/latest/INT/Resources/SampleGames/ShooterGame/index.html
@@ -11,8 +11,13 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
+class UStaticMeshComponent;
 class UArrowComponent;
 class AHelicopter;
+class UAudioComponent;
+class USoundCue;
+class UParticleSystemComponent;
+class UCameraShake;
 
 namespace EWeaponState
 {

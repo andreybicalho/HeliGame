@@ -1,10 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "HeliGameSession.h"
+#include "HeliGame.h"
 #include "HeliPlayerController.h"
 #include "HeliOnlineGameSettings.h"
 #include "OnlineSubsystemSessionSettings.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerController.h"
+#include "Engine/World.h"
 
 
 namespace

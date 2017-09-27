@@ -1,26 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-/*
- Tips:
- 1 - check if we are the server
- if (AuthorityGameMode)
- {
- // we are server, tell the gamemode
- AHeliLobbyGameState* const GameMode = Cast<AHeliLobbyGameState>(AuthorityGameMode);
- if (GameMode)
- {
-	// do stuff
- }
-
- 2 - 
-*/
-
-#include "HeliGame.h"
 #include "HeliLobbyGameState.h"
+#include "HeliGame.h"
 #include "HeliPlayerState.h"
 #include "HeliGameInstance.h"
 #include "HeliGameModeLobby.h"
 #include "HeliPlayerController.h"
+#include "Net/UnrealNetwork.h"
 
 
 

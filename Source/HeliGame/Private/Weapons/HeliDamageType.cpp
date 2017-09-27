@@ -1,7 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "HeliDamageType.h"
+#include "HeliGame.h"
 
 
 UHeliDamageType::UHeliDamageType()

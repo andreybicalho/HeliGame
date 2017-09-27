@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #pragma once
 
@@ -45,13 +45,4 @@ protected:
 
 	/** pick team with least players in or random when it's equal */
 	int32 ChooseTeam(AHeliPlayerState* ForPlayerState) const;
-
-private:
-	// DEBUG HELPERS
-	void PrintRoleInfo(ENetRole role);
-
-	void PrintNetModeInfo(ENetMode netMode);
-
-	void PrintController(APlayerController* PlayerController);
-	
 };

@@ -1,7 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "HeliGameModeMenu.h"
+#include "HeliGame.h"
 #include "HeliPlayerController.h"
 #include "HeliGameSession.h"
 

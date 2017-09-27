@@ -1,9 +1,18 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
+#include "HeliProjectile.h"
 #include "HeliGame.h"
 #include "ImpactEffect.h"
-#include "HeliProjectile.h"
 #include "HeliDamageType.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "Components/SphereComponent.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "CollisionQueryParams.h"
+#include "Public/DrawDebugHelpers.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/World.h"
 
 
 // Sets default values

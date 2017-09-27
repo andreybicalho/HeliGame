@@ -1,9 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #pragma once
 
 #include "GameFramework/Actor.h"
 #include "ImpactEffect.generated.h"
+
+class UParticleSystem;
+class USoundCue;
+class UMaterial;
 
 UCLASS()
 class HELIGAME_API AImpactEffect : public AActor

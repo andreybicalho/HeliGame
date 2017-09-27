@@ -1,11 +1,16 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "HeliHud.h"
-#include "Engine/Canvas.h"
+#include "HeliGame.h"
 #include "HeliPlayerController.h"
 #include "Helicopter.h"
 #include "HeliGameState.h"
+#include "Blueprint/UserWidget.h"
+#include "UObject/ConstructorHelpers.h"
+#include "GameFramework/GameMode.h"
+#include "Engine/Texture2D.h"
+#include "Engine/Font.h"
+
 
 #define LOCTEXT_NAMESPACE "HeliGame.HUD.Menu"
 
@@ -408,28 +413,6 @@ void AHeliHud::DrawWarmupMatchTimers()
 			Canvas->DrawItem(TextItem, X, Y);
 		}
 	}
-}
-
-
-
-
-
-/************************************************************************ /
-/*               Helpers and Debug                                      */
-/************************************************************************/
-void AHeliHud::DebugInfo()
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "GetWorld()->GetTimeSeconds(): " + FString::SanitizeFloat(GetWorld()->GetTimeSeconds()));
-
-	FVector2D Result = FVector2D(1, 1);
-
-	if (GEngine && GEngine->GameViewport)
-	{
-		GEngine->GameViewport->GetViewportSize(Result);
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Viewport size: (" + FString::FromInt(Result.X) + "," + FString::FromInt(Result.Y) + ")");
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Canvas Clip size: (" + FString::FromInt((int32)Canvas->ClipY) + "," + FString::FromInt((int32)Canvas->ClipY) + ")");
-	}
-	
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #pragma once
 
@@ -6,12 +6,13 @@
 #include "OnlineIdentityInterface.h"
 #include "OnlineSessionInterface.h"
 #include "HeliGameState.h"
+#include "Containers/Ticker.h"
 #include "HeliGameInstance.generated.h"
 
 class FVariantData;
 class AHeliGameSession;
 
-UENUM(BlueprintType)		//"BlueprintType" is essential to include
+UENUM(BlueprintType)
 enum class EHeliGameInstanceState : uint8
 {
 	None					UMETA(DisplayName = "None"),

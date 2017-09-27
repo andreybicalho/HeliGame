@@ -1,9 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #pragma once
 
 #include "GameFramework/HUD.h"
+#include "HeliGame.h"
+#include "Engine/Canvas.h"
 #include "HeliHud.generated.h"
+
+class UTexture2D;
+class UFont;
 
 /**
  * 
@@ -119,13 +124,13 @@ protected:
 
 	/** Crosshair icons (left, top, right, bottom and center). */
 	UPROPERTY()
-	FCanvasIcon Crosshair[5];
+	struct FCanvasIcon Crosshair[5];
 
-	FCanvasIcon CenterDotIcon;
+	struct FCanvasIcon CenterDotIcon;
 
 	/** On crosshair indicator that we hit someone. */
 	UPROPERTY()
-	FCanvasIcon HitNotifyCrosshair;
+	struct FCanvasIcon HitNotifyCrosshair;
 
 	/** Draws weapon crosshair. */
 	void DrawCrosshair();
@@ -154,7 +159,5 @@ protected:
 
 	void DrawWarmupMatchTimers();
 public:
-	void DebugInfo();
-
 	FVector FindCrossHairPositionIn3DSpace();
 };

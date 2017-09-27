@@ -1,8 +1,7 @@
-// Copyright 2016 Andrey Bicalho Santos. All Rights Reserved.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "HealthBarUserWidget.generated.h"
 

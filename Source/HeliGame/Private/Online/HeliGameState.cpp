@@ -1,11 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
+#include "HeliGameState.h"
 #include "HeliGame.h"
 #include "HeliPlayerController.h"
-#include "HeliGameState.h"
 #include "HeliGameInstance.h"
 #include "HeliPlayerState.h"
 #include "HeliGameMode.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/World.h"
 
 
 AHeliGameState::AHeliGameState(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -29,7 +31,6 @@ void AHeliGameState::BroadcastGameMessage_Implementation(const FString& NewMessa
 		AHeliPlayerController* MyController = Cast<AHeliPlayerController>(*It);
 		if (MyController && MyController->IsLocalController())
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, NewMessage);
 			// TODO: message HUD 
 			/*ASHUD* MyHUD = Cast<ASHUD>(MyController->GetHUD());
 			if (MyHUD)

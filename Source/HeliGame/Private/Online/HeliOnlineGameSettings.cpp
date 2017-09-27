@@ -1,7 +1,7 @@
 // Copyright 1998-2015 Epic Games, Inc. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "HeliOnlineGameSettings.h"
+#include "HeliGame.h"
 
 
 FHeliOnlineSessionSettings::FHeliOnlineSessionSettings(bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers)

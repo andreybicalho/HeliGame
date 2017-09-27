@@ -1,7 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
-#include "HeliGame.h"
 #include "HeliPlayerController.h"
+#include "HeliGame.h"
 #include "HeliHud.h"
 #include "Helicopter.h"
 #include "HeliPlayerState.h"
@@ -11,6 +11,15 @@
 #include "OnlineEventsInterface.h"
 #include "OnlineIdentityInterface.h"
 #include "OnlineSessionInterface.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Blueprint/UserWidget.h"
+#include "Misc/PackageName.h"
+#include "UObject/Package.h"
+#include "Public/TimerManager.h"
+#include "Public/DrawDebugHelpers.h"
+#include "Components/DecalComponent.h"
+#include "Engine/LocalPlayer.h"
+#include "Engine/World.h"
 
 #define  ACH_FRAG_SOMEONE	TEXT("ACH_FRAG_SOMEONE")
 
