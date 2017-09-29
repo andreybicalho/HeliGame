@@ -523,6 +523,8 @@ public:
 
 	void UpdatePlayerInfo();
 
+	void RemoveHealthWidget();
+
 
 	
 /* overrides */

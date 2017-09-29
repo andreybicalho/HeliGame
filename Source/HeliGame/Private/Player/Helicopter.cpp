@@ -775,15 +775,8 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, 
 		}
 	}
 
-	if(HealthBarWidgetComponent)
-	{ 
-		UHealthBarUserWidget* HealthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
-		if (HealthBarUserWidget)
-		{
-			HealthBarUserWidget->RemoveFromViewport();
-		}
-	}
-
+	
+	RemoveHealthWidget();
 
 	AHeliGameMode* MyGameMode = Cast<AHeliGameMode>(GetWorld()->GetAuthGameMode());
 	if (MyGameMode && MyGameMode->IsImmediatelyPlayerRestartAllowedAfterDeath())
@@ -1104,6 +1097,22 @@ bool AHelicopter::Server_UpdatePlayerInfo_Validate(FName NewPlayerName, int32 Ne
 void AHelicopter::Server_UpdatePlayerInfo_Implementation(FName NewPlayerName, int32 NewTeamNumber)
 {
 	SetPlayerInfo(NewPlayerName, NewTeamNumber);
+}
+
+void AHelicopter::RemoveHealthWidget()
+{
+	// FIXME(andrey): is it the right way of removing widgets that were not directly added to UMG
+	if (HealthBarWidgetComponent)
+	{
+		UHealthBarUserWidget* healthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
+		if (healthBarUserWidget)
+		{
+			healthBarUserWidget->Destruct();
+		}
+
+		HealthBarWidgetComponent->SetWidget(nullptr);
+		HealthBarWidgetComponent->SetActive(false);
+	}
 }
 
 
