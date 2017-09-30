@@ -6,8 +6,7 @@
 
 
 UHealthBarUserWidget::UHealthBarUserWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
-{
-
+{		
 }
 
 void UHealthBarUserWidget::SetupWidget()
@@ -23,7 +22,21 @@ void UHealthBarUserWidget::SetupWidget()
 
 void UHealthBarUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	Super::NativeTick(MyGeometry, InDeltaTime);
+	Super::NativeTick(MyGeometry, InDeltaTime);	
+	
+	// scale with distance
+	if (OwningPawn.IsValid())
+	{
+		AHelicopter* myPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
+		if (myPawn && (myPawn != OwningPawn))
+		{
+			float distance = (myPawn->GetActorLocation() - OwningPawn->GetActorLocation()).Size();
+			float scaleRation = 1.f / distance * 1000;			
+			
+			FVector2D newSize = FVector2D(scaleRation, scaleRation);
+			SetRenderScale(newSize);
+		}
+	}
 }
 
 void UHealthBarUserWidget::SetupCurrentColor()

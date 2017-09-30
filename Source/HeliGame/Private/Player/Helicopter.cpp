@@ -1018,13 +1018,23 @@ float AHelicopter::GetHealthPercent()
 
 void AHelicopter::SetupHealthBar()
 {
+	UpdatePlayerInfo();
+
 	if (HealthBarWidgetComponent)
-	{
-		UHealthBarUserWidget* HealthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
-		if (HealthBarUserWidget)
+	{				
+		// show the health bar of the remote clients only
+		if (!IsLocallyControlled())
 		{
-			HealthBarUserWidget->SetOwningPawn(this);
-			HealthBarUserWidget->SetupWidget();
+			UHealthBarUserWidget* HealthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
+			if (HealthBarUserWidget)
+			{
+				HealthBarUserWidget->SetOwningPawn(this);
+				HealthBarUserWidget->SetupWidget();
+			}
+		} 
+		else
+		{
+			RemoveHealthWidget();
 		}
 	}
 }
@@ -1100,16 +1110,17 @@ void AHelicopter::Server_UpdatePlayerInfo_Implementation(FName NewPlayerName, in
 }
 
 void AHelicopter::RemoveHealthWidget()
-{
-	// FIXME(andrey): is it the right way of removing widgets that were not directly added to UMG
+{	
 	if (HealthBarWidgetComponent)
 	{
 		UHealthBarUserWidget* healthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
 		if (healthBarUserWidget)
 		{
+			healthBarUserWidget->SetOwningPawn(nullptr);
 			healthBarUserWidget->Destruct();
 		}
 
+		// FIXME(andrey): is it the right way of removing widgets that were not directly added to UMG
 		HealthBarWidgetComponent->SetWidget(nullptr);
 		HealthBarWidgetComponent->SetActive(false);
 	}
@@ -1230,9 +1241,7 @@ void AHelicopter::PawnClientRestart()
 		{
 			HeliHUD->HideScoreboard();
 		}
-	}
-
-	UpdatePlayerInfo();
+	}	
 
 	SetupHealthBar();
 
