@@ -271,6 +271,16 @@ void AHeliPlayerController::ClientGoToPlayingState_Implementation()
 	}
 }
 
+void AHeliPlayerController::UpdateTeamNumber(int32 teamNumber)
+{
+	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
+	if (helicopter)
+	{
+		helicopter->SetTeamNumber(teamNumber);
+		helicopter->SetupPlayerInfoWidget();
+	}
+}
+
 /** Ends and/or destroys game session */
 void AHeliPlayerController::CleanupSessionOnReturnToMenu()
 {
@@ -695,10 +705,12 @@ void AHeliPlayerController::BeginPlayingState()
 	Super::BeginPlayingState();
 
 	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
-	if (helicopter)
+	AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(PlayerState);
+	if (helicopter && heliPlayerState)
 	{
-		helicopter->UpdatePlayerInfo();
-	}
+		helicopter->UpdatePlayerInfo(FName(*heliPlayerState->GetPlayerName()), heliPlayerState->GetTeamNumber());
+		//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayyerController::BeginPlayingState - PlayerName: %s  TeamNumber: %d"), *, heliPlayerState->GetTeamNumber());	
+	}	
 }
 
 void AHeliPlayerController::BeginPlay()

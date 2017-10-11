@@ -126,6 +126,8 @@ public:
 
 	UFUNCTION(Reliable, Client)
 	void ClientGoToPlayingState();
+
+	void UpdateTeamNumber(int32 teamNumber);
 	
 public:
 	/* Debug helpers */

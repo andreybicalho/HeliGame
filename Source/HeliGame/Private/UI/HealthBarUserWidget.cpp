@@ -41,29 +41,26 @@ void UHealthBarUserWidget::NativeTick(const FGeometry& MyGeometry, float InDelta
 
 void UHealthBarUserWidget::SetupCurrentColor()
 {
-	if (OwningPawn.IsValid())
+	AHelicopter* MyPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
+	if (MyPawn && OwningPawn.IsValid())
 	{
-		AHelicopter* MyPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
-		if (MyPawn)
+		if (OwningPawn == MyPawn)
 		{
-			if (OwningPawn == MyPawn)
+			CurrentColor = OwnColor;
+		}
+		else
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("UHealthBarUserWidget::SetCurrentColor ~ MyPawn %s team %d  Vs OwningPawn %s team %d"), *MyPawn->GetName(), MyPawn->GetTeamNumber(), *OwningPawn->GetName(), OwningPawn->GetTeamNumber());				
+			//UE_LOG(LogTemp, Warning, TEXT("MyPawn LogNetRole:")); MyPawn->LogNetRole();
+			//UE_LOG(LogTemp, Warning, TEXT("OwningPawn LogNetRole:")); OwningPawn->LogNetRole();
+
+			if (MyPawn->GetTeamNumber() == OwningPawn->GetTeamNumber())
 			{
-				CurrentColor = OwnColor;
+				CurrentColor = FriendColor;
 			}
 			else
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("UHealthBarUserWidget::SetCurrentColor ~ MyPawn %s team %d  Vs OwningPawn %s team %d"), *MyPawn->GetName(), MyPawn->GetTeamNumber(), *OwningPawn->GetName(), OwningPawn->GetTeamNumber());				
-				//UE_LOG(LogTemp, Warning, TEXT("MyPawn LogNetRole:")); MyPawn->LogNetRole();
-				//UE_LOG(LogTemp, Warning, TEXT("OwningPawn LogNetRole:")); OwningPawn->LogNetRole();
-
-				if (MyPawn->GetTeamNumber() == OwningPawn->GetTeamNumber())
-				{
-					CurrentColor = FriendColor;
-				}
-				else
-				{
-					CurrentColor = EnemyColor;
-				}
+				CurrentColor = EnemyColor;
 			}
 		}
 	}

@@ -343,9 +343,7 @@ class HELIGAME_API AHelicopter : public APawn
 	FName HealthBarSocketName = TEXT("HealthBarSocket");
 
 	UPROPERTY(Category = "HealthSettings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UWidgetComponent* HealthBarWidgetComponent;
-
-	void SetupHealthBar();
+	class UWidgetComponent* HealthBarWidgetComponent;	
 	
 protected:
 	/*
@@ -521,7 +519,11 @@ public:
 
 	void SetPlayerInfo(FName NewPlayerName, int32 NewTeamNumber);
 
-	void UpdatePlayerInfo();
+	void SetPlayerInfoFromPlayerState();
+
+	void UpdatePlayerInfo(FName playerName, int32 teamNumber);
+
+	void SetupPlayerInfoWidget();
 
 	void RemoveHealthWidget();
 

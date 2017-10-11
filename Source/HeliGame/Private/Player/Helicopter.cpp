@@ -286,8 +286,6 @@ void AHelicopter::SpawnDefaultPrimaryWeaponAndEquip()
 
 	if (GetCurrentWeaponEquiped() == nullptr)
 	{
-		// NetworkInfo(TEXT("SpawnDefaultPrimaryWeaponAndEquip"));
-
 		AWeapon* PrimaryWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultPrimaryWeaponToSpawn);
 		EquipWeapon(PrimaryWeapon);
 	}
@@ -492,8 +490,6 @@ void AHelicopter::StopWeaponFire()
 
 void AHelicopter::OnRep_Weapon(AWeapon* LastWeapon)
 {
-	// NetworkInfo(FString(TEXT("OnRep_Weapon()")) );
-	// UE_LOG(LogHeliWeapon, Log, TEXT("OnRep_Weapon(AWeapon* LastWeapon) ---> CurrentWeapon is %s, LastWeapon is %s"), CurrentWeapon ? *FString(TEXT("valid")) : *FString(TEXT("NULL")), LastWeapon ? *FString(TEXT("valid")) : *FString(TEXT("NULL")) );
 	SetWeapon(CurrentWeapon, LastWeapon);
 }
 
@@ -823,7 +819,7 @@ void AHelicopter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEv
 		}
 	}
 
-	// TODO: hud notify hit for taking damage
+	// TODO(andrey): hud notify hit for taking damage
 }
 
 
@@ -1016,13 +1012,11 @@ float AHelicopter::GetHealthPercent()
 	return Health / MaxHealth;
 }
 
-void AHelicopter::SetupHealthBar()
-{
-	UpdatePlayerInfo();
-
+void AHelicopter::SetupPlayerInfoWidget()
+{	
 	if (HealthBarWidgetComponent)
 	{				
-		// show the health bar of the remote clients only
+		// only remote clients shows the health bar and player name
 		if (!IsLocallyControlled())
 		{
 			UHealthBarUserWidget* HealthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
@@ -1034,7 +1028,7 @@ void AHelicopter::SetupHealthBar()
 		} 
 		else
 		{
-			RemoveHealthWidget();
+			RemoveHealthWidget();			
 		}
 	}
 }
@@ -1056,7 +1050,7 @@ int32 AHelicopter::GetTeamNumber()
 
 void AHelicopter::SetTeamNumber(int32 NewTeamNumber)
 {
-	TeamNumber = NewTeamNumber;
+	TeamNumber = NewTeamNumber;	
 }
 
 void AHelicopter::SetPlayerInfo(FName NewPlayerName, int32 NewTeamNumber)
@@ -1068,35 +1062,41 @@ void AHelicopter::SetPlayerInfo(FName NewPlayerName, int32 NewTeamNumber)
 	}
 }
 
-
 void AHelicopter::OnRep_PlayerInfo()
 {
-	if (HealthBarWidgetComponent)
-	{
-		UHealthBarUserWidget* HealthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
-		if (HealthBarUserWidget)
-		{
-			HealthBarUserWidget->SetupWidget();
-		}
-	}
+	SetupPlayerInfoWidget();
 }
 
-void AHelicopter::UpdatePlayerInfo()
-{	
-	AHeliPlayerController* HeliPlayerController = Cast<AHeliPlayerController>(Controller);
-	if (HeliPlayerController)
+void AHelicopter::UpdatePlayerInfo(FName playerName, int32 teamNumber)
+{
+	Server_UpdatePlayerInfo(playerName, teamNumber);
+	SetupPlayerInfoWidget();
+}
+
+void AHelicopter::SetPlayerInfoFromPlayerState()
+{		
+	if (IsLocallyControlled())
 	{
-		AHeliPlayerState* HeliPlayerState = Cast<AHeliPlayerState>(HeliPlayerController->PlayerState);
-		if (HeliPlayerState)
+		AHeliPlayerController* HeliPlayerController = Cast<AHeliPlayerController>(Controller);
+		if (HeliPlayerController)
 		{
-			Server_UpdatePlayerInfo(FName(*HeliPlayerState->GetPlayerName()), HeliPlayerState->GetTeamNumber());
-		}
-		else
-		{
-			// Keep retrying until player state is replicated
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle_PlayerState, this, &AHelicopter::UpdatePlayerInfo, 0.5f, false);
+			AHeliPlayerState* HeliPlayerState = Cast<AHeliPlayerState>(HeliPlayerController->PlayerState);
+			if (HeliPlayerState)
+			{				
+				Server_UpdatePlayerInfo(FName(*HeliPlayerState->GetPlayerName()), HeliPlayerState->GetTeamNumber());
+			}
+			else
+			{				
+				// Keep retrying until player state is replicated
+				//UE_LOG(LogTemp, Warning, TEXT("HeliPlayerState has not replicated yet, retrying..."));
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle_PlayerState, this, &AHelicopter::SetPlayerInfoFromPlayerState, 0.5f, false);
+			}
 		}
 	}
+	else
+	{
+		SetupPlayerInfoWidget();
+	}	
 }
 
 bool AHelicopter::Server_UpdatePlayerInfo_Validate(FName NewPlayerName, int32 NewTeamNumber)
@@ -1193,6 +1193,8 @@ void AHelicopter::PostInitializeComponents()
 		HeliMovementComponent->SetActive(true);
 	}
 
+	SetupPlayerInfoWidget();
+
 	if (HasAuthority())
 	{
 		// equip Primary weapon, 
@@ -1218,7 +1220,9 @@ void AHelicopter::BeginPlay()
 
 	EnableFirstPersonHud();
 
-	SetupHealthBar();
+	SetupPlayerInfoWidget();
+	
+	SetPlayerInfoFromPlayerState();
 }
 
 // this is called after PostInitializeComponents and BeginPlay
@@ -1243,7 +1247,9 @@ void AHelicopter::PawnClientRestart()
 		}
 	}	
 
-	SetupHealthBar();
+	SetupPlayerInfoWidget();
+
+	SetPlayerInfoFromPlayerState();
 
 	EnableFirstPersonHud();
 }

@@ -35,6 +35,7 @@ void AHeliPlayerState::CopyProperties(APlayerState* PlayerState)
 {
 	Super::CopyProperties(PlayerState);
 
+	// TODO(andrey): should it be another player state, only for lobby? and this one should be only for playing?
 	AHeliPlayerState* MyPlayerState = Cast<AHeliPlayerState>(PlayerState);
 	if (MyPlayerState)
 	{
@@ -169,23 +170,13 @@ FString AHeliPlayerState::GetPlayerName() const
 }
 
 void AHeliPlayerState::OnRep_TeamNumber()
-{
-	// all local players get death messages so they can update their huds.
+{	
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		// all local players get death messages so they can update their huds.
-		AHeliPlayerController* testPC = Cast<AHeliPlayerController>(*It);
-		if (testPC)
+	{		
+		AHeliPlayerController* myPC = Cast<AHeliPlayerController>(*It);
+		if (myPC)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerState - Found Controller!"));
-			if (testPC->IsLocalController())
-			{
-				UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerState - Controller is local!"));
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerState - Controller is NOT local!"));
-			}			
+			myPC->UpdateTeamNumber(TeamNumber);						
 		}
 	}
 }
