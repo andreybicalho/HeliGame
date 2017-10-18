@@ -209,6 +209,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "PlayerSettings")
 	void SwitchTeam();
 
+	UFUNCTION(BlueprintCallable, Category = "PlayerSettings")
+	void ChangePlayerName();
+
 	UFUNCTION(BlueprintCallable, Category = "GameType")
 	void EndRoundAndRestartMatch();
 

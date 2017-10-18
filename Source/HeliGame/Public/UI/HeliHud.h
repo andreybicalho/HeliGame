@@ -80,7 +80,22 @@ public:
 
 	void HideScoreboard();
 
+	/***************************************************************************************
+	*                                      InGameMenu                                      *
+	****************************************************************************************/
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InGameMenu")
+	TSubclassOf<class UUserWidget> InGameOptionsMenuWidgetTemplate;
+
+	TWeakObjectPtr<UUserWidget> InGameOptionsMenuWidget;
+
 	void ShowInGameMenu();
+
+	void HideInGameMenu();
+
+	void ShowInGameOptionsMenu();
+
+	void HideInGameOptionsMenu();
 
 	/************************************************************************ /
 	/*                                                                      */

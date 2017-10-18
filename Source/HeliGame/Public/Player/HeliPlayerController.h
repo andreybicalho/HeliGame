@@ -60,6 +60,15 @@ public:
 	/* shows in game menu UI */
 	void OnShowInGameMenu();
 
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu")
+	void HideInGameMenu();
+
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu")
+	void ShowInGameOptionsMenu();
+
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu")
+	void HideInGameOptionsMenu();
+
 	/** check if gameplay related actions (movement, weapon usage, etc) are allowed right now */
 	bool IsGameInputAllowed() const;
 

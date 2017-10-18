@@ -296,11 +296,45 @@ void AHeliPlayerController::OnShowInGameMenu()
 {
 	AHeliHud* MyHud = Cast<AHeliHud>(GetHUD());
 
-	if (MyHud && bAllowGameActions)
+	if (MyHud)
 	{
+		bAllowGameActions = false;
 		MyHud->ShowInGameMenu();
 	}
 
+}
+
+void AHeliPlayerController::HideInGameMenu()
+{
+	AHeliHud* MyHud = Cast<AHeliHud>(GetHUD());
+
+	if (MyHud && bAllowGameActions)
+	{
+		MyHud->HideInGameMenu();
+	}
+
+	bAllowGameActions = true;
+}
+
+void AHeliPlayerController::ShowInGameOptionsMenu()
+{
+	AHeliHud* MyHud = Cast<AHeliHud>(GetHUD());
+	if (MyHud)
+	{
+		bAllowGameActions = false;
+		MyHud->ShowInGameOptionsMenu();
+	}
+}
+
+void AHeliPlayerController::HideInGameOptionsMenu()
+{
+	AHeliHud* MyHud = Cast<AHeliHud>(GetHUD());
+	if (MyHud)
+	{
+		MyHud->HideInGameOptionsMenu();
+	}
+
+	bAllowGameActions = true;
 }
 
 void AHeliPlayerController::OnShowScoreboard()

@@ -309,9 +309,15 @@ void AHeliHud::HideScoreboard()
 	}
 }
 
+/***************************************************************************************
+*                                      InGameMenu                                      *
+****************************************************************************************/
+
 void AHeliHud::ShowInGameMenu()
 {
 	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(GetOwningPlayerController());
+
+	HideInGameOptionsMenu();
 	
 	if (InGameMenuWidget.IsValid())
 	{		
@@ -339,6 +345,72 @@ void AHeliHud::ShowInGameMenu()
 			MyPC->SetAllowGameActions(false);
 			MyPC->bShowMouseCursor = true;
 		}
+	}
+}
+
+
+void AHeliHud::HideInGameMenu()
+{
+	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(GetOwningPlayerController());
+
+	if (InGameMenuWidget.IsValid() && InGameMenuWidget->IsInViewport())
+	{
+		InGameMenuWidget->RemoveFromViewport();
+
+		MyPC->SetIgnoreLookInput(false);
+		MyPC->SetIgnoreMoveInput(false);
+		MyPC->SetAllowGameActions(true);
+		MyPC->bShowMouseCursor = false;
+	}
+}
+
+void AHeliHud::ShowInGameOptionsMenu()
+{
+	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(GetOwningPlayerController());
+
+	HideInGameMenu();
+
+	if (InGameOptionsMenuWidget.IsValid())
+	{
+		if (!InGameOptionsMenuWidget->IsInViewport() && MyPC)
+		{
+			InGameOptionsMenuWidget->AddToViewport();
+			InGameOptionsMenuWidget->SetUserFocus(MyPC);
+
+			MyPC->SetIgnoreLookInput(true);
+			MyPC->SetIgnoreMoveInput(true);
+			MyPC->SetAllowGameActions(false);
+			MyPC->bShowMouseCursor = true;
+		}
+	}
+	else
+	{
+		if (InGameOptionsMenuWidgetTemplate && MyPC)
+		{
+			InGameOptionsMenuWidget = CreateWidget<UUserWidget>(MyPC, InGameOptionsMenuWidgetTemplate);
+			InGameOptionsMenuWidget->AddToViewport();
+			InGameOptionsMenuWidget->SetUserFocus(MyPC);
+
+			MyPC->SetIgnoreLookInput(true);
+			MyPC->SetIgnoreMoveInput(true);
+			MyPC->SetAllowGameActions(false);
+			MyPC->bShowMouseCursor = true;
+		}
+	}
+}
+
+void AHeliHud::HideInGameOptionsMenu()
+{
+	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(GetOwningPlayerController());
+
+	if (InGameOptionsMenuWidget.IsValid() && InGameOptionsMenuWidget->IsInViewport())
+	{
+		InGameOptionsMenuWidget->RemoveFromViewport();
+
+		MyPC->SetIgnoreLookInput(false);
+		MyPC->SetIgnoreMoveInput(false);
+		MyPC->SetAllowGameActions(true);
+		MyPC->bShowMouseCursor = false;
 	}
 }
 

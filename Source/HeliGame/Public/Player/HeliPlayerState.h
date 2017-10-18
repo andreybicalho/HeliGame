@@ -149,9 +149,7 @@ public:
 	UFUNCTION(Reliable, Server, WithValidation, BlueprintCallable, Category = "Lobby")
 	void Server_SetPlayerReady(bool bNewPlayerReady);
 
-private:
 	UFUNCTION(Reliable, Server, WithValidation)
 	void Server_SetPlayerName(const FString& NewPlayerName);
-
 	
 };

@@ -1862,6 +1862,20 @@ void UHeliGameInstance::SwitchTeam()
 	}
 }
 
+void UHeliGameInstance::ChangePlayerName()
+{
+	APlayerController* const FirstPC = GetFirstLocalPlayerController();
+
+	if (FirstPC != nullptr)
+	{
+		AHeliPlayerState* PlayerState = Cast<AHeliPlayerState>(FirstPC->PlayerState);
+		if (PlayerState)
+		{
+			PlayerState->Server_SetPlayerName(CustomPlayerName);
+		}
+	}
+}
+
 bool UHeliGameInstance::UpdateSessionSettings(ULocalPlayer* LocalPlayer, const FString& GameType, FName SessionName, const FString& MapName, FName ServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers)
 {
 	AHeliGameSession* const GameSession = GetGameSession();
