@@ -41,11 +41,11 @@ public:
 	bool DotCrosshairOn;
 
 	// crosshair color
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crosshair")
+	UPROPERTY(EditAnywhere, Category = "Crosshair")
 	FColor CrosshairColor;
 
 	// hit notify crosshair color
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crosshair")
+	UPROPERTY(EditAnywhere, Category = "Crosshair")
 	FColor CrosshairHitNotifyColor;
 
 	/** Notifies we have hit the enemy. */
