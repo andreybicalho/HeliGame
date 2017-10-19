@@ -429,6 +429,8 @@ public:
 
 	void OnStartFire();
 	void OnStopFire();
+
+	void OnReloadWeapon();
 	
 	void ThrottleUpInput();
 	void ThrottleDownInput();

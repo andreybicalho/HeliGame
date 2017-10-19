@@ -155,7 +155,8 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 void AHelicopter::MousePitch(float Value)
 {
-	if (Controller && Value != 0.f)
+	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
 		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
 		if (MovementComponent)
@@ -167,7 +168,8 @@ void AHelicopter::MousePitch(float Value)
 
 void AHelicopter::MouseYaw(float Value)
 {
-	if (Controller && Value != 0.f)
+	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
 		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
 		if (MovementComponent)
@@ -179,7 +181,8 @@ void AHelicopter::MouseYaw(float Value)
 
 void AHelicopter::MouseRoll(float Value)
 {
-	if (Controller && Value != 0.f)
+	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
 		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
 		if (MovementComponent)
@@ -191,7 +194,8 @@ void AHelicopter::MouseRoll(float Value)
 
 void AHelicopter::KeyboardPitch(float Value)
 {
-	if (Controller && Value != 0.f)
+	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
 		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
 		if (MovementComponent)
@@ -203,7 +207,8 @@ void AHelicopter::KeyboardPitch(float Value)
 
 void AHelicopter::KeyboardYaw(float Value)
 {
-	if (Controller && Value != 0.f)
+	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
 		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
 		if (MovementComponent)
@@ -215,7 +220,8 @@ void AHelicopter::KeyboardYaw(float Value)
 
 void AHelicopter::KeyboardRoll(float Value)
 {
-	if (Controller && Value != 0.f)
+	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
 		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
 		if (MovementComponent)
@@ -227,7 +233,8 @@ void AHelicopter::KeyboardRoll(float Value)
 
 void AHelicopter::Thrust(float Value)
 {
-	if (Controller && Value != 0.f)
+	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
 		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
 		if (MovementComponent)
@@ -292,7 +299,19 @@ void AHelicopter::SpawnDefaultPrimaryWeaponAndEquip()
 }
 
 void AHelicopter::DebugSomething()
+{	
+}
+
+void AHelicopter::OnReloadWeapon()
 {
+	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed())
+	{
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->StartReload();
+		}
+	}
 }
 
 void AHelicopter::OnStartFire()
@@ -1165,6 +1184,8 @@ void AHelicopter::SetupPlayerInputComponent(class UInputComponent* HeliInputComp
 	// Fire
 	HeliInputComponent->BindAction("Fire", IE_Pressed, this, &AHelicopter::OnStartFire);
 	HeliInputComponent->BindAction("Fire", IE_Released, this, &AHelicopter::OnStopFire);
+
+	HeliInputComponent->BindAction("Reload", IE_Pressed, this, &AHelicopter::OnReloadWeapon);
 
 	// ThrotlleUp (HUD)
 	HeliInputComponent->BindAction("ThrottleUp", IE_Pressed, this, &AHelicopter::ThrottleUpInput);
