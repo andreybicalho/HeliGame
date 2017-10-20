@@ -69,6 +69,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InGameMenu")
 	void HideInGameOptionsMenu();
 
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
+	void SetMouseSensitivity(float inMouseSensitivity);
+
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
+	float GetMouseSensitivity();
+
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
+	void SetKeyboardSensitivity(float inKeyboardSensitivity);
+
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
+	float GetKeyboardSensitivity();
+
 	/** check if gameplay related actions (movement, weapon usage, etc) are allowed right now */
 	bool IsGameInputAllowed() const;
 

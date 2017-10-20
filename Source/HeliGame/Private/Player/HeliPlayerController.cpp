@@ -6,6 +6,7 @@
 #include "Helicopter.h"
 #include "HeliPlayerState.h"
 #include "HeliGameInstance.h"
+#include "HeliGameUserSettings.h"
 #include "Online.h"
 #include "OnlineAchievementsInterface.h"
 #include "OnlineEventsInterface.h"
@@ -17,6 +18,7 @@
 #include "UObject/Package.h"
 #include "Public/TimerManager.h"
 #include "Public/DrawDebugHelpers.h"
+#include "Public/Engine.h"
 #include "Components/DecalComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
@@ -294,6 +296,13 @@ void AHeliPlayerController::CleanupSessionOnReturnToMenu()
 
 void AHeliPlayerController::OnShowInGameMenu()
 {
+	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
+
+	if (helicopter)
+	{
+		helicopter->EnableThirdPersonViewpoint();
+	}
+
 	AHeliHud* MyHud = Cast<AHeliHud>(GetHUD());
 
 	if (MyHud)
@@ -651,6 +660,65 @@ void AHeliPlayerController::SetAllowGameActions(bool bNewAllowGameActions)
 {
 	this->bAllowGameActions = bNewAllowGameActions;
 }
+
+void AHeliPlayerController::SetMouseSensitivity(float inMouseSensitivity)
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
+	
+	if (helicopter)
+	{
+		helicopter->SetMouseSensitivity(inMouseSensitivity);
+	}
+
+	if (heliGameUserSettings)
+	{
+		heliGameUserSettings->SetMouseSensitivity(inMouseSensitivity);		
+		heliGameUserSettings->ApplySettings(false);
+	}
+}
+
+float AHeliPlayerController::GetMouseSensitivity()
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+
+	if (heliGameUserSettings)
+	{
+		return heliGameUserSettings->GetMouseSensitivity();
+	}
+
+	return 0.f;
+}
+
+void AHeliPlayerController::SetKeyboardSensitivity(float inKeyboardSensitivity)
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
+
+	if (helicopter)
+	{
+		helicopter->SetKeyboardSensitivity(inKeyboardSensitivity);
+	}
+
+	if (heliGameUserSettings)
+	{
+		heliGameUserSettings->SetKeyboardSensitivity(inKeyboardSensitivity);
+		heliGameUserSettings->ApplySettings(false);
+	}
+}
+
+float AHeliPlayerController::GetKeyboardSensitivity()
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+
+	if (heliGameUserSettings)
+	{
+		return heliGameUserSettings->GetKeyboardSensitivity();
+	}
+
+	return 0.f;
+}
+
 
 
 /*

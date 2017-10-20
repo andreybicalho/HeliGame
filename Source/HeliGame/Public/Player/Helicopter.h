@@ -436,6 +436,10 @@ public:
 	void ThrottleDownInput();
 	void ThrottleReleased();
 
+	void SetMouseSensitivity(float inMouseSensitivity);
+	void SetKeyboardSensitivity(float inKeyboardSensitivity);
+
+
 
 	/*
 	*       Weapons

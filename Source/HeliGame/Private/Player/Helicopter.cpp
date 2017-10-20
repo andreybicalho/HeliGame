@@ -11,11 +11,13 @@
 #include "HeliProjectile.h"
 #include "HeliPlayerState.h"
 #include "HealthBarUserWidget.h"
+#include "HeliGameUserSettings.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Sound/SoundCue.h"
 #include "Public/TimerManager.h"
+#include "Public/Engine.h"
 #include "Components/AudioComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
@@ -1145,6 +1147,16 @@ void AHelicopter::RemoveHealthWidget()
 	}
 }
 
+void AHelicopter::SetMouseSensitivity(float inMouseSensitivity)
+{
+	MouseSensitivity = inMouseSensitivity;
+}
+
+void AHelicopter::SetKeyboardSensitivity(float inKeyboardSensitivity)
+{
+	KeyboardSensitivity = inKeyboardSensitivity;
+}
+
 
 
 /*
@@ -1166,9 +1178,9 @@ void AHelicopter::SetupPlayerInputComponent(class UInputComponent* HeliInputComp
 	InputComponent->BindAxis("Yaw", this, &AHelicopter::MouseYaw);
 	InputComponent->BindAxis("Roll", this, &AHelicopter::MouseRoll);
 
-	InputComponent->BindAxis("Pitch", this, &AHelicopter::KeyboardPitch);
-	InputComponent->BindAxis("Yaw", this, &AHelicopter::KeyboardYaw);
-	InputComponent->BindAxis("Roll", this, &AHelicopter::KeyboardRoll);
+	InputComponent->BindAxis("PitchKB", this, &AHelicopter::KeyboardPitch);
+	InputComponent->BindAxis("YawKB", this, &AHelicopter::KeyboardYaw);
+	InputComponent->BindAxis("RollKB", this, &AHelicopter::KeyboardRoll);
 
 	InputComponent->BindAxis("Thrust", this, &AHelicopter::Thrust);
 
@@ -1224,6 +1236,14 @@ void AHelicopter::PostInitializeComponents()
 		// set default health
 		Health = MaxHealth;		
 	}
+
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	if (heliGameUserSettings)
+	{
+		MouseSensitivity = heliGameUserSettings->GetMouseSensitivity();
+		KeyboardSensitivity = heliGameUserSettings->GetKeyboardSensitivity();
+	}
+	
 }
 
 // Called when the game starts or when spawned

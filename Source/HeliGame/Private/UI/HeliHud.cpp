@@ -141,7 +141,6 @@ void AHeliHud::DrawHUD()
 
 }
 
-
 /************************************************************************ /
 /*                             Crosshair                                */
 /************************************************************************/
@@ -318,6 +317,8 @@ void AHeliHud::ShowInGameMenu()
 	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(GetOwningPlayerController());
 
 	HideInGameOptionsMenu();
+
+	DisableFirstPersonHud();
 	
 	if (InGameMenuWidget.IsValid())
 	{		
