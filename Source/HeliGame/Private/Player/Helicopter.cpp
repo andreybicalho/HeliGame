@@ -788,6 +788,9 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, 
 		AHeliHud* HeliHUD = Cast<AHeliHud>(MyPC->GetHUD());
 		if (HeliHUD)
 		{
+			HeliHUD->HideInGameOptionsMenu();
+			HeliHUD->HideInGameMenu();
+
 			HeliHUD->ShowScoreboard();
 		}
 	}
