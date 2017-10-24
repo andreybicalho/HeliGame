@@ -29,9 +29,7 @@ AHeliProjectile::AHeliProjectile()
 	CollisionComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	CollisionComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);	
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-	CollisionComp->SetCollisionResponseToChannel(COLLISION_CRASHBOX, ECR_Ignore);
 	CollisionComp->SetCollisionResponseToChannel(COLLISION_HELICOPTER, ECR_Block);
-	CollisionComp->SetCollisionResponseToChannel(COLLISION_HELI_ENV_BOX, ECR_Ignore);
 	RootComponent = CollisionComp;	
 
 	ProjectileFX = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ProjectileFX"));

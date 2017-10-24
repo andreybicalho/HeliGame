@@ -23,9 +23,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogHeliWeapon, Log, All);
 * also DefaultEngine.ini [/Script/Engine.CollisionProfile] should match with this list **/
 #define COLLISION_PROJECTILE	ECC_GameTraceChannel1
 #define COLLISION_WEAPON		ECC_GameTraceChannel2
-#define COLLISION_CRASHBOX		ECC_GameTraceChannel3
-#define COLLISION_HELICOPTER	ECC_GameTraceChannel4
-#define COLLISION_HELI_ENV_BOX 	ECC_GameTraceChannel5
+#define COLLISION_HELICOPTER	ECC_GameTraceChannel3
 
 /** when you modify this, please note that this information can be saved with instances
 * also DefaultEngine.ini [/Script/Engine.PhysicsSettings] should match with this list **/

@@ -55,7 +55,6 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	HeliMeshComponent->SetCollisionResponseToChannel(COLLISION_HELICOPTER, ECR_Block);
 	HeliMeshComponent->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 	HeliMeshComponent->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
-	HeliMeshComponent->SetCollisionResponseToChannel(COLLISION_CRASHBOX, ECR_Overlap);
 	HeliMeshComponent->bGenerateOverlapEvents = false;
 	HeliMeshComponent->SetNotifyRigidBodyCollision(true);
 	OnCrashImpactDelegate.BindUFunction(this, "OnCrashImpact");

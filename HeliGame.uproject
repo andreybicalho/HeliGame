@@ -18,6 +18,10 @@
 		{
 			"Name": "OnlineSubsystemSteam",
 			"Enabled": true
+		},
+		{
+			"Name": "OculusVR",
+			"Enabled": false
 		}
 	]
 }
