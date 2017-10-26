@@ -1,27 +1,19 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "4.17",
+	"EngineAssociation": "4.18",
 	"Category": "",
 	"Description": "",
 	"Modules": [
 		{
 			"Name": "HeliGame",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine",
-				"UMG"
-			]
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
 		{
 			"Name": "OnlineSubsystemSteam",
 			"Enabled": true
-		},
-		{
-			"Name": "OculusVR",
-			"Enabled": false
 		}
 	]
 }

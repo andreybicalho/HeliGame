@@ -360,8 +360,8 @@ void AHeliGameSession::HandleMatchHasStarted()
 	{
 		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
 		if (Sessions.IsValid())
-		{
-			UE_LOG(LogOnlineGame, Log, TEXT("Starting session %s on server"), *GameSessionName.ToString());
+		{			
+			//UE_LOG(LogOnlineGame, Log, TEXT("Starting session %s on server"), *GameSessionName.ToString());
 			OnStartSessionCompleteDelegateHandle = Sessions->AddOnStartSessionCompleteDelegate_Handle(OnStartSessionCompleteDelegate);
 			Sessions->StartSession(GameSessionName);
 		}
@@ -392,7 +392,7 @@ void AHeliGameSession::HandleMatchHasEnded()
 			}
 
 			// server is handled here
-			UE_LOG(LogOnlineGame, Log, TEXT("Ending session %s on server"), *GameSessionName.ToString());
+			//UE_LOG(LogOnlineGame, Log, TEXT("Ending session %s on server"), *GameSessionName.ToString());			
 			Sessions->EndSession(GameSessionName);
 		}
 	}

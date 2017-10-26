@@ -33,7 +33,6 @@ UHeliGameInstance::UHeliGameInstance(const FObjectInitializer& ObjectInitializer
 	{
 		LoadingScreenWidgetTemplate = LoadingScreenWidget.Class;
 	}
-	
 
 	// main menu widget
 	static ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidget(TEXT("/Game/HeliBattle/UI/UMG/Menu/MainMenu"));
@@ -74,7 +73,7 @@ UHeliGameInstance::UHeliGameInstance(const FObjectInitializer& ObjectInitializer
 
 	CurrentState = EHeliGameInstanceState::None;
 
-	MainMenuMap = *FString::Printf(TEXT("EntryMenu"));
+	MainMenuMap = *FString::Printf(TEXT("/Game/Maps/EntryMenu"));
 
 	MaxNumberOfPlayers = 16;
 
@@ -944,31 +943,31 @@ void UHeliGameInstance::CleanupSessionOnReturnToMenu()
 	if (Sessions.IsValid())
 	{
 		EOnlineSessionState::Type SessionState = Sessions->GetSessionState(GameSessionName);
-		UE_LOG(LogOnline, Log, TEXT("Session %s is '%s'"), *GameSessionName.ToString(), EOnlineSessionState::ToString(SessionState));
+		//UE_LOG(LogOnline, Log, TEXT("Session %s is '%s'"), *GameSessionName.ToString(), EOnlineSessionState::ToString(SessionState));
 
 		if (EOnlineSessionState::InProgress == SessionState)
 		{
-			UE_LOG(LogOnline, Log, TEXT("Ending session %s on return to main menu"), *GameSessionName.ToString());
+			//UE_LOG(LogOnline, Log, TEXT("Ending session %s on return to main menu"), *GameSessionName.ToString());
 			OnEndSessionCompleteDelegateHandle = Sessions->AddOnEndSessionCompleteDelegate_Handle(OnEndSessionCompleteDelegate);
 			Sessions->EndSession(GameSessionName);
 			bPendingOnlineOp = true;
 		}
 		else if (EOnlineSessionState::Ending == SessionState)
 		{
-			UE_LOG(LogOnline, Log, TEXT("Waiting for session %s to end on return to main menu"), *GameSessionName.ToString());
+			//UE_LOG(LogOnline, Log, TEXT("Waiting for session %s to end on return to main menu"), *GameSessionName.ToString());
 			OnEndSessionCompleteDelegateHandle = Sessions->AddOnEndSessionCompleteDelegate_Handle(OnEndSessionCompleteDelegate);
 			bPendingOnlineOp = true;
 		}
 		else if (EOnlineSessionState::Ended == SessionState || EOnlineSessionState::Pending == SessionState)
 		{
-			UE_LOG(LogOnline, Log, TEXT("Destroying session %s on return to main menu"), *GameSessionName.ToString());
+			//UE_LOG(LogOnline, Log, TEXT("Destroying session %s on return to main menu"), *GameSessionName.ToString());
 			OnDestroySessionCompleteDelegateHandle = Sessions->AddOnDestroySessionCompleteDelegate_Handle(OnEndSessionCompleteDelegate);
 			Sessions->DestroySession(GameSessionName);
 			bPendingOnlineOp = true;
 		}
 		else if (EOnlineSessionState::Starting == SessionState)
 		{
-			UE_LOG(LogOnline, Log, TEXT("Waiting for session %s to start, and then we will end it to return to main menu"), *GameSessionName.ToString());
+			//UE_LOG(LogOnline, Log, TEXT("Waiting for session %s to start, and then we will end it to return to main menu"), *GameSessionName.ToString());
 			OnStartSessionCompleteDelegateHandle = Sessions->AddOnStartSessionCompleteDelegate_Handle(OnEndSessionCompleteDelegate);
 			bPendingOnlineOp = true;
 		}
@@ -1040,7 +1039,7 @@ bool UHeliGameInstance::HostGame(ULocalPlayer* LocalPlayer, const FString& GameT
 		const FString& ChoppedMapName = TravelURL.RightChop(MapNameSubStr.Len());
 		const FString& MapName = ChoppedMapName.LeftChop(ChoppedMapName.Len() - ChoppedMapName.Find("?game"));
 
-		UE_LOG(LogLoad, Log, TEXT("%s"), *FString::Printf(TEXT("GameSessionName: %s, MapName: %s, bIsLanMatch: %s, MaxNumberOfPlayers: %d"), *GameSessionName.ToString(), *MapName, bIsLanMatch ? *FString(TEXT("true")) : *FString(TEXT("false")), MaxNumberOfPlayers));
+		//UE_LOG(LogLoad, Log, TEXT("%s"), *FString::Printf(TEXT("GameSessionName: %s, MapName: %s, bIsLanMatch: %s, MaxNumberOfPlayers: %d"), *GameSessionName.ToString(), *MapName, bIsLanMatch ? *FString(TEXT("true")) : *FString(TEXT("false")), MaxNumberOfPlayers));
 
 		if (GameSession->HostSession(LocalPlayer->GetPreferredUniqueNetId(), GameSessionName, GameType, MapName, FName(*ServerName), bIsLanMatch, true, MaxNumberOfPlayers))//AHeliGameSession::DEFAULT_NUM_PLAYERS))
 		{

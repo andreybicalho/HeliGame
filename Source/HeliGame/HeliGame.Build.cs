@@ -8,14 +8,11 @@ public class HeliGame : ModuleRules
 	{
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        //PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "OnlineSubsystem", "OnlineSubsystemUtils", "Steamworks" });
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "OnlineSubsystem", "OnlineSubsystemUtils", "Steamworks" });
 
+        PrivateDependencyModuleNames.AddRange(new string[] {  });
+        
         // Uncomment if using online features
-        //PrivateDependencyModuleNames.AddRange(new string[] { });
         //PrivateDependencyModuleNames.Add("OnlineSubsystem");
-
-        //DynamicallyLoadedModuleNames.Add("OnlineSubsystemNull");
-        //DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
     }
 }

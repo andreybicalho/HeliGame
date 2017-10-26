@@ -9,7 +9,7 @@ public class HeliGameEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
 
-        ExtraModuleNames.AddRange(new string[] { "HeliGame" });
+        ExtraModuleNames.AddRange( new string[] { "HeliGame" } );
 
         bUseUnityBuild = false;
         bUsePCHFiles = false;
