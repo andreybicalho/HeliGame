@@ -16,6 +16,16 @@ void UHealthBarUserWidget::SetupWidget()
 	if (OwningPawn.IsValid())
 	{
 		PlayerName = OwningPawn->GetPlayerName().ToString();
+
+		AHelicopter* myPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
+		if (myPawn && (myPawn != OwningPawn))
+		{
+			float distance = (myPawn->GetActorLocation() - OwningPawn->GetActorLocation()).Size();
+			float scaleRation = 1.f / distance * 1000;
+
+			FVector2D newSize = FVector2D(scaleRation, scaleRation);
+			SetRenderScale(newSize);
+		}
 	}
 }
 
@@ -23,7 +33,12 @@ void UHealthBarUserWidget::SetupWidget()
 void UHealthBarUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);	
-	
+
+	if(CurrentColor != FriendColor && CurrentColor != EnemyColor )
+	{ 
+		SetupWidget();
+	}
+
 	// scale with distance
 	if (OwningPawn.IsValid())
 	{
