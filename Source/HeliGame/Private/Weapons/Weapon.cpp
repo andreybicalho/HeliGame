@@ -48,7 +48,7 @@ AWeapon::AWeapon(const FObjectInitializer& ObjectInitializer)
 	CurrentAmmoInClip = 0;
 	BurstCounter = 0;
 	LastFireTime = 0.0f;
-	ReloadDuration = 3.f;
+	ReloadDuration = 2.f;
 }
 
 
@@ -273,25 +273,23 @@ void AWeapon::SimulateWeaponFire()
 	// muzzle particle FX
 	if (MuzzleFX)
 	{
-		if (MuzzlePSC == NULL)
 		{
 			MuzzlePSC = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, WeaponConfig.MuzzleAttachPoint);
 		}
 	}
 
 	// sound
-	if (FireAC == NULL)
 	{
 		FireAC = PlayWeaponSound(FireLoopSound);
 	}
 
 	// camera shake on firing
-	AHeliPlayerController* PC = (MyPawn != NULL) ? Cast<AHeliPlayerController>(MyPawn->Controller) : NULL;
-	if (PC != NULL && PC->IsLocalController())
+	AHeliPlayerController* heliPlayerController = (MyPawn != nullptr) ? Cast<AHeliPlayerController>(MyPawn->Controller) : nullptr;
+	if (heliPlayerController && heliPlayerController->IsLocalController())
 	{
-		if (FireCameraShake != NULL)
+		if (FireCameraShake && MyPawn->IsFirstPersonView())
 		{
-			PC->ClientPlayCameraShake(FireCameraShake, 1);
+			heliPlayerController->ClientPlayCameraShake(FireCameraShake, 1);
 		}
 	}
 
@@ -300,16 +298,16 @@ void AWeapon::SimulateWeaponFire()
 void AWeapon::StopSimulatingWeaponFire()
 {
 
-	if (MuzzlePSC != NULL)
+	if (MuzzlePSC)
 	{
 		MuzzlePSC->DeactivateSystem();
-		MuzzlePSC = NULL;
+		MuzzlePSC = nullptr;
 	}
 
 	if (FireAC)
 	{
 		FireAC->FadeOut(0.1f, 0.0f);
-		FireAC = NULL;
+		FireAC = nullptr;
 
 		PlayWeaponSound(FireFinishSound);
 	}
@@ -478,6 +476,8 @@ void AWeapon::StartReload(bool bFromReplication)
 		{
 			GetWorldTimerManager().SetTimer(TimerHandle_ReloadWeapon, this, &AWeapon::ReloadWeapon, FMath::Max(0.1f, ReloadDuration - 0.1f), false);
 		}
+
+		PlayWeaponSound(ReloadSound);
 	}
 }
 
@@ -666,6 +666,8 @@ void AWeapon::ReloadWeapon()
 	{
 		CurrentAmmo = FMath::Max(CurrentAmmoInClip, CurrentAmmo);
 	}
+
+	// TODO(andrey): play reload sound
 }
 
 //////////////////////////////////////////////////////////////////////////

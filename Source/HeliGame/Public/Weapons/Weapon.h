@@ -217,6 +217,7 @@ protected:
 	EWeaponState::Type CurrentState;
 
 	/** reload duration time*/
+	UPROPERTY(EditDefaultsOnly, Category = "Config")
 	float ReloadDuration;
 
 	/** time of last successful weapon fire */
@@ -320,6 +321,10 @@ protected:
 	/** finished burst sound */
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundCue* FireFinishSound;
+
+	/** reload sound */
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	USoundCue* ReloadSound;
 
 	// camera shaking
 	/** camera shake on firing */
