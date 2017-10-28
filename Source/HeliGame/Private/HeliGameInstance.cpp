@@ -69,6 +69,14 @@ UHeliGameInstance::UHeliGameInstance(const FObjectInitializer& ObjectInitializer
 		LobbyMenuWidgetTemplate = LobbyMenuWidget.Class;
 	}
 
+	// about menu widget
+	static ConstructorHelpers::FClassFinder<UUserWidget> AboutMenuWidget(TEXT("/Game/HeliBattle/UI/UMG/Menu/About"));
+	if (AboutMenuWidget.Class != NULL)
+	{
+		AboutMenuWidgetTemplate = AboutMenuWidget.Class;
+	}
+	
+
 
 
 	CurrentState = EHeliGameInstanceState::None;
@@ -488,6 +496,10 @@ void UHeliGameInstance::BeginNewState(EHeliGameInstanceState NewState, EHeliGame
 	{
 		BeginLobbyMenuState();
 	}
+	else if (NewState == EHeliGameInstanceState::AboutMenu)
+	{
+		BeginAboutMenuState();
+	}
 
 	CurrentState = NewState;
 }
@@ -530,6 +542,10 @@ void UHeliGameInstance::EndCurrentState(EHeliGameInstanceState NextState)
 	else if (CurrentState == EHeliGameInstanceState::LobbyMenu)
 	{
 		EndLobbyMenuState(NextState);
+	}
+	else if (CurrentState == EHeliGameInstanceState::AboutMenu)
+	{
+		EndAboutMenuState();
 	}
 
 	CurrentState = EHeliGameInstanceState::None;
@@ -909,6 +925,46 @@ void UHeliGameInstance::EndLobbyMenuState(EHeliGameInstanceState NextState)
 	if (MyViewport && LobbyMenu.IsValid())
 	{
 		LobbyMenu->RemoveFromViewport();
+	}
+}
+
+void UHeliGameInstance::BeginAboutMenuState()
+{
+	UGameViewportClient* MyViewport = Cast<UGameViewportClient>(GetGameViewportClient());
+
+	if (MyViewport && MainMenu.IsValid()) {
+		MainMenu->RemoveFromViewport();
+	}
+
+	if (MyViewport && AboutMenuWidgetTemplate)
+	{
+		if (AboutMenu.IsValid())
+		{
+			AboutMenu->AddToViewport();
+		}
+		else
+		{
+			APlayerController* const FirstPC = GetFirstLocalPlayerController();
+			FirstPC->SetIgnoreLookInput(true);
+			FirstPC->SetIgnoreMoveInput(true);
+			FirstPC->bShowMouseCursor = true;
+
+			AboutMenu = CreateWidget<UUserWidget>(FirstPC, AboutMenuWidgetTemplate);
+			AboutMenu->AddToViewport();
+			AboutMenu->SetUserFocus(FirstPC);
+			AboutMenu->SetKeyboardFocus();
+
+		}
+	}
+}
+
+void UHeliGameInstance::EndAboutMenuState()
+{
+	UGameViewportClient* MyViewport = Cast<UGameViewportClient>(GetGameViewportClient());
+
+	if (MyViewport && AboutMenu.IsValid())
+	{
+		AboutMenu->RemoveFromViewport();
 	}
 }
 

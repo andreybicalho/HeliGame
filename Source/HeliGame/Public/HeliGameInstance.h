@@ -24,7 +24,8 @@ enum class EHeliGameInstanceState : uint8
 	HostingMenu 			UMETA(DisplayName = "HostingMenu"),
 	FindServerMenu 			UMETA(DisplayName = "FindServerMenu"),
 	OptionsMenu 			UMETA(DisplayName = "OptionsMenu"),
-	LobbyMenu 				UMETA(DisplayName = "LobbyMenu")
+	LobbyMenu 				UMETA(DisplayName = "LobbyMenu"),
+	AboutMenu 				UMETA(DisplayName = "AboutMenu")
 };
 
 UENUM(BlueprintType)		//"BlueprintType" is essential to include
@@ -170,6 +171,9 @@ class HELIGAME_API UHeliGameInstance : public UGameInstance
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UiMenu", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UUserWidget> LobbyMenuWidgetTemplate; 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UiMenu", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> AboutMenuWidgetTemplate;
 
 	
 public:
@@ -408,7 +412,7 @@ private:
 	// Lobby menu UI
 	TWeakObjectPtr<UUserWidget> LobbyMenu;
 
-
+	TWeakObjectPtr<UUserWidget> AboutMenu;
 
 
 
@@ -461,6 +465,7 @@ private:
 	void BeginMessageMenuState();
 	void BeginOptionsMenuState();
 	void BeginLobbyMenuState();
+	void BeginAboutMenuState();
 
 	void EndPendingInviteState();
 	void EndWelcomeScreenState();
@@ -471,6 +476,7 @@ private:
 	void EndMessageMenuState();
 	void EndOptionsMenuState();
 	void EndLobbyMenuState(EHeliGameInstanceState NextState);
+	void EndAboutMenuState();
 	
 
 	void AddNetworkFailureHandlers();
