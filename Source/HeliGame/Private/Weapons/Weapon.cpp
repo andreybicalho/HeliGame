@@ -273,12 +273,14 @@ void AWeapon::SimulateWeaponFire()
 	// muzzle particle FX
 	if (MuzzleFX)
 	{
+		if (MuzzlePSC == nullptr)
 		{
 			MuzzlePSC = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, WeaponConfig.MuzzleAttachPoint);
 		}
 	}
 
 	// sound
+	if (FireAC == nullptr)
 	{
 		FireAC = PlayWeaponSound(FireLoopSound);
 	}

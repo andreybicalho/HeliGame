@@ -35,6 +35,9 @@ public:
 	/** select best spawn point for player */
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
+	/** always pick new random spawn */
+	virtual bool ShouldSpawnAtStartSpot(AController* Player) override;
+
 	/** update remaining time */
 	virtual void DefaultTimer();
 

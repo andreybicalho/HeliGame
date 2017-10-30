@@ -148,6 +148,8 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
 	HealthBarWidgetComponent->AttachToComponent(HeliMeshComponent, FAttachmentTransformRules::KeepRelativeTransform, HealthBarSocketName);
+
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 }
 
 /*
@@ -1165,6 +1167,29 @@ void AHelicopter::SetKeyboardSensitivity(float inKeyboardSensitivity)
 	Overrides from APawn
 */
 
+void AHelicopter::PossessedBy(class AController* InController)
+{
+	Super::PossessedBy(InController);
+
+	// [server] as soon as PlayerState is assigned, set team colors of this pawn for local player
+}
+
+void AHelicopter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	// [client] as soon as PlayerState is assigned, set team colors of this pawn for local player
+	if (PlayerState)
+	{
+		AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(PlayerState);
+		if (heliPlayerState)
+		{			
+			Server_UpdatePlayerInfo(FName(*heliPlayerState->GetPlayerName()), heliPlayerState->GetTeamNumber());
+		}
+
+		SetupPlayerInfoWidget();
+	}
+}
 
 // Called to bind functionality to input
 void AHelicopter::SetupPlayerInputComponent(class UInputComponent* HeliInputComponent)
@@ -1246,12 +1271,21 @@ void AHelicopter::PostInitializeComponents()
 		KeyboardSensitivity = heliGameUserSettings->GetKeyboardSensitivity();
 	}
 	
+
+	//parei aqui: vendo qual a localizadao de spawn do helicoptero
+	APlayerController* playerController = Cast<APlayerController>(Controller);
+	if (playerController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHelicopter::PostInitializeComponents ~ SpawnLocation: %s"), *playerController->GetSpawnLocation().ToString());
+	}
+	
+
 }
 
 // Called when the game starts or when spawned
 void AHelicopter::BeginPlay()
 {
-	Super::BeginPlay();
+	Super::BeginPlay();	
 
 	// set timer for rotors animation
 	if (!RotorAnimTimerHandle.IsValid())

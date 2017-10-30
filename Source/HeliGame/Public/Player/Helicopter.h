@@ -536,6 +536,12 @@ public:
 
 	
 /* overrides */
+private:
+	/** [server] perform PlayerState related setup */
+	virtual void PossessedBy(class AController* C) override;
+
+	/** [client] perform PlayerState related setup */
+	virtual void OnRep_PlayerState() override;
 
 protected:
 	// Called when the game starts or when spawned

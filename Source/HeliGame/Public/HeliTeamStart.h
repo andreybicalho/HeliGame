@@ -20,6 +20,10 @@ public:
 	UPROPERTY(EditInstanceOnly, Category = "Team")
 	int32 SpawnTeam;
 	
-	UPROPERTY(EditInstanceOnly, Category = "Team")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team")
 	bool isTaken;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite , Category = "Team")
+	FString PlayerName;
+
 };

@@ -159,7 +159,7 @@ AActor* AHeliGameMode::ChoosePlayerStart_Implementation(AController* Player)
 	TArray<APlayerStart*> PreferredSpawns;
 	TArray<APlayerStart*> FallbackSpawns;
 
-	APlayerStart* BestStart = NULL;
+	APlayerStart* BestStart = nullptr;
 	for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
 	{
 		APlayerStart* TestSpawn = *It;
@@ -167,6 +167,8 @@ AActor* AHeliGameMode::ChoosePlayerStart_Implementation(AController* Player)
 		{
 			// Always prefer the first "Play from Here" PlayerStart, if we find one while in PIE mode
 			BestStart = TestSpawn;
+			UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ Player: %s - SpawnLocation: %s (%s is APlayerStartPIE)"), *Player->GetName(), *BestStart->GetActorLocation().ToString(), *BestStart->GetName());
+
 			break;
 		}
 		else
@@ -186,7 +188,7 @@ AActor* AHeliGameMode::ChoosePlayerStart_Implementation(AController* Player)
 	}
 
 
-	if (BestStart == NULL)
+	if (BestStart == nullptr)
 	{
 		if (PreferredSpawns.Num() > 0)
 		{
@@ -198,14 +200,70 @@ AActor* AHeliGameMode::ChoosePlayerStart_Implementation(AController* Player)
 		}
 	}
 
+	// ideia: nao usar AHeliTeamStart, usar a padrao e colocar  a string 'taken" no atributo PlayerStartTag
+	if (BestStart)
+	{
+		BestStart->PlayerStartTag = FName(TEXT("taken"));
+	}
+
+	//return BestStart ? BestStart : Super::ChoosePlayerStart_Implementation(Player);
+
 	AHeliTeamStart* HeliBestStart = Cast<AHeliTeamStart>(BestStart);
 	if(HeliBestStart)
 	{
-		HeliBestStart->isTaken = true;		
+		HeliBestStart->isTaken = true;
+		HeliBestStart->PlayerName = Player->GetName();
+
+		UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ BestStart for Player %s is %s - TAKEN!"), *Player->GetName(), *HeliBestStart->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ Could not find BestStart for Player %s"), *Player->GetName());
+	}
+	
+	return BestStart ? BestStart : Super::ChoosePlayerStart_Implementation(Player);
+}
+
+bool AHeliGameMode::IsSpawnpointAllowed(APlayerStart* SpawnPoint, AController* Player) const
+{
+	return true;
+}
+
+bool AHeliGameMode::IsSpawnpointPreferred(APlayerStart* SpawnPoint, AController* Player) const
+{
+	AHelicopter* MyPawn = Cast<AHelicopter>((*DefaultPawnClass)->GetDefaultObject<AHelicopter>());
+	if (MyPawn)
+	{
+		const FVector SpawnLocation = SpawnPoint->GetActorLocation();
+		for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
+		{
+			AHelicopter* OtherPawn = Cast<AHelicopter>(*It);
+			if (OtherPawn && OtherPawn != MyPawn)
+			{
+				const float CombinedRadius = MyPawn->GetSimpleCollisionRadius() + OtherPawn->GetSimpleCollisionRadius();
+				const FVector OtherLocation = OtherPawn->GetActorLocation();
+
+				// check if player start overlaps this pawn
+				if ((SpawnLocation - OtherLocation).Size2D() < CombinedRadius)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::IsSpawnpointPreferred ~ Check for player %s: %s is overlaping %s at %s"), *Player->GetName(), *MyPawn->GetName(), *OtherPawn->GetName(), *SpawnPoint->GetName());
+					return false;
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::IsSpawnpointPreferred ~ Check for player %s: MyPawn NOT FOUND"), *Player->GetName());
+		return false;
 	}
 
+	return true;
+}
 
-	return BestStart ? BestStart : Super::ChoosePlayerStart_Implementation(Player);
+bool AHeliGameMode::ShouldSpawnAtStartSpot(AController* Player)
+{
+	return false;
 }
 
 void AHeliGameMode::HandleMatchIsWaitingToStart()
@@ -356,17 +414,6 @@ bool AHeliGameMode::IsWinner(class AHeliPlayerState* PlayerState) const
 	// classes derived from this one may have something to do
 
 	return false;
-}
-
-bool AHeliGameMode::IsSpawnpointAllowed(APlayerStart* SpawnPoint, AController* Player) const
-{
-	return true;
-}
-
-bool AHeliGameMode::IsSpawnpointPreferred(APlayerStart* SpawnPoint, AController* Player) const
-{
-	// TODO: check if player should use spawnpoint
-	return true;
 }
 
 /** Returns game session class to use */

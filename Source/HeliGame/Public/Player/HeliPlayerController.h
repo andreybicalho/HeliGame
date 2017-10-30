@@ -159,17 +159,11 @@ public:
 */
 
 protected:
-	/** respawn after dying */
-	virtual void UnFreeze() override;
-
 	/** sets up input */
 	virtual void SetupInputComponent() override;
 
 	/** Return the client to the main menu gracefully.  ONLY sets GI state. */
-	void ClientReturnToMainMenu_Implementation(const FString& ReturnReason) override;
-
-	/** transition to dead state, retries spawning later */
-	virtual void FailedToSpawnPawn() override;
+	void ClientReturnToMainMenu_Implementation(const FString& ReturnReason) override;	
 
 	/** Pawn has been possessed, so changing state to NAME_Playing. Start it walking and begin playing with it. */
 	void BeginPlayingState() override;
@@ -189,4 +183,13 @@ public:
 	* @param bIsWinner true if this controller is on winning team
 	*/
 	virtual void GameHasEnded(class AActor* EndGameFocus = NULL, bool bIsWinner = false) override;
+
+	/** transition to dead state, retries spawning later */
+	virtual void FailedToSpawnPawn() override;
+
+	/** respawn after dying */
+	virtual void UnFreeze() override;
+
+	/** Set the SpawnLocation for use when changing states or when there is no pawn or spectator. */
+	virtual void SetSpawnLocation(const FVector& NewLocation) override;
 };

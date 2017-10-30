@@ -760,11 +760,6 @@ void AHeliPlayerController::SetupInputComponent()
 
 }
 
-void AHeliPlayerController::UnFreeze()
-{
-	ServerRestartPlayer();
-}
-
 void AHeliPlayerController::ClientReturnToMainMenu_Implementation(const FString& InReturnReason)
 {
 	UHeliGameInstance* SGI = GetWorld() != NULL ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : NULL;
@@ -790,15 +785,6 @@ void AHeliPlayerController::ClientReturnToMainMenu_Implementation(const FString&
 
 	// Clear the flag so we don't do normal end of round stuff next
 	//bGameEndedFrame = false;
-}
-
-void AHeliPlayerController::FailedToSpawnPawn()
-{
-	if (StateName == NAME_Inactive)
-	{
-		BeginInactiveState();
-	}
-	Super::FailedToSpawnPawn();
 }
 
 /** Pawn has been possessed. Start it walking and begin playing with it. */
@@ -872,4 +858,24 @@ void AHeliPlayerController::GameHasEnded(class AActor* EndGameFocus, bool bIsWin
 	// TODO: UpdateLeaderboardsOnGameEnd();
 
 	Super::GameHasEnded(EndGameFocus, bIsWinner);
+}
+
+void AHeliPlayerController::UnFreeze()
+{
+	ServerRestartPlayer();
+}
+
+void AHeliPlayerController::FailedToSpawnPawn()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerController::FailedToSpawnPawn ~ Name? %s - SpawnLocation: %s"), *GetName(), *GetSpawnLocation().ToString());
+	if (StateName == NAME_Inactive)
+	{
+		BeginInactiveState();
+	}
+	Super::FailedToSpawnPawn();
+}
+
+void AHeliPlayerController::SetSpawnLocation(const FVector& NewLocation)
+{
+	Super::SetSpawnLocation(NewLocation);
 }
