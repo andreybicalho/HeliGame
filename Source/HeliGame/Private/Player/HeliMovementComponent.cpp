@@ -42,11 +42,11 @@ void UHeliMovementComponent::AddPitch(float InPitch)
 
 		if (bUseAddTorque)
 		{
-			BaseComp->AddTorque(AngularVelocity, BoneName, bAccelChange);
+			BaseComp->AddTorqueInRadians(AngularVelocity, BoneName, bAccelChange);
 		}
 		else
 		{
-			BaseComp->SetPhysicsAngularVelocity(AngularVelocity, bAddToCurrent);
+			BaseComp->SetPhysicsAngularVelocityInDegrees(AngularVelocity, bAddToCurrent);
 		}
 	}
 }
@@ -60,11 +60,11 @@ void UHeliMovementComponent::AddYaw(float InYaw)
 
 		if (bUseAddTorque)
 		{
-			BaseComp->AddTorque(AngularVelocity, BoneName, bAccelChange);
+			BaseComp->AddTorqueInRadians(AngularVelocity, BoneName, bAccelChange);
 		}
 		else
 		{
-			BaseComp->SetPhysicsAngularVelocity(AngularVelocity, bAddToCurrent);
+			BaseComp->SetPhysicsAngularVelocityInDegrees(AngularVelocity, bAddToCurrent);
 		}
 	}
 }
@@ -78,11 +78,11 @@ void UHeliMovementComponent::AddRoll(float InRoll)
 
 		if (bUseAddTorque)
 		{
-			BaseComp->AddTorque(AngularVelocity, BoneName, bAccelChange);
+			BaseComp->AddTorqueInRadians(AngularVelocity, BoneName, bAccelChange);
 		}
 		else
 		{
-			BaseComp->SetPhysicsAngularVelocity(AngularVelocity, bAddToCurrent);
+			BaseComp->SetPhysicsAngularVelocityInDegrees(AngularVelocity, bAddToCurrent);
 		}
 	}
 }
@@ -204,7 +204,7 @@ FVector UHeliMovementComponent::GetPhysicsAngularVelocity()
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 	if (BaseComp && BaseComp->IsSimulatingPhysics())
 	{
-		return BaseComp->GetPhysicsAngularVelocity();
+		return BaseComp->GetPhysicsAngularVelocityInDegrees();
 	}
 
 	return FVector::ZeroVector;
@@ -224,7 +224,7 @@ void UHeliMovementComponent::SetPhysicsAngularVelocity(FVector NewAngularVelocit
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 	if (BaseComp && BaseComp->IsSimulatingPhysics())
 	{
-		BaseComp->SetPhysicsAngularVelocity(NewAngularVelocity, false);
+		BaseComp->SetPhysicsAngularVelocityInDegrees(NewAngularVelocity, false);
 	}
 }
 
@@ -284,7 +284,7 @@ void UHeliMovementComponent::MovementReplication_Receive()
 		BaseComp->SetWorldLocation(Movement.Location);
 		BaseComp->SetWorldRotation(Movement.Rotation.Quaternion());
 		BaseComp->SetPhysicsLinearVelocity(Movement.LinearVelocity);
-		BaseComp->SetPhysicsAngularVelocity(Movement.AngularVelocity);
+		BaseComp->SetPhysicsAngularVelocityInDegrees(Movement.AngularVelocity);
 	}
 }
 

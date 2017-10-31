@@ -11,7 +11,7 @@ public class HeliGameEditorTarget : TargetRules
 
         ExtraModuleNames.AddRange( new string[] { "HeliGame" } );
 
-        bUseUnityBuild = false;
-        bUsePCHFiles = false;
+        //bUseUnityBuild = false;
+        //bUsePCHFiles = false;
     }
 }

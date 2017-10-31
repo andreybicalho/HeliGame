@@ -10,8 +10,7 @@ public class HeliGame : ModuleRules
 
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "OnlineSubsystem", "OnlineSubsystemUtils", "Steamworks" });
 
-        PrivateDependencyModuleNames.AddRange(new string[] {  });
-        
+        //PrivateDependencyModuleNames.AddRange(new string[] { });
         // Uncomment if using online features
         //PrivateDependencyModuleNames.Add("OnlineSubsystem");
     }
