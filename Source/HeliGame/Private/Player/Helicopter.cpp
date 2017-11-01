@@ -763,7 +763,8 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, 
 		HeliMovementComponent->SetActive(false);
 	}
 	//disable collisions on mesh
-	HeliMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HeliMeshComponent->SetSimulatePhysics(false);
+	HeliMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);	
 
 
 	// turn off rotors anim
@@ -1307,6 +1308,8 @@ void AHelicopter::BeginPlay()
 void AHelicopter::PawnClientRestart()
 {
 	Super::PawnClientRestart();
+
+	HeliMeshComponent->SetSimulatePhysics(true);
 
 	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
 	if (MyPC)
