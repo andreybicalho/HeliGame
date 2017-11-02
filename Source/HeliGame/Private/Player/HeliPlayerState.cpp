@@ -41,6 +41,7 @@ void AHeliPlayerState::CopyProperties(APlayerState* PlayerState)
 	{
 		MyPlayerState->TeamNumber = TeamNumber;
 		MyPlayerState->PlayerName = PlayerName;
+		MyPlayerState->bPlayerReady = bPlayerReady;
 	}
 }
 

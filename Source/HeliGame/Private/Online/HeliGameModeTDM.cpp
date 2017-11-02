@@ -86,23 +86,13 @@ void AHeliGameModeTDM::PostLogin(APlayerController* NewPlayer)
 	AHeliPlayerState* newPlayerState = CastChecked<AHeliPlayerState>(NewPlayer->PlayerState);	
 	if (newPlayerState)
 	{
-		const int32 teamNum = ChooseTeam(newPlayerState);
-		newPlayerState->SetTeamNumber(teamNum);
+		// if player didn't came from lobby we need to set a team for him
+		if (!newPlayerState->bPlayerReady) {
+			const int32 teamNum = ChooseTeam(newPlayerState);
+			newPlayerState->SetTeamNumber(teamNum);
+		}
 
-		UE_LOG(LogTemp, Display, TEXT("AHeliGameModeTDM::PostLogin ~ Player %s - Team %d - Controller %s - AutoSpawnLocation: %s"), *newPlayerState->PlayerName, newPlayerState->GetTeamNumber(), *NewPlayer->GetName(), *NewPlayer->GetSpawnLocation().ToString());
-
-		AHeliPlayerController* heliPlayerController = Cast<AHeliPlayerController>(NewPlayer);
-		if (heliPlayerController)
-		{
-			AActor* actorSpawnLocation = ChoosePlayerStart_Implementation(NewPlayer);
-			if (actorSpawnLocation)
-			{
-				heliPlayerController->SetSpawnLocation(actorSpawnLocation->GetActorLocation());
-
-				UE_LOG(LogTemp, Warning, TEXT("AHeliGameModeTDM::PostLogin ~ Player %s - Team %d - Controller %s - NewSpawnLocation: %s"), *newPlayerState->PlayerName, newPlayerState->GetTeamNumber(), *NewPlayer->GetName(), *NewPlayer->GetSpawnLocation().ToString());
-
-			}
-		}		
+		UE_LOG(LogTemp, Display, TEXT("AHeliGameModeTDM::PostLogin ~ Player %s - Team %d - Controller %s - AutoSpawnLocation: %s"), *newPlayerState->PlayerName, newPlayerState->GetTeamNumber(), *NewPlayer->GetName(), *NewPlayer->GetSpawnLocation().ToString());				
 	}
 
 	Super::PostLogin(NewPlayer);
