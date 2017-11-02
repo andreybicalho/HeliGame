@@ -424,9 +424,9 @@ TSubclassOf<AGameSession> AHeliGameMode::GetGameSessionClass() const
 
 
 
-/************************************************************************ /
-/* Damage & Killing                                                     */
-/************************************************************************/
+/************************************************************************
+* Damage & Killing                                                      *
+************************************************************************/
 void AHeliGameMode::Killed(AController* Killer, AController* VictimPlayer, APawn* VictimPawn, const UDamageType* DamageType)
 {
 	// apply score and keep track of kill count
