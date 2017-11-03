@@ -16,8 +16,7 @@
 
 AHeliPlayerState::AHeliPlayerState()
 {
-	/* AI will remain in team 0, players are updated to team 1 through the GameMode::InitNewPlayer */
-	TeamNumber = 0;
+	TeamNumber = -1;
 
 	NumKills = 0;
 	NumDeaths = 0;

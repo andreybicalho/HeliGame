@@ -200,27 +200,17 @@ AActor* AHeliGameMode::ChoosePlayerStart_Implementation(AController* Player)
 		}
 	}
 
-	// ideia: nao usar AHeliTeamStart, usar a padrao e colocar  a string 'taken" no atributo PlayerStartTag
-	if (BestStart)
+	AHeliTeamStart* heliBestStart = Cast<AHeliTeamStart>(BestStart);
+	AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(Player->PlayerState);
+	if(heliBestStart && heliPlayerState)
 	{
-		BestStart->PlayerStartTag = FName(TEXT("taken"));
+		heliBestStart->isTaken = true;
+		heliBestStart->PlayerName = heliPlayerState->GetPlayerName();
+		heliBestStart->PlayerStartTag = FName(*heliPlayerState->GetPlayerName());				
+
+		UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ BestStart %s TAKEN for Controller %s of player %s"), *heliBestStart->GetName(), *Player->GetName(), *heliBestStart->PlayerName);
 	}
 
-	//return BestStart ? BestStart : Super::ChoosePlayerStart_Implementation(Player);
-
-	AHeliTeamStart* HeliBestStart = Cast<AHeliTeamStart>(BestStart);
-	if(HeliBestStart)
-	{
-		HeliBestStart->isTaken = true;
-		HeliBestStart->PlayerName = Player->GetName();
-
-		UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ BestStart for Player %s is %s - TAKEN!"), *Player->GetName(), *HeliBestStart->GetName());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ Could not find BestStart for Player %s"), *Player->GetName());
-	}
-	
 	return BestStart ? BestStart : Super::ChoosePlayerStart_Implementation(Player);
 }
 
@@ -252,11 +242,16 @@ bool AHeliGameMode::IsSpawnpointPreferred(APlayerStart* SpawnPoint, AController*
 			}
 		}
 	}
-	else
+
+	AHeliTeamStart* heliTeamStart = Cast<AHeliTeamStart>(SpawnPoint);
+	AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(Player->PlayerState);
+	if(heliTeamStart && heliPlayerState && heliTeamStart->PlayerName.Equals(heliPlayerState->GetPlayerName()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::IsSpawnpointPreferred ~ Check for player %s: MyPawn NOT FOUND"), *Player->GetName());
-		return false;
+		UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::IsSpawnpointPreferred ~ Using spawn location preferred (team start %s) for player %s from team %d"), *heliTeamStart->GetName(),*heliPlayerState->GetPlayerName(), heliPlayerState->GetTeamNumber());
+		
+		return true;
 	}
+
 
 	return true;
 }
