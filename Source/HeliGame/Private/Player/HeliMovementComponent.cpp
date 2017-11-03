@@ -28,6 +28,8 @@ UHeliMovementComponent::UHeliMovementComponent(const FObjectInitializer& ObjectI
 	BaseThrust = 10000.f;
 
 	MinimumTiltInclinationAcceleration = 10000.f;
+
+	MaximumAngularVelocity = 100.f;							 
 }
 
 /*
@@ -36,7 +38,7 @@ Controls
 void UHeliMovementComponent::AddPitch(float InPitch)
 {
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (IsActive() && BaseComp && BaseComp->IsSimulatingPhysics())
+	if (IsActive() && BaseComp && BaseComp->IsSimulatingPhysics() && FMath::Abs(BaseComp->GetPhysicsAngularVelocityInDegrees().Size()) <= MaximumAngularVelocity)
 	{
 		const FVector AngularVelocity = BaseComp->GetRightVector() * InPitch;
 
@@ -54,10 +56,10 @@ void UHeliMovementComponent::AddPitch(float InPitch)
 void UHeliMovementComponent::AddYaw(float InYaw)
 {
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (IsActive() && BaseComp && BaseComp->IsSimulatingPhysics())
+	if (IsActive() && BaseComp && BaseComp->IsSimulatingPhysics() && FMath::Abs(BaseComp->GetPhysicsAngularVelocityInDegrees().Size()) <= MaximumAngularVelocity)
 	{
-		const FVector AngularVelocity = BaseComp->GetUpVector() * InYaw;
-
+		const FVector AngularVelocity = BaseComp->GetUpVector() * InYaw;		
+		
 		if (bUseAddTorque)
 		{
 			BaseComp->AddTorqueInRadians(AngularVelocity, BoneName, bAccelChange);
@@ -65,14 +67,14 @@ void UHeliMovementComponent::AddYaw(float InYaw)
 		else
 		{
 			BaseComp->SetPhysicsAngularVelocityInDegrees(AngularVelocity, bAddToCurrent);
-		}
+		}		
 	}
 }
 
 void UHeliMovementComponent::AddRoll(float InRoll)
 {
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (IsActive() && BaseComp && BaseComp->IsSimulatingPhysics())
+	if (IsActive() && BaseComp && BaseComp->IsSimulatingPhysics() && FMath::Abs(BaseComp->GetPhysicsAngularVelocityInDegrees().Size()) <= MaximumAngularVelocity)
 	{
 		const FVector AngularVelocity = BaseComp->GetForwardVector() * InRoll;
 
@@ -84,6 +86,7 @@ void UHeliMovementComponent::AddRoll(float InRoll)
 		{
 			BaseComp->SetPhysicsAngularVelocityInDegrees(AngularVelocity, bAddToCurrent);
 		}
+		//UE_LOG(LogTemp, Display, TEXT("InRoll = %f - Angular Velocity Rolling: (%s) = %f"), InRoll, *BaseComp->GetPhysicsAngularVelocityInDegrees().ToString(), FMath::Abs(BaseComp->GetPhysicsAngularVelocityInDegrees().Size()) );
 	}
 }
 
@@ -163,7 +166,7 @@ FVector UHeliMovementComponent::ComputeLift(UPrimitiveComponent* BaseComp)
 		// up momentum will produce zero net force against gravity force when stationary (F = m*a)
 		FVector UpMomentum = BaseComp->GetUpVector() * (BaseComp->GetMass() * WeightedGravityAcceleration);
 
-		// adds momentum for inclination and tilt (m = a * tanh(-angle))
+		// adds momentum for inclination and tilt (m = a * tanh(-angle) a.k.a. hyperbolic tangent function) 
 		float InclinationAcceleration = MinimumTiltInclinationAcceleration * FMath::Tan(-InclinationAngle);
 		float TiltAcceleration = MinimumTiltInclinationAcceleration * FMath::Tan(-TiltAngle);
 
@@ -264,7 +267,7 @@ void UHeliMovementComponent::MovementReplication_Send()
 				BaseComp->GetComponentLocation(),
 				BaseComp->GetComponentRotation(),
 				BaseComp->GetPhysicsLinearVelocity(),
-				BaseComp->GetPhysicsAngularVelocity()
+				BaseComp->GetPhysicsAngularVelocityInDegrees()
 			)
 		);
 	}
