@@ -35,8 +35,10 @@ public:
 	/** select best spawn point for player */
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
-	/** always pick new random spawn */
+	/** Return true of FindPlayerStart should use the StartSpot stored on Player instead of calling ChoosePlayerStart. */
 	virtual bool ShouldSpawnAtStartSpot(AController* Player) override;
+
+	virtual void RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot) override;
 
 	/** update remaining time */
 	virtual void DefaultTimer();

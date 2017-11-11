@@ -82,21 +82,25 @@ void AHeliGameModeTDM::CompetitiveRoundManager()
 
 void AHeliGameModeTDM::PostLogin(APlayerController* NewPlayer)
 {
+	UE_LOG(LogTemp, Warning, TEXT("AHeliGameModeTDM::PostLogin ~ %s %s has Role %d and RemoteRole %d"), NewPlayer->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *NewPlayer->GetName(), (int32)NewPlayer->Role, (int32)NewPlayer->GetRemoteRole());
+
 	// Place player on a team before Super (VoIP team based init, findplayerstart, etc)
 	AHeliPlayerState* newPlayerState = CastChecked<AHeliPlayerState>(NewPlayer->PlayerState);	
 	if (newPlayerState)
 	{
-		UE_LOG(LogTemp, Display, TEXT("AHeliGameModeTDM::PostLogin ~ Player %s from Team %d with PlayerController %s has default spawn Location: %s"), *newPlayerState->GetPlayerName(), newPlayerState->GetTeamNumber(), *NewPlayer->GetName(), *NewPlayer->GetSpawnLocation().ToString());
+		UE_LOG(LogTemp, Display, TEXT("AHeliGameModeTDM::PostLogin ~ %s from Team %d with %s has default spawn Location: %s"), *newPlayerState->GetPlayerName(), newPlayerState->GetTeamNumber(), *NewPlayer->GetName(), *NewPlayer->GetSpawnLocation().ToString());
 
 		// if player didn't came from lobby we need to set a team for him
 		if (!newPlayerState->bPlayerReady) {
 			const int32 teamNum = ChooseTeam(newPlayerState);
 			newPlayerState->SetTeamNumber(teamNum);
-			UE_LOG(LogTemp, Display, TEXT("AHeliGameModeTDM::PostLogin ~ Picking a team for Player %s - New Team is %d"), *newPlayerState->GetPlayerName(), newPlayerState->GetTeamNumber());
+			UE_LOG(LogTemp, Display, TEXT("AHeliGameModeTDM::PostLogin ~ Picking a team for %s - New Team is %d"), *newPlayerState->GetPlayerName(), newPlayerState->GetTeamNumber());
 		}						
 	}
 
 	Super::PostLogin(NewPlayer);
+
+	RestartPlayer(NewPlayer);
 }
 
 // TODO(andrey): remove choose team since we choose team in lobby
@@ -209,23 +213,25 @@ bool AHeliGameModeTDM::IsSpawnpointAllowed(APlayerStart* SpawnPoint, AController
 {
 	if (Player)
 	{		
+		UE_LOG(LogTemp, Display, TEXT("AHeliGameModeTDM::IsSpawnpointAllowed ~ %s with PlayerTag %s being tested by %s Role %d and RemoteRole %d"), *SpawnPoint->GetName(), *SpawnPoint->PlayerStartTag.ToString(), *Player->GetName(), (int32)Player->Role, (int32)Player->GetRemoteRole());
+
 		AHeliTeamStart* teamStart = Cast<AHeliTeamStart>(SpawnPoint);
 		AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(Player->PlayerState);
-
-		if (teamStart && teamStart->isTaken)
+		
+		if (teamStart && heliPlayerState && teamStart->isTaken && teamStart->PlayerStartTag.IsEqual(FName(*heliPlayerState->GetPlayerName())))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AHeliGameModeTDM::IsSpawnpointAllowed ~ NOT ALLOWED because spaw point %s for team %d IS ALREADY TAKEN by %s - %s from team %d NOT ALLOWED"), *teamStart->GetName(), teamStart->SpawnTeam, *teamStart->PlayerName, *heliPlayerState->GetPlayerName(), heliPlayerState->GetTeamNumber());
-			return false;
+			UE_LOG(LogTemp, Display, TEXT("AHeliGameModeTDM::IsSpawnpointAllowed ~ %s ALLOWED for %s because it has been tagged with %s"), *SpawnPoint->GetName(), *Player->GetName(), *teamStart->PlayerStartTag.ToString());
+			
+			return true;
 		}
-
 
 		if ((heliPlayerState && teamStart && teamStart->SpawnTeam != heliPlayerState->GetTeamNumber()))
 		{			
-			UE_LOG(LogTemp, Warning, TEXT("AHeliGameModeTDM::IsSpawnpointAllowed ~ NOT ALLOWED because Place %s for team %d is not for player %s from team %d"), *teamStart->GetName(), teamStart->SpawnTeam, *heliPlayerState->GetPlayerName(), heliPlayerState->GetTeamNumber());
+			UE_LOG(LogTemp, Error, TEXT("AHeliGameModeTDM::IsSpawnpointAllowed ~ %s NOT ALLOWED for %s because it is not for his team"), *SpawnPoint->GetName(), *Player->GetName());			
 			return false;
 		}
 	}
-
+	
 	return Super::IsSpawnpointAllowed(SpawnPoint, Player);
 }
 

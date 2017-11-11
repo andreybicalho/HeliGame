@@ -41,7 +41,6 @@ AHeliGameMode::AHeliGameMode(const FObjectInitializer& ObjectInitializer) : Supe
 	PlayerStateClass = AHeliPlayerState::StaticClass();
 	GameStateClass = AHeliGameState::StaticClass();
 
-
 	bAllowFriendlyFireDamage = false;
 
 	/* Default team is 0 for players and 1 for enemies */
@@ -167,7 +166,7 @@ AActor* AHeliGameMode::ChoosePlayerStart_Implementation(AController* Player)
 		{
 			// Always prefer the first "Play from Here" PlayerStart, if we find one while in PIE mode
 			BestStart = TestSpawn;
-			UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ Player: %s - SpawnLocation: %s (%s is APlayerStartPIE)"), *Player->GetName(), *BestStart->GetActorLocation().ToString(), *BestStart->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ %s - SpawnLocation: %s (%s is APlayerStartPIE)"), *Player->GetName(), *BestStart->GetActorLocation().ToString(), *BestStart->GetName());
 
 			break;
 		}
@@ -205,17 +204,17 @@ AActor* AHeliGameMode::ChoosePlayerStart_Implementation(AController* Player)
 	if(heliBestStart && heliPlayerState)
 	{
 		heliBestStart->isTaken = true;
-		heliBestStart->PlayerName = heliPlayerState->GetPlayerName();
 		heliBestStart->PlayerStartTag = FName(*heliPlayerState->GetPlayerName());				
 
-		UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ BestStart %s TAKEN for Controller %s of player %s"), *heliBestStart->GetName(), *Player->GetName(), *heliBestStart->PlayerName);
-	}
+		UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ %s TAKEN by %s and tagged with %s"), *heliBestStart->GetName(), *Player->GetName(), *heliBestStart->PlayerStartTag.ToString());
+	}	
 
 	return BestStart ? BestStart : Super::ChoosePlayerStart_Implementation(Player);
 }
 
 bool AHeliGameMode::IsSpawnpointAllowed(APlayerStart* SpawnPoint, AController* Player) const
-{
+{	
+	UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::IsSpawnpointAllowed ~ %s ALLOWED for %s by default"), *SpawnPoint->GetName(), *Player->GetName());
 	return true;
 }
 
@@ -236,7 +235,7 @@ bool AHeliGameMode::IsSpawnpointPreferred(APlayerStart* SpawnPoint, AController*
 				// check if player start overlaps this pawn
 				if ((SpawnLocation - OtherLocation).Size2D() < CombinedRadius)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::IsSpawnpointPreferred ~ Check for player %s: %s is overlaping %s at %s"), *Player->GetName(), *MyPawn->GetName(), *OtherPawn->GetName(), *SpawnPoint->GetName());
+					UE_LOG(LogTemp, Error, TEXT("AHeliGameMode::IsSpawnpointPreferred ~ %s NOT PREFERRED for %s because OVERLAPING!"), *SpawnPoint->GetName(), *Player->GetName());
 					return false;
 				}
 			}
@@ -245,20 +244,28 @@ bool AHeliGameMode::IsSpawnpointPreferred(APlayerStart* SpawnPoint, AController*
 
 	AHeliTeamStart* heliTeamStart = Cast<AHeliTeamStart>(SpawnPoint);
 	AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(Player->PlayerState);
-	if(heliTeamStart && heliPlayerState && heliTeamStart->PlayerName.Equals(heliPlayerState->GetPlayerName()))
+	if(heliTeamStart && heliPlayerState && heliTeamStart->PlayerStartTag.IsEqual(FName(*heliPlayerState->GetPlayerName())))
 	{
-		UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::IsSpawnpointPreferred ~ Using spawn location preferred (team start %s) for player %s from team %d"), *heliTeamStart->GetName(),*heliPlayerState->GetPlayerName(), heliPlayerState->GetTeamNumber());
+		UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::IsSpawnpointPreferred ~ %s PREFERRED for %s because it has been tagged with %s"), *SpawnPoint->GetName(), *Player->GetName(), *heliTeamStart->PlayerStartTag.ToString());
 		
 		return true;
 	}
 
-
+	UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::IsSpawnpointPreferred ~ %s PREFERRED for %s BY DEFAULT"), *SpawnPoint->GetName(), *Player->GetName());
 	return true;
 }
 
 bool AHeliGameMode::ShouldSpawnAtStartSpot(AController* Player)
 {
+	//  Always pick new random spawn	
 	return false;
+}
+
+void AHeliGameMode::RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot)
+{
+	Super::RestartPlayerAtPlayerStart(NewPlayer, StartSpot);
+
+	UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::RestartPlayerAtPlayerStart ~ %s %s - SpawnLocation: %s - Role %d - RemoteRole %d"), NewPlayer->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *NewPlayer->GetName(), *StartSpot->GetName(), (int32)NewPlayer->Role, (int32)NewPlayer->GetRemoteRole());		
 }
 
 void AHeliGameMode::HandleMatchIsWaitingToStart()

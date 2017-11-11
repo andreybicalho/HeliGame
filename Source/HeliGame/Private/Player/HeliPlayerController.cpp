@@ -646,11 +646,7 @@ void AHeliPlayerController::ServerSuicide_Implementation()
 
 void AHeliPlayerController::SetPlayer(UPlayer* InPlayer)
 {
-	Super::SetPlayer(InPlayer);
-
-	//TODO: Build in game menu only after game is initialized
-	/*ShooterIngameMenu = MakeShareable(new FShooterIngameMenu());
-	ShooterIngameMenu->Construct(Cast<ULocalPlayer>(Player));*/
+	Super::SetPlayer(InPlayer);	
 
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
@@ -792,18 +788,15 @@ void AHeliPlayerController::BeginPlayingState()
 {
 	Super::BeginPlayingState();
 
+	UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerController::BeginPlayingState - %s %s has Role %d, RemoteRole %d and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *GetSpawnLocation().ToString());
+
 	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
 	AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(PlayerState);
 	if (helicopter && heliPlayerState)
 	{
 		helicopter->UpdatePlayerInfo(FName(*heliPlayerState->GetPlayerName()), heliPlayerState->GetTeamNumber());
-		//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayyerController::BeginPlayingState - PlayerName: %s  TeamNumber: %d"), *, heliPlayerState->GetTeamNumber());	
+		//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayyerController::BeginPlayingState - PlayerName: %s  TeamNumber: %d"), *, heliPlayerState->GetTeamNumber());
 	}	
-}
-
-void AHeliPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
 }
 
 void AHeliPlayerController::InitInputSystem()
@@ -822,7 +815,7 @@ void AHeliPlayerController::PreClientTravel(const FString& PendingURL, ETravelTy
 {
 	Super::PreClientTravel(PendingURL, TravelType, bIsSeamlessTravel);
 
-	UE_LOG(LogLoad, Log, TEXT("PreClientTravel --> %s"), *FString::Printf(TEXT("PendingURL: %s, bIsSeamlessTravel: %s"), *PendingURL, bIsSeamlessTravel ? *FString(TEXT("true")) : *FString(TEXT("false"))));
+	UE_LOG(LogLoad, Display, TEXT("PreClientTravel --> %s"), *FString::Printf(TEXT("PendingURL: %s, bIsSeamlessTravel: %s"), *PendingURL, bIsSeamlessTravel ? *FString(TEXT("true")) : *FString(TEXT("false"))));
 
 	if (GetWorld() != NULL)
 	{
@@ -867,7 +860,7 @@ void AHeliPlayerController::UnFreeze()
 
 void AHeliPlayerController::FailedToSpawnPawn()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerController::FailedToSpawnPawn ~ Name? %s - SpawnLocation: %s"), *GetName(), *GetSpawnLocation().ToString());
+	UE_LOG(LogTemp, Error, TEXT("AHeliPlayerController::FailedToSpawnPawn ~ %s - SpawnLocation: %s"), *GetName(), *GetSpawnLocation().ToString());
 	if (StateName == NAME_Inactive)
 	{
 		BeginInactiveState();

@@ -169,8 +169,6 @@ protected:
 	void BeginPlayingState() override;
 
 public:
-	void BeginPlay() override;
-
 	/** initialize the input system from the player settings */
 	virtual void InitInputSystem() override;
 
