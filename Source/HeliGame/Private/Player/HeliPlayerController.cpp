@@ -7,6 +7,7 @@
 #include "HeliPlayerState.h"
 #include "HeliGameInstance.h"
 #include "HeliGameUserSettings.h"
+#include "HeliGameMode.h"
 #include "Online.h"
 #include "OnlineAchievementsInterface.h"
 #include "OnlineEventsInterface.h"
@@ -25,9 +26,10 @@
 
 #define  ACH_FRAG_SOMEONE	TEXT("ACH_FRAG_SOMEONE")
 
-AHeliPlayerController::AHeliPlayerController()
+AHeliPlayerController::AHeliPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	bAllowGameActions = true;
+	this->SetReplicates(true);
 }
 
 
@@ -715,7 +717,21 @@ float AHeliPlayerController::GetKeyboardSensitivity()
 	return 0.f;
 }
 
+bool AHeliPlayerController::Server_RestartPlayer_Validate()
+{
+	return true;
+}
 
+void AHeliPlayerController::Server_RestartPlayer_Implementation()
+{
+	AHeliGameMode* heliGameMode = Cast<AHeliGameMode>(GetWorld()->GetAuthGameMode());
+	if (heliGameMode && heliGameMode->IsImmediatelyPlayerRestartAllowedAfterDeath())
+	{				
+		heliGameMode->RestartPlayer(this);
+
+		UE_LOG(LogTemp, Display, TEXT("AHeliPlayerController::Server_RestartPlayer_Implementation ~ %s %s -- Role %d - RemoteRole %d -- SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *GetSpawnLocation().ToCompactString());
+	}
+}
 
 /*
 Debug Helpers
@@ -788,7 +804,7 @@ void AHeliPlayerController::BeginPlayingState()
 {
 	Super::BeginPlayingState();
 
-	UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerController::BeginPlayingState - %s %s has Role %d, RemoteRole %d and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *GetSpawnLocation().ToString());
+	//UE_LOG(LogTemp, Display, TEXT("AHeliPlayerController::BeginPlayingState - %s %s has Role %d, RemoteRole %d and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *GetSpawnLocation().ToString());
 
 	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
 	AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(PlayerState);
@@ -797,6 +813,13 @@ void AHeliPlayerController::BeginPlayingState()
 		helicopter->UpdatePlayerInfo(FName(*heliPlayerState->GetPlayerName()), heliPlayerState->GetTeamNumber());
 		//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayyerController::BeginPlayingState - PlayerName: %s  TeamNumber: %d"), *, heliPlayerState->GetTeamNumber());
 	}	
+
+	if (GetSpawnLocation().IsZero())
+	{
+		UE_LOG(LogTemp, Error, TEXT("AHeliPlayerController::BeginPlayingState - %s %s has Role %d, RemoteRole %d and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *GetSpawnLocation().ToString());
+
+		Server_RestartPlayer();
+	}
 }
 
 void AHeliPlayerController::InitInputSystem()
@@ -871,4 +894,11 @@ void AHeliPlayerController::FailedToSpawnPawn()
 void AHeliPlayerController::SetSpawnLocation(const FVector& NewLocation)
 {
 	Super::SetSpawnLocation(NewLocation);
+}
+
+void AHeliPlayerController::Possess(APawn* aPawn)
+{
+	UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerController::Possess - %s %s has Role %d, RemoteRole %d, Pawn: %s and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *aPawn->GetName(), *GetSpawnLocation().ToString());
+
+	Super::Possess(aPawn);
 }

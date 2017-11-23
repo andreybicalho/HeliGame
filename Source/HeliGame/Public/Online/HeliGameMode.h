@@ -40,6 +40,11 @@ public:
 
 	virtual void RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot) override;
 
+	/** Tries to spawn the player's pawn, at the location returned by FindPlayerStart */	
+	virtual void RestartPlayer(AController* NewPlayer) override;
+
+	void RestartPlayerAtTransform(AController* NewPlayer, const FTransform& SpawnTransform) override;
+
 	/** update remaining time */
 	virtual void DefaultTimer();
 

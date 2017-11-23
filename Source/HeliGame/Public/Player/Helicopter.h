@@ -343,7 +343,7 @@ class HELIGAME_API AHelicopter : public APawn
 	FName HealthBarSocketName = TEXT("HealthBarSocket");
 
 	UPROPERTY(Category = "HealthSettings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UWidgetComponent* HealthBarWidgetComponent;	
+	class UWidgetComponent* HealthBarWidgetComponent;
 	
 protected:
 	/*
@@ -566,5 +566,5 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// TODO(andrey): remove
-	void LogNetRole();
+	FString LogNetRole();
 };

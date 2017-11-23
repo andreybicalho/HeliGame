@@ -39,9 +39,11 @@ public:
 
 	void setAllowFriendlyFireDamage(bool bNewAllowFriendlyFireDamage);
 
-	bool IsImmediatelyPlayerRestartAllowedAfterDeath() override;
+	bool IsImmediatelyPlayerRestartAllowedAfterDeath();
 
 	FString GetGameModeName() override;
+
+	void InitStartSpot_Implementation(AActor* StartSpot, AController* NewPlayer) override;
 protected:	
 	/** number of teams */
 	int32 NumTeams;
