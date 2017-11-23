@@ -641,9 +641,6 @@ AWeapon* AHelicopter::GetCurrentWeaponEquiped()
 void AHelicopter::Suicide()
 {
 	KilledBy(this);
-
-	// destroy and restart the pawn immediately
-	DetachFromControllerPendingDestroy();
 }
 
 void AHelicopter::KilledBy(APawn* EventInstigator)
@@ -744,19 +741,21 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, 
 		return;
 	}
 
-	DisableFirstPersonHud();
-
 	bIsDying = true;
 	Health = 0.0f;
 	//client will take authoritative control
 	bTearOff = true;
-
-
+			
+	// turn off rotors anim
+	GetWorldTimerManager().ClearTimer(RotorAnimTimerHandle);
+	// turn sound off
+	if (HeliAC) {
+		HeliAC->Stop();
+	}
 	// hide meshes on game
 	HeliMeshComponent->SetVisibility(false);
 	MainRotorMeshComponent->SetVisibility(false);
 	TailRotorMeshComponent->SetVisibility(false);
-
 	// disable movement component
 	if (HeliMovementComponent)
 	{
@@ -766,28 +765,28 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, 
 	HeliMeshComponent->SetSimulatePhysics(false);
 	HeliMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);	
 
+	RemoveWeapons();	
+	RemoveHealthWidget();	
 
-	// turn off rotors anim
-	GetWorldTimerManager().ClearTimer(RotorAnimTimerHandle);
-	// turn sound off
-	HeliAC->Stop();
-
+	// detaching from controller will make game mode to call RestartPlayer
+	DetachFromControllerPendingDestroy();
+	
 	// play sound and FX for death
 	PlayHit(KillingDamage, DamageEvent, PawnInstigator, DamageCauser, true);
 
-	RemoveWeapons();
+	//GEngine->AddOnScreenDebugMessage(2, 15.0f, FColor::Green, FString::Printf(TEXT("%s"), *LogNetRole()) );
 
-	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
-	if (MyPC)
+	AHeliPlayerController* heliPlayerController = Cast<AHeliPlayerController>(Controller);
+	if (heliPlayerController)
 	{
+		//GEngine->AddOnScreenDebugMessage(2, 15.0f, FColor::Red, FString::Printf(TEXT("%s"), *LogNetRole()));
+
 		// remove inputs
-		MyPC->SetIgnoreMoveInput(true);
-
+		heliPlayerController->SetIgnoreMoveInput(true);
 		// don't allow game actions
-		MyPC->SetAllowGameActions(false);
-
+		heliPlayerController->SetAllowGameActions(false);
 		// show scoreboard
-		AHeliHud* HeliHUD = Cast<AHeliHud>(MyPC->GetHUD());
+		AHeliHud* HeliHUD = Cast<AHeliHud>(heliPlayerController->GetHUD());
 		if (HeliHUD)
 		{
 			HeliHUD->DisableFirstPersonHud();
@@ -795,20 +794,8 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, 
 			HeliHUD->HideInGameMenu();
 
 			HeliHUD->ShowScoreboard();
-		}
-	}
-
-	
-	RemoveHealthWidget();
-
-	AHeliGameMode* MyGameMode = Cast<AHeliGameMode>(GetWorld()->GetAuthGameMode());
-	if (MyGameMode && MyGameMode->IsImmediatelyPlayerRestartAllowedAfterDeath())
-	{
-		// destroy and restart the pawn immediately		
-		DetachFromControllerPendingDestroy();
-	}
-
-
+		}					
+	}	
 }
 
 void AHelicopter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser, bool bKilled)
@@ -1169,8 +1156,14 @@ void AHelicopter::SetKeyboardSensitivity(float inKeyboardSensitivity)
 	Overrides from APawn
 */
 
+/**
+* Called when this Pawn is possessed. Only called on the server (or in standalone).
+* @param C The controller possessing this pawn
+*/
 void AHelicopter::PossessedBy(class AController* InController)
 {
+	UE_LOG(LogTemp, Display, TEXT("AHelicopter::PossessedBy ~ %s %s Role %d and RemoteRole %d"), InController->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *InController->GetName(), (int32)InController->Role, (int32)InController->GetRemoteRole());
+
 	Super::PossessedBy(InController);
 
 	// [server] as soon as PlayerState is assigned, set team colors of this pawn for local player
@@ -1271,22 +1264,14 @@ void AHelicopter::PostInitializeComponents()
 	{
 		MouseSensitivity = heliGameUserSettings->GetMouseSensitivity();
 		KeyboardSensitivity = heliGameUserSettings->GetKeyboardSensitivity();
-	}
-	
-
-	//parei aqui: vendo qual a localizadao de spawn do helicoptero
-	APlayerController* playerController = Cast<APlayerController>(Controller);
-	if (playerController)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AHelicopter::PostInitializeComponents ~ SpawnLocation: %s"), *playerController->GetSpawnLocation().ToString());
-	}
-	
-
+	}	
 }
 
 // Called when the game starts or when spawned
 void AHelicopter::BeginPlay()
 {
+	UE_LOG(LogTemp, Display, TEXT("AHelicopter::BeginPlay"));
+
 	Super::BeginPlay();	
 
 	// set timer for rotors animation
@@ -1304,35 +1289,37 @@ void AHelicopter::BeginPlay()
 	SetPlayerInfoFromPlayerState();
 }
 
-// this is called after PostInitializeComponents and BeginPlay
+/** Tell client that the Pawn is begin restarted. Calls Restart(). */
 void AHelicopter::PawnClientRestart()
 {
 	Super::PawnClientRestart();
 
 	HeliMeshComponent->SetSimulatePhysics(true);
 
-	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
-	if (MyPC)
-	{
-		// set inputs
-		MyPC->SetIgnoreMoveInput(false);
-
-		// allow game actions
-		MyPC->SetAllowGameActions(true);
-
-		// hide scoreboard
-		AHeliHud* HeliHUD = Cast<AHeliHud>(MyPC->GetHUD());
-		if (HeliHUD)
-		{
-			HeliHUD->HideScoreboard();
-		}
-	}	
-
 	SetupPlayerInfoWidget();
 
 	SetPlayerInfoFromPlayerState();
 
 	EnableFirstPersonHud();
+
+	AHeliPlayerController* heliPlayerController = Cast<AHeliPlayerController>(Controller);
+	if (heliPlayerController)
+	{
+		// set inputs
+		heliPlayerController->SetIgnoreMoveInput(false);
+
+		// allow game actions
+		heliPlayerController->SetAllowGameActions(true);
+
+		// hide scoreboard
+		AHeliHud* heliHud = Cast<AHeliHud>(heliPlayerController->GetHUD());
+		if (heliHud)
+		{
+			heliHud->HideScoreboard();
+		}
+		
+		UE_LOG(LogTemp, Warning, TEXT("AHelicopter::PawnClientRestart ~ %s %s Role %d and RemoteRole %d with spawn location: %s"), heliPlayerController->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *heliPlayerController->GetName(), (int32)heliPlayerController->Role, (int32)heliPlayerController->GetRemoteRole(), *heliPlayerController->GetSpawnLocation().ToCompactString());
+	}	
 }
 
 //							Replication List
@@ -1350,29 +1337,53 @@ void AHelicopter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(AHelicopter, TeamNumber);
 }
 
-void AHelicopter::LogNetRole()
+FString AHelicopter::LogNetRole()
 {
-	if (Role == ROLE_None)
+	FString roles = FString::Printf(TEXT("Role: "));
+
+	switch(Role)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s = ROLE_None"), *GetName());
+	case ROLE_MAX:
+		roles += FString(TEXT("ROLE_MAX"));
+		break;
+	case ROLE_Authority:
+		roles += FString(TEXT("ROLE_Authority"));
+		break;
+	case ROLE_AutonomousProxy:
+		roles += FString(TEXT("ROLE_AutonomousProxy"));
+		break;
+	case ROLE_SimulatedProxy:
+		roles += FString(TEXT("ROLE_SimulatedProxy"));
+		break;
+	case ROLE_None:
+		roles += FString(TEXT("ROLE_None"));
+		break;
+	default:
+		break;
 	}
-	else if (Role == ROLE_SimulatedProxy)
+
+	roles += FString(TEXT(", RemoteRole: "));
+	switch (GetRemoteRole())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s = ROLE_SimulatedProxy"), *GetName());
+	case ROLE_MAX:
+		roles += FString(TEXT("ROLE_MAX"));
+		break;
+	case ROLE_Authority:
+		roles += FString(TEXT("ROLE_Authority"));
+		break;
+	case ROLE_AutonomousProxy:
+		roles += FString(TEXT("ROLE_AutonomousProxy"));
+		break;
+	case ROLE_SimulatedProxy:
+		roles += FString(TEXT("ROLE_SimulatedProxy"));
+		break;
+	case ROLE_None:
+		roles += FString(TEXT("ROLE_None"));
+		break;
+	default:
+		break;
 	}
-	else if (Role == ROLE_AutonomousProxy)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s = ROLE_AutonomousProxy"), *GetName());
-	}
-	else if (Role == ROLE_Authority)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s = ROLE_Authority"), *GetName());
-	}
-	else if (Role == ROLE_MAX)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s = ROLE_MAX"), *GetName());
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("%s = Role Unknown"), *GetName());
-	}
+
+	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *GetName(), *roles);
+	return roles;
 }
