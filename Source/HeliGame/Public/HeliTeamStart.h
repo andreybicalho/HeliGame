@@ -23,7 +23,4 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team")
 	bool isTaken;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite , Category = "Team")
-	FString PlayerName;
-
 };

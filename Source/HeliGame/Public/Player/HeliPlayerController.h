@@ -49,7 +49,7 @@ protected:
 	/** Updates the save file at the end of a round */
 	// TODO: void UpdateSaveFileOnGameEnd(bool bIsWinner);
 public:
-	AHeliPlayerController();
+	AHeliPlayerController(const FObjectInitializer& ObjectInitializer);
 
 	/** shows scoreboard */
 	void OnShowScoreboard();
@@ -149,6 +149,9 @@ public:
 	void ClientGoToPlayingState();
 
 	void UpdateTeamNumber(int32 teamNumber);
+
+	UFUNCTION(Reliable, Server, WithValidation)
+	void Server_RestartPlayer();
 	
 public:
 	/* Debug helpers */
@@ -169,8 +172,6 @@ protected:
 	void BeginPlayingState() override;
 
 public:
-	void BeginPlay() override;
-
 	/** initialize the input system from the player settings */
 	virtual void InitInputSystem() override;
 
@@ -192,4 +193,6 @@ public:
 
 	/** Set the SpawnLocation for use when changing states or when there is no pawn or spectator. */
 	virtual void SetSpawnLocation(const FVector& NewLocation) override;
+
+	virtual void Possess(APawn* aPawn) override;
 };

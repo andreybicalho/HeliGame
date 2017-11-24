@@ -51,6 +51,10 @@ class HELIGAME_API UHeliMovementComponent : public UPawnMovementComponent
 {
 	GENERATED_BODY()
 
+	/* Maximum angular velocity the body can get */
+	UPROPERTY(Category = "6DoFPhysics", EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	float MaximumAngularVelocity;
+
 	/* whether use AddTorque or SetPhysics */
 	UPROPERTY(Category = "6DoFPhysics", EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool bUseAddTorque;

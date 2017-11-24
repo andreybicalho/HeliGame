@@ -7,6 +7,7 @@
 #include "HeliPlayerState.h"
 #include "HeliGameInstance.h"
 #include "HeliGameUserSettings.h"
+#include "HeliGameMode.h"
 #include "Online.h"
 #include "OnlineAchievementsInterface.h"
 #include "OnlineEventsInterface.h"
@@ -25,9 +26,10 @@
 
 #define  ACH_FRAG_SOMEONE	TEXT("ACH_FRAG_SOMEONE")
 
-AHeliPlayerController::AHeliPlayerController()
+AHeliPlayerController::AHeliPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	bAllowGameActions = true;
+	this->SetReplicates(true);
 }
 
 
@@ -646,11 +648,7 @@ void AHeliPlayerController::ServerSuicide_Implementation()
 
 void AHeliPlayerController::SetPlayer(UPlayer* InPlayer)
 {
-	Super::SetPlayer(InPlayer);
-
-	//TODO: Build in game menu only after game is initialized
-	/*ShooterIngameMenu = MakeShareable(new FShooterIngameMenu());
-	ShooterIngameMenu->Construct(Cast<ULocalPlayer>(Player));*/
+	Super::SetPlayer(InPlayer);	
 
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
@@ -719,7 +717,21 @@ float AHeliPlayerController::GetKeyboardSensitivity()
 	return 0.f;
 }
 
+bool AHeliPlayerController::Server_RestartPlayer_Validate()
+{
+	return true;
+}
 
+void AHeliPlayerController::Server_RestartPlayer_Implementation()
+{
+	AHeliGameMode* heliGameMode = Cast<AHeliGameMode>(GetWorld()->GetAuthGameMode());
+	if (heliGameMode && heliGameMode->IsImmediatelyPlayerRestartAllowedAfterDeath())
+	{				
+		heliGameMode->RestartPlayer(this);
+
+		UE_LOG(LogTemp, Display, TEXT("AHeliPlayerController::Server_RestartPlayer_Implementation ~ %s %s -- Role %d - RemoteRole %d -- SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *GetSpawnLocation().ToCompactString());
+	}
+}
 
 /*
 Debug Helpers
@@ -792,18 +804,22 @@ void AHeliPlayerController::BeginPlayingState()
 {
 	Super::BeginPlayingState();
 
+	//UE_LOG(LogTemp, Display, TEXT("AHeliPlayerController::BeginPlayingState - %s %s has Role %d, RemoteRole %d and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *GetSpawnLocation().ToString());
+
 	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
 	AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(PlayerState);
 	if (helicopter && heliPlayerState)
 	{
 		helicopter->UpdatePlayerInfo(FName(*heliPlayerState->GetPlayerName()), heliPlayerState->GetTeamNumber());
-		//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayyerController::BeginPlayingState - PlayerName: %s  TeamNumber: %d"), *, heliPlayerState->GetTeamNumber());	
+		//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayyerController::BeginPlayingState - PlayerName: %s  TeamNumber: %d"), *, heliPlayerState->GetTeamNumber());
 	}	
-}
 
-void AHeliPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
+	if (GetSpawnLocation().IsZero())
+	{
+		UE_LOG(LogTemp, Error, TEXT("AHeliPlayerController::BeginPlayingState - %s %s has Role %d, RemoteRole %d and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *GetSpawnLocation().ToString());
+
+		Server_RestartPlayer();
+	}
 }
 
 void AHeliPlayerController::InitInputSystem()
@@ -822,7 +838,7 @@ void AHeliPlayerController::PreClientTravel(const FString& PendingURL, ETravelTy
 {
 	Super::PreClientTravel(PendingURL, TravelType, bIsSeamlessTravel);
 
-	UE_LOG(LogLoad, Log, TEXT("PreClientTravel --> %s"), *FString::Printf(TEXT("PendingURL: %s, bIsSeamlessTravel: %s"), *PendingURL, bIsSeamlessTravel ? *FString(TEXT("true")) : *FString(TEXT("false"))));
+	UE_LOG(LogLoad, Display, TEXT("PreClientTravel --> %s"), *FString::Printf(TEXT("PendingURL: %s, bIsSeamlessTravel: %s"), *PendingURL, bIsSeamlessTravel ? *FString(TEXT("true")) : *FString(TEXT("false"))));
 
 	if (GetWorld() != NULL)
 	{
@@ -867,7 +883,7 @@ void AHeliPlayerController::UnFreeze()
 
 void AHeliPlayerController::FailedToSpawnPawn()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerController::FailedToSpawnPawn ~ Name? %s - SpawnLocation: %s"), *GetName(), *GetSpawnLocation().ToString());
+	UE_LOG(LogTemp, Error, TEXT("AHeliPlayerController::FailedToSpawnPawn ~ %s - SpawnLocation: %s"), *GetName(), *GetSpawnLocation().ToString());
 	if (StateName == NAME_Inactive)
 	{
 		BeginInactiveState();
@@ -878,4 +894,11 @@ void AHeliPlayerController::FailedToSpawnPawn()
 void AHeliPlayerController::SetSpawnLocation(const FVector& NewLocation)
 {
 	Super::SetSpawnLocation(NewLocation);
+}
+
+void AHeliPlayerController::Possess(APawn* aPawn)
+{
+	UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerController::Possess - %s %s has Role %d, RemoteRole %d, Pawn: %s and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *aPawn->GetName(), *GetSpawnLocation().ToString());
+
+	Super::Possess(aPawn);
 }
