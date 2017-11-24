@@ -64,6 +64,6 @@ protected:
 	virtual bool IsWinner(AHeliPlayerState* PlayerState) const override;
 
 	/** check team constraints */
-	virtual bool IsSpawnpointAllowed(APlayerStart* SpawnPoint, AController* Player) const;
+	virtual bool IsSpawnpointAllowed(APlayerStart* SpawnPoint, AController* Player) const override;
 	
 };
