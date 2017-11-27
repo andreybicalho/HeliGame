@@ -69,6 +69,7 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	MouseSensitivity = 1.f;
 	KeyboardSensitivity = 1.f;
+	InvertedAim = 1;
 
 
 	// camera
@@ -164,7 +165,7 @@ void AHelicopter::MousePitch(float Value)
 		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
 		if (MovementComponent)
 		{
-			MovementComponent->AddPitch(Value*MouseSensitivity);
+			MovementComponent->AddPitch(Value*MouseSensitivity*InvertedAim);
 		}
 	}
 }
@@ -1150,6 +1151,11 @@ void AHelicopter::SetKeyboardSensitivity(float inKeyboardSensitivity)
 	KeyboardSensitivity = inKeyboardSensitivity;
 }
 
+void AHelicopter::SetInvertedAim(int32 inInvertedAim)
+{
+	InvertedAim = FMath::Clamp(inInvertedAim, -1, 1);
+}
+
 
 
 /*
@@ -1264,6 +1270,7 @@ void AHelicopter::PostInitializeComponents()
 	{
 		MouseSensitivity = heliGameUserSettings->GetMouseSensitivity();
 		KeyboardSensitivity = heliGameUserSettings->GetKeyboardSensitivity();
+		InvertedAim = heliGameUserSettings->GetInvertedAim();
 	}	
 }
 

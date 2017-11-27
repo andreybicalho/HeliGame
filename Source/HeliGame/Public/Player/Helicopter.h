@@ -205,7 +205,8 @@ class HELIGAME_API AHelicopter : public APawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings", meta = (AllowPrivateAccess = "true"))
 	float KeyboardSensitivity = 1.f;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings", meta = (AllowPrivateAccess = "true"))
+	int32 InvertedAim = 1;
 	/*
 		Camera
 	*/
@@ -438,6 +439,7 @@ public:
 
 	void SetMouseSensitivity(float inMouseSensitivity);
 	void SetKeyboardSensitivity(float inKeyboardSensitivity);
+	void SetInvertedAim(int32 inInvertedAim);
 
 
 

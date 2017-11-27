@@ -81,6 +81,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
 	float GetKeyboardSensitivity();
 
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
+	void SetInvertedAim(int32 inInvertedAim);
+
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
+	int32 GetInvertedAim();
+
 	/** check if gameplay related actions (movement, weapon usage, etc) are allowed right now */
 	bool IsGameInputAllowed() const;
 

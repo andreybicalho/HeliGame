@@ -717,6 +717,37 @@ float AHeliPlayerController::GetKeyboardSensitivity()
 	return 0.f;
 }
 
+void AHeliPlayerController::SetInvertedAim(int32 inInvertedAim)
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
+
+	inInvertedAim = FMath::Clamp(inInvertedAim, -1, 1);
+
+	if (helicopter)
+	{
+		helicopter->SetInvertedAim(inInvertedAim);
+	}
+
+	if (heliGameUserSettings)
+	{		
+		heliGameUserSettings->SetInvertedAim(inInvertedAim);
+		heliGameUserSettings->ApplySettings(false);
+	}
+}
+
+int32 AHeliPlayerController::GetInvertedAim()
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+
+	if (heliGameUserSettings)
+	{
+		return heliGameUserSettings->GetInvertedAim();
+	}
+
+	return 1;
+}
+
 bool AHeliPlayerController::Server_RestartPlayer_Validate()
 {
 	return true;
