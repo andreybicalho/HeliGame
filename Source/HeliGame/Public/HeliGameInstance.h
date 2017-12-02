@@ -220,7 +220,7 @@ public:
 	void EndRoundAndRestartMatch();
 
 	UFUNCTION(BlueprintCallable, Category = "GameType")
-	void EndRoundAndGoToLobby();
+	void EndRoundAndGoToLobby();		
 
 
 	UFUNCTION(BlueprintCallable, Category = "ServerInfo")
@@ -361,14 +361,20 @@ public:
 
 
 
-	// enum helpers
+	// dev helpers
 	FString GetEHeliGameInstanceStateEnumAsString(EHeliGameInstanceState EnumValue);
 
-	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
+	UFUNCTION(BlueprintCallable, Category = "Dev|Helpers")
 	FString GetEHeliMapEnumAsString(EHeliMap EnumValue);
 
-	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
+	UFUNCTION(BlueprintCallable, Category = "Dev|Helpers")
 	EHeliMap GetEHeliMapEnumValueFromString(const FString& EnumName);
+
+	UFUNCTION(BlueprintCallable, Category = "Dev|Helpers")
+	void ResquestRestartAllPlayers();
+
+	UFUNCTION(BlueprintCallable, Category = "Dev|Helpers")
+	FString GetGameVersion();
 
 private:
 	 

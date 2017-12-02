@@ -15,6 +15,12 @@ namespace EHeliGameMatchState
 	};
 }
 
+namespace
+{
+	const FString GameVersionName("BirdsOfWar_v0.1.1");
+}
+
+
 // need loging?
 //DECLARE_LOG_CATEGORY_EXTERN(LogHeli, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogHeliWeapon, Log, All);

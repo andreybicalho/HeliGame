@@ -22,6 +22,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 
+
 UHeliGameInstance::UHeliGameInstance(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	, bIsOnline(false) // Default to LAN
@@ -2111,6 +2112,8 @@ void UHeliGameInstance::EndRoundAndRestartMatch()
 
 
 
+
+
 /****************************** ENUM HELPERS ***************************************************/
 
 FString UHeliGameInstance::GetEHeliGameInstanceStateEnumAsString(EHeliGameInstanceState EnumValue)
@@ -2139,3 +2142,18 @@ EHeliMap UHeliGameInstance::GetEHeliMapEnumValueFromString(const FString& EnumNa
 	return (EHeliMap)Enum->GetIndexByName(FName(*EnumName));
 }
 
+FString UHeliGameInstance::GetGameVersion()
+{
+	return GameVersionName;
+}
+
+void UHeliGameInstance::ResquestRestartAllPlayers()
+{
+	UWorld* const World = GetWorld();
+	AHeliGameState* const GameState = World != NULL ? World->GetGameState<AHeliGameState>() : NULL;
+
+	if (GameState)
+	{
+		GameState->ResquestRestartAllPlayers();
+	}
+}

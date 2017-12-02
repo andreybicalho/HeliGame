@@ -12,7 +12,7 @@
 
 namespace
 {
-	const FString CustomMatchKeyword("ANDREY_BIRDSOFSTEEL_GAME");
+	const FString CustomMatchKeyword = GameVersionName;
 }
 
 
