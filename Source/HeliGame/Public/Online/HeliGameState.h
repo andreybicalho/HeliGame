@@ -76,4 +76,6 @@ public:
 	TArray<AHeliPlayerState*> GetPlayersStatesFromTeamNumber(int32 TeamNumber);
 	
 	void RequestEndRoundAndRestartMatch();
+
+	void ResquestRestartAllPlayers();
 };

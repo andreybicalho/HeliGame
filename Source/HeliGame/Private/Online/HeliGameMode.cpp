@@ -438,6 +438,19 @@ void AHeliGameMode::RequestClientsGoToLobbyState()
 	}
 }
 
+void AHeliGameMode::RestartAllPlayers()
+{
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		AHeliPlayerController* Controller = Cast<AHeliPlayerController>(*Iterator);
+
+		if (Controller && !Controller->IsLocalController())
+		{
+			RestartPlayer(Controller);
+		}
+	}
+}
+
 void AHeliGameMode::DetermineMatchWinner()
 {
 	// nothing to do here

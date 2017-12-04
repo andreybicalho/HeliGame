@@ -842,6 +842,7 @@ void AHeliPlayerController::BeginPlayingState()
 	if (helicopter && heliPlayerState)
 	{
 		helicopter->UpdatePlayerInfo(FName(*heliPlayerState->GetPlayerName()), heliPlayerState->GetTeamNumber());
+		
 		//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayyerController::BeginPlayingState - PlayerName: %s  TeamNumber: %d"), *, heliPlayerState->GetTeamNumber());
 	}	
 
@@ -849,7 +850,7 @@ void AHeliPlayerController::BeginPlayingState()
 	{
 		UE_LOG(LogTemp, Error, TEXT("AHeliPlayerController::BeginPlayingState - %s %s has Role %d, RemoteRole %d and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *GetSpawnLocation().ToString());
 
-		Server_RestartPlayer();
+		//Server_RestartPlayer();
 	}
 }
 
@@ -869,7 +870,7 @@ void AHeliPlayerController::PreClientTravel(const FString& PendingURL, ETravelTy
 {
 	Super::PreClientTravel(PendingURL, TravelType, bIsSeamlessTravel);
 
-	UE_LOG(LogLoad, Display, TEXT("PreClientTravel --> %s"), *FString::Printf(TEXT("PendingURL: %s, bIsSeamlessTravel: %s"), *PendingURL, bIsSeamlessTravel ? *FString(TEXT("true")) : *FString(TEXT("false"))));
+	//UE_LOG(LogLoad, Display, TEXT("PreClientTravel --> %s"), *FString::Printf(TEXT("PendingURL: %s, bIsSeamlessTravel: %s"), *PendingURL, bIsSeamlessTravel ? *FString(TEXT("true")) : *FString(TEXT("false"))));
 
 	if (GetWorld() != NULL)
 	{
@@ -929,7 +930,7 @@ void AHeliPlayerController::SetSpawnLocation(const FVector& NewLocation)
 
 void AHeliPlayerController::Possess(APawn* aPawn)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerController::Possess - %s %s has Role %d, RemoteRole %d, Pawn: %s and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *aPawn->GetName(), *GetSpawnLocation().ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerController::Possess - %s %s has Role %d, RemoteRole %d, Pawn: %s and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *aPawn->GetName(), *GetSpawnLocation().ToString());
 
 	Super::Possess(aPawn);
 }

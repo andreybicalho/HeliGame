@@ -6,11 +6,22 @@
 
 
 UHealthBarUserWidget::UHealthBarUserWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
-{		
+{
+	CurrentColor = OwnColor;
 }
 
 void UHealthBarUserWidget::SetupWidget()
 {
+	AHelicopter* MyPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
+	if (MyPawn && OwningPawn.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UHealthBarUserWidget::SetupWidget ~ MyPawn %s team %d  Vs OwningPawn %s team %d"), *MyPawn->GetName(), MyPawn->GetTeamNumber(), *OwningPawn->GetName(), OwningPawn->GetTeamNumber());
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UHealthBarUserWidget::SetupWidget ~ No valid MyPawn or OwningPawn"));
+	}
+
 	SetupCurrentColor();
 
 	if (OwningPawn.IsValid())
@@ -34,11 +45,6 @@ void UHealthBarUserWidget::NativeTick(const FGeometry& MyGeometry, float InDelta
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);	
 
-	if(CurrentColor != FriendColor && CurrentColor != EnemyColor )
-	{ 
-		SetupWidget();
-	}
-
 	// scale with distance
 	if (OwningPawn.IsValid())
 	{
@@ -56,10 +62,10 @@ void UHealthBarUserWidget::NativeTick(const FGeometry& MyGeometry, float InDelta
 
 void UHealthBarUserWidget::SetupCurrentColor()
 {
-	AHelicopter* MyPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
-	if (MyPawn && OwningPawn.IsValid())
+	AHelicopter* OwningPlayerPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
+	if (OwningPlayerPawn && OwningPawn.IsValid())
 	{
-		if (OwningPawn == MyPawn)
+		if (OwningPawn == OwningPlayerPawn)
 		{
 			CurrentColor = OwnColor;
 		}
@@ -69,7 +75,7 @@ void UHealthBarUserWidget::SetupCurrentColor()
 			//UE_LOG(LogTemp, Warning, TEXT("MyPawn LogNetRole:")); MyPawn->LogNetRole();
 			//UE_LOG(LogTemp, Warning, TEXT("OwningPawn LogNetRole:")); OwningPawn->LogNetRole();
 
-			if (MyPawn->GetTeamNumber() == OwningPawn->GetTeamNumber())
+			if (OwningPlayerPawn->GetTeamNumber() == OwningPawn->GetTeamNumber())
 			{
 				CurrentColor = FriendColor;
 			}

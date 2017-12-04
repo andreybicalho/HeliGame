@@ -347,6 +347,10 @@ class HELIGAME_API AHelicopter : public APawn
 	class UWidgetComponent* HealthBarWidgetComponent;
 	
 protected:
+	void InitHelicopter();
+
+	float SpawnDelay = 3.f;
+
 	/*
 	*	Weapons
 	*/
