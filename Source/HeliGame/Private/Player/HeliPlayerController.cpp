@@ -275,16 +275,6 @@ void AHeliPlayerController::ClientGoToPlayingState_Implementation()
 	}
 }
 
-void AHeliPlayerController::UpdateTeamNumber(int32 teamNumber)
-{
-	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
-	if (helicopter)
-	{
-		helicopter->SetTeamNumber(teamNumber);
-		helicopter->SetupPlayerInfoWidget();
-	}
-}
-
 /** Ends and/or destroys game session */
 void AHeliPlayerController::CleanupSessionOnReturnToMenu()
 {
@@ -844,13 +834,6 @@ void AHeliPlayerController::BeginPlayingState()
 		helicopter->UpdatePlayerInfo(FName(*heliPlayerState->GetPlayerName()), heliPlayerState->GetTeamNumber());
 		
 		//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayyerController::BeginPlayingState - PlayerName: %s  TeamNumber: %d"), *, heliPlayerState->GetTeamNumber());
-	}	
-
-	if (GetSpawnLocation().IsZero())
-	{
-		UE_LOG(LogTemp, Error, TEXT("AHeliPlayerController::BeginPlayingState - %s %s has Role %d, RemoteRole %d and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *GetSpawnLocation().ToString());
-
-		//Server_RestartPlayer();
 	}
 }
 

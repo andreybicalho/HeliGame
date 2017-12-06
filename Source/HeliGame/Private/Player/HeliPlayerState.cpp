@@ -24,7 +24,7 @@ AHeliPlayerState::AHeliPlayerState()
 	bQuitter = false;
 
 	RankInCurrentMatch = 0;
-	Level = 0;
+	Level = 1;
 	bPlayerReady = false;
 
 	bDead = false;
@@ -75,7 +75,7 @@ void AHeliPlayerState::Reset()
 	Score = 0;
 	bQuitter = false;
 	RankInCurrentMatch = 0;
-	Level = 0;
+	Level = 1;
 	NumHits = 0;
 	bDead = false;
 }
@@ -171,14 +171,7 @@ FString AHeliPlayerState::GetPlayerName() const
 
 void AHeliPlayerState::OnRep_TeamNumber()
 {	
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{		
-		AHeliPlayerController* myPC = Cast<AHeliPlayerController>(*It);
-		if (myPC)
-		{
-			myPC->UpdateTeamNumber(TeamNumber);						
-		}
-	}
+	//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerState::OnRep_TeamNumber ~ %s Team %d"), *PlayerName, TeamNumber);
 }
 
 void AHeliPlayerState::SetQuitter(bool bInQuitter)

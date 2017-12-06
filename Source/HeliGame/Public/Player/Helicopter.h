@@ -531,8 +531,6 @@ public:
 
 	void SetPlayerInfo(FName NewPlayerName, int32 NewTeamNumber);
 
-	void SetPlayerInfoFromPlayerState();
-
 	void UpdatePlayerInfo(FName playerName, int32 teamNumber);
 
 	void SetupPlayerInfoWidget();

@@ -12,16 +12,6 @@ UHealthBarUserWidget::UHealthBarUserWidget(const FObjectInitializer& ObjectIniti
 
 void UHealthBarUserWidget::SetupWidget()
 {
-	AHelicopter* MyPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
-	if (MyPawn && OwningPawn.IsValid())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UHealthBarUserWidget::SetupWidget ~ MyPawn %s team %d  Vs OwningPawn %s team %d"), *MyPawn->GetName(), MyPawn->GetTeamNumber(), *OwningPawn->GetName(), OwningPawn->GetTeamNumber());
-	}
-	else 
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UHealthBarUserWidget::SetupWidget ~ No valid MyPawn or OwningPawn"));
-	}
-
 	SetupCurrentColor();
 
 	if (OwningPawn.IsValid())
@@ -110,4 +100,14 @@ FName UHealthBarUserWidget::GetPlayerName()
 	}
 
 	return FName(TEXT("unknown"));
+}
+
+FLinearColor UHealthBarUserWidget::GetCurrentColor()
+{
+	return CurrentColor;
+}
+
+void UHealthBarUserWidget::SetCurrentColor(FLinearColor newColor)
+{
+	CurrentColor = newColor;
 }

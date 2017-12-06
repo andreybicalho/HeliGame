@@ -147,6 +147,7 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	RestoreControlsDelay = 2.f;
 	CrashImpactDamageThreshold = 0.05f;
 
+	// health bar
 	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
 	HealthBarWidgetComponent->AttachToComponent(HeliMeshComponent, FAttachmentTransformRules::KeepRelativeTransform, HealthBarSocketName);
 
@@ -306,9 +307,16 @@ void AHelicopter::SpawnDefaultPrimaryWeaponAndEquip()
 
 void AHelicopter::DebugSomething()
 {	
-	UE_LOG(LogTemp, Warning, TEXT("AHelicopter::DebugSomething - %s"), *GetName());
-	//RemoveHealthWidget();
-	SetupPlayerInfoWidget();
+	UE_LOG(LogTemp, Warning, TEXT("AHelicopter::DebugSomething - %s - %s Team %d"), *GetName(), *PlayerName.ToString(), GetTeamNumber());
+	if (HealthBarWidgetComponent)
+	{
+		UHealthBarUserWidget* HealthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
+		if (HealthBarUserWidget)
+		{
+			HealthBarUserWidget->SetCurrentColor(FLinearColor(1.f, 1.f, 0.f, 0.4f));
+		}
+	}
+	
 }
 
 void AHelicopter::OnReloadWeapon()
@@ -1084,39 +1092,14 @@ void AHelicopter::SetPlayerInfo(FName NewPlayerName, int32 NewTeamNumber)
 
 void AHelicopter::OnRep_PlayerInfo()
 {
+	//UE_LOG(LogTemp, Display, TEXT("AHelicopter::OnRep_PlayerInfo ~ %s Team %d"), *PlayerName.ToString(), GetTeamNumber());
+
 	SetupPlayerInfoWidget();
 }
 
 void AHelicopter::UpdatePlayerInfo(FName playerName, int32 teamNumber)
 {
 	Server_UpdatePlayerInfo(playerName, teamNumber);	
-	//SetupPlayerInfoWidget();
-}
-
-void AHelicopter::SetPlayerInfoFromPlayerState()
-{		
-	if (IsLocallyControlled())
-	{
-		AHeliPlayerController* HeliPlayerController = Cast<AHeliPlayerController>(Controller);
-		if (HeliPlayerController)
-		{
-			AHeliPlayerState* HeliPlayerState = Cast<AHeliPlayerState>(HeliPlayerController->PlayerState);
-			if (HeliPlayerState)
-			{				
-				Server_UpdatePlayerInfo(FName(*HeliPlayerState->GetPlayerName()), HeliPlayerState->GetTeamNumber());
-			}
-			else
-			{				
-				// Keep retrying until player state is replicated
-				//UE_LOG(LogTemp, Warning, TEXT("HeliPlayerState has not replicated yet, retrying..."));
-				GetWorld()->GetTimerManager().SetTimer(TimerHandle_PlayerState, this, &AHelicopter::SetPlayerInfoFromPlayerState, 0.5f, false);
-			}
-		}
-	}
-	else
-	{
-		SetupPlayerInfoWidget();
-	}	
 }
 
 bool AHelicopter::Server_UpdatePlayerInfo_Validate(FName NewPlayerName, int32 NewTeamNumber)
@@ -1182,8 +1165,6 @@ void AHelicopter::PossessedBy(class AController* InController)
 
 void AHelicopter::OnRep_PlayerState()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHelicopter::OnRep_PlayerState ~ %s %s Role %d and RemoteRole %d"), IsLocallyControlled() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole());
-
 	Super::OnRep_PlayerState();
 
 	// [client] as soon as PlayerState is assigned, set team colors of this pawn for local player
@@ -1192,9 +1173,7 @@ void AHelicopter::OnRep_PlayerState()
 		AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(PlayerState);
 		if (heliPlayerState)
 		{			
-			UE_LOG(LogTemp, Warning, TEXT("AHelicopter::OnRep_PlayerState ~ %s %s Role %d and RemoteRole %d - Team %d"), IsLocallyControlled() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), heliPlayerState->GetTeamNumber());
-			//Server_UpdatePlayerInfo(FName(*heliPlayerState->GetPlayerName()), heliPlayerState->GetTeamNumber());
-
+			//UE_LOG(LogTemp, Warning, TEXT("AHelicopter::OnRep_PlayerState ~ %s %s Role %d and RemoteRole %d - Team %d"), IsLocallyControlled() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), heliPlayerState->GetTeamNumber());			
 			SetupPlayerInfoWidget();
 		}
 	}
@@ -1242,8 +1221,11 @@ void AHelicopter::InitHelicopter()
 			heliHud->HideScoreboard();
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("AHelicopter::InitHelicopter ~ %s %s Role %d and RemoteRole %d with spawn location: %s"), heliPlayerController->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *heliPlayerController->GetName(), (int32)heliPlayerController->Role, (int32)heliPlayerController->GetRemoteRole(), *heliPlayerController->GetSpawnLocation().ToCompactString());
+		//UE_LOG(LogTemp, Warning, TEXT("AHelicopter::InitHelicopter ~ %s %s Role %d and RemoteRole %d with spawn location: %s"), heliPlayerController->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *heliPlayerController->GetName(), (int32)heliPlayerController->Role, (int32)heliPlayerController->GetRemoteRole(), *heliPlayerController->GetSpawnLocation().ToCompactString());
 	}
+
+	// setup health bar
+	SetupPlayerInfoWidget();
 }
 
 // Called to bind functionality to input
@@ -1316,14 +1298,14 @@ void AHelicopter::PostInitializeComponents()
 		InvertedAim = heliGameUserSettings->GetInvertedAim();
 	}
 
-	// setup health bar widget
+	// setup health bar
 	SetupPlayerInfoWidget();
 }
 
 // Called when the game starts or when spawned
 void AHelicopter::BeginPlay()
 {
-	UE_LOG(LogTemp, Display, TEXT("AHelicopter::BeginPlay - %f"), GetWorld()->GetRealTimeSeconds());
+	//UE_LOG(LogTemp, Display, TEXT("AHelicopter::BeginPlay - %f"), GetWorld()->GetRealTimeSeconds());
 
 	Super::BeginPlay();	
 

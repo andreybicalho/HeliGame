@@ -33,7 +33,7 @@ protected:
 	struct FLinearColor CurrentColor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
-	FString PlayerName;	
+	FString PlayerName;
 
 	UFUNCTION(BlueprintPure, Category = "Display")
 	float GetCurrentHealth();
@@ -49,4 +49,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Display")
 	void SetupWidget();
+
+	FLinearColor GetCurrentColor();
+
+	void SetCurrentColor(FLinearColor newColor);
 };

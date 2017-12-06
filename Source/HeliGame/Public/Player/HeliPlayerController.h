@@ -154,8 +154,6 @@ public:
 	UFUNCTION(Reliable, Client)
 	void ClientGoToPlayingState();
 
-	void UpdateTeamNumber(int32 teamNumber);
-
 	UFUNCTION(Reliable, Server, WithValidation)
 	void Server_RestartPlayer();
 	
