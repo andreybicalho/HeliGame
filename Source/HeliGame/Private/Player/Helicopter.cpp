@@ -39,7 +39,7 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	RootComponent = HeliMeshComponent;
 
 	// physics
-	HeliMeshComponent->SetSimulatePhysics(true);
+	HeliMeshComponent->SetSimulatePhysics(false);
 	HeliMeshComponent->SetLinearDamping(0.1f);
 	HeliMeshComponent->SetAngularDamping(1.f);
 	HeliMeshComponent->SetEnableGravity(true);
@@ -47,7 +47,7 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	// collisions
 	HeliMeshComponent->SetCollisionProfileName("HeliMeshComponent");
 	HeliMeshComponent->SetCollisionObjectType(COLLISION_HELICOPTER);
-	HeliMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HeliMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	HeliMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
 	HeliMeshComponent->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	HeliMeshComponent->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
@@ -1182,11 +1182,10 @@ void AHelicopter::OnRep_PlayerState()
 void AHelicopter::InitHelicopter() 
 {
 	// enable collision
-	if (HeliMeshComponent && !HeliMeshComponent->IsCollisionEnabled())
+	if (HeliMeshComponent)
 	{
 		HeliMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		HeliMeshComponent->SetSimulatePhysics(true);
-		
+		HeliMeshComponent->SetSimulatePhysics(true);		
 	}
 	
 	// enable movements
@@ -1278,6 +1277,7 @@ void AHelicopter::SetupPlayerInputComponent(class UInputComponent* HeliInputComp
 /** spawn inventory, setup initial variables */
 void AHelicopter::PostInitializeComponents()
 {
+	//UE_LOG(LogTemp, Display, TEXT("AHelicopter::PostInitializeComponents - %f"), GetWorld()->GetRealTimeSeconds());
 	Super::PostInitializeComponents();
 
 	if (HasAuthority())
@@ -1305,14 +1305,13 @@ void AHelicopter::PostInitializeComponents()
 // Called when the game starts or when spawned
 void AHelicopter::BeginPlay()
 {
-	//UE_LOG(LogTemp, Display, TEXT("AHelicopter::BeginPlay - %f"), GetWorld()->GetRealTimeSeconds());
+	//UE_LOG(LogTemp, Warning, TEXT("AHelicopter::BeginPlay ~ %s %s Role %d and RemoteRole %d - %d"), IsLocallyControlled() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), GetWorld()->GetRealTimeSeconds());
 
-	Super::BeginPlay();	
+	Super::BeginPlay();		
 
-	if (HeliMovementComponent)
-	{
-		HeliMovementComponent->SetActive(false);
-	}
+	// Use a local timer handle as we don't need to store it for later but we don't need to look for something to clear
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AHelicopter::InitHelicopter, SpawnDelay, false);
 }
 
 /** Tell client that the Pawn is begin restarted. Calls Restart(). */
@@ -1321,13 +1320,10 @@ void AHelicopter::PawnClientRestart()
 	//UE_LOG(LogTemp, Display, TEXT("AHelicopter::PawnClientRestart - %f"), GetWorld()->GetRealTimeSeconds());
 
 	Super::PawnClientRestart();
-	// Use a local timer handle as we don't need to store it for later but we don't need to look for something to clear
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AHelicopter::InitHelicopter, SpawnDelay, false);
 }
 
 //							Replication List
-void AHelicopter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+void AHelicopter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
