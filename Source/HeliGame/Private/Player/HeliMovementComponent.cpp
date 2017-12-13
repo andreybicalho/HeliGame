@@ -29,7 +29,11 @@ UHeliMovementComponent::UHeliMovementComponent(const FObjectInitializer& ObjectI
 
 	MinimumTiltInclinationAcceleration = 10000.f;
 
-	MaximumAngularVelocity = 100.f;							 
+	MaximumAngularVelocity = 100.f;
+
+	InterpolationSpeed = 100.f;
+
+	bUseInterpolationForMovementReplication = false;
 }
 
 /*
@@ -235,17 +239,17 @@ void UHeliMovementComponent::SetPhysicsAngularVelocity(FVector NewAngularVelocit
 /*
 Movement Replication (Client-side Authority)
 */
-void UHeliMovementComponent::MovementReplication()
+void UHeliMovementComponent::MovementReplication(float DeltaTime)
 {
 	if (GetPawnOwner())
 	{
-		if (GetPawnOwner()->IsLocallyControlled())
+		if (GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy )
 		{
 			MovementReplication_Send();
 		}
 		else
 		{
-			MovementReplication_Receive();
+			MovementReplication_Receive(DeltaTime);
 		}
 	}
 
@@ -273,7 +277,7 @@ void UHeliMovementComponent::MovementReplication_Send()
 	}
 }
 
-void UHeliMovementComponent::MovementReplication_Receive()
+void UHeliMovementComponent::MovementReplication_Receive(float DeltaTime)
 {
 	// Don't receive invalid or useless data
 	if (!GetPawnOwner() || (GetPawnOwner() && GetPawnOwner()->IsPendingKill()))
@@ -284,10 +288,23 @@ void UHeliMovementComponent::MovementReplication_Receive()
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 	if (BaseComp && BaseComp->IsSimulatingPhysics())
 	{
-		BaseComp->SetWorldLocation(Movement.Location);
-		BaseComp->SetWorldRotation(Movement.Rotation.Quaternion());
-		BaseComp->SetPhysicsLinearVelocity(Movement.LinearVelocity);
-		BaseComp->SetPhysicsAngularVelocityInDegrees(Movement.AngularVelocity);
+		FRotator rotation = Movement.Rotation;
+		FVector location = Movement.Location;
+		FVector linearVelocity = Movement.LinearVelocity;
+		FVector angularVelocity = Movement.AngularVelocity;
+		
+		if (bUseInterpolationForMovementReplication)
+		{
+			rotation = FMath::RInterpTo(BaseComp->GetComponentRotation(), Movement.Rotation, DeltaTime, InterpolationSpeed);
+			location = FMath::VInterpTo(BaseComp->GetComponentLocation(), Movement.Location, DeltaTime, InterpolationSpeed);
+			linearVelocity = FMath::VInterpTo(BaseComp->GetPhysicsLinearVelocity(), Movement.LinearVelocity, DeltaTime, InterpolationSpeed);
+			angularVelocity = FMath::VInterpTo(BaseComp->GetPhysicsAngularVelocityInDegrees(), Movement.AngularVelocity, DeltaTime, InterpolationSpeed);
+		}
+
+		BaseComp->SetWorldRotation(rotation.Quaternion());
+		BaseComp->SetWorldLocation(location);
+		BaseComp->SetPhysicsLinearVelocity(linearVelocity);
+		BaseComp->SetPhysicsAngularVelocityInDegrees(angularVelocity);
 	}
 }
 
@@ -323,7 +340,7 @@ void UHeliMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tick
 	// Don't need to replicate movement in single player games
 	if (GEngine->GetNetMode(GetWorld()) != NM_Standalone)
 	{
-		MovementReplication();
+		MovementReplication(DeltaTime);
 	}
 }
 
@@ -332,7 +349,7 @@ void UHeliMovementComponent::GetLifetimeReplicatedProps(TArray< FLifetimePropert
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(UHeliMovementComponent, Movement, COND_SimulatedOnly);
+	DOREPLIFETIME_CONDITION(UHeliMovementComponent, Movement, COND_SkipOwner);
 }
 
 

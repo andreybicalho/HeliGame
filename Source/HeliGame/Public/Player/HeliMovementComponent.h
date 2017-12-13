@@ -114,9 +114,17 @@ class HELIGAME_API UHeliMovementComponent : public UPawnMovementComponent
 	UFUNCTION(Reliable, Server, WithValidation)
 	void Server_SendMovement(FMovementReplication NewMovement);
 
-	void MovementReplication();
+	void MovementReplication(float DeltaTime);
 	void MovementReplication_Send();
-	void MovementReplication_Receive();
+	void MovementReplication_Receive(float DeltaTime);
+
+	/* controls whether use or not interpolation for movement replication. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
+	bool bUseInterpolationForMovementReplication;
+	
+	/* controls how fast actual movement data will be interpolated with server's data. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
+	float InterpolationSpeed;
 
 public:
 	UHeliMovementComponent(const FObjectInitializer& ObjectInitializer);
