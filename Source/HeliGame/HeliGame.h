@@ -17,6 +17,7 @@ namespace EHeliGameMatchState
 
 namespace
 {
+	const FString GameVersionName("BirdsOfWar_v0.1.5");
 }
 
 
