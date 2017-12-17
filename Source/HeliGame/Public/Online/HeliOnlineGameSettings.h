@@ -11,7 +11,7 @@ class FHeliOnlineSessionSettings : public FOnlineSessionSettings
 {
 public:
 
-	FHeliOnlineSessionSettings(bool bIsLAN = false, bool bIsPresence = false, int32 MaxNumPlayers = 4);
+	FHeliOnlineSessionSettings(bool bIsLAN = false, bool bIsPresence = false, int32 MaxNumPlayers = 10);
 
 	virtual ~FHeliOnlineSessionSettings() {}
 

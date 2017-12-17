@@ -233,6 +233,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GameType")
 	bool UpdateSessionSettings(ULocalPlayer* LocalPlayer, const FString& GameType, FName SessionName, const FString& MapName, FName CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
 
+	/** Join a a server directly (bypassing online subsystem) */
+	UFUNCTION(BlueprintCallable, Category = "Network")
+	void TravelToIP(const FString& IpAddress);
 
 	/** Travel directly to the named session */
 	void TravelToSession(const FName& SessionName);

@@ -31,7 +31,7 @@ FHeliOnlineSearchSettings::FHeliOnlineSearchSettings(bool bSearchingLAN, bool bS
 {
 	bIsLanQuery = bSearchingLAN;
 	MaxSearchResults = 10000;
-	PingBucketSize = 500;
+	PingBucketSize = 999;
 	TimeoutInSeconds = 60.f;
 
 	if (bSearchingPresence)

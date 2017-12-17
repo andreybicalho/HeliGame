@@ -150,7 +150,7 @@ class HELIGAME_API AHelicopter : public APawn
 	float RestoreControlsDelay = 2.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CrashImpact", meta = (AllowPrivateAccess = "true"))
-	float CrashImpactDamageThreshold = 0.1f;
+	float CrashControlsOnImpactThreshold = 0.2f;
 
 	void CrashControls();
 
@@ -349,7 +349,7 @@ class HELIGAME_API AHelicopter : public APawn
 protected:
 	void InitHelicopter();
 
-	float SpawnDelay = 3.f;
+	float SpawnDelay = 1.f;
 
 	/*
 	*	Weapons

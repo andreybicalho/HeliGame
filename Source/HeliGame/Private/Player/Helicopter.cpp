@@ -2,7 +2,8 @@
 
 #include "Helicopter.h"
 #include "HeliGame.h"
-#include "HeliMovementComponent.h"
+//#include "HeliMovementComponent.h"
+#include "HeliMoveComp.h"
 #include "HeliPlayerController.h"
 #include "Weapon.h"
 #include "HeliDamageType.h"
@@ -55,13 +56,13 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	HeliMeshComponent->SetCollisionResponseToChannel(COLLISION_HELICOPTER, ECR_Block);
 	HeliMeshComponent->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 	HeliMeshComponent->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
-	HeliMeshComponent->bGenerateOverlapEvents = false;
+	HeliMeshComponent->bGenerateOverlapEvents = true;
 	HeliMeshComponent->SetNotifyRigidBodyCollision(true);
 	OnCrashImpactDelegate.BindUFunction(this, "OnCrashImpact");
 	HeliMeshComponent->OnComponentHit.Add(OnCrashImpactDelegate);
 
 	// movement component
-	HeliMovementComponent = CreateDefaultSubobject<UHeliMovementComponent>(TEXT("HeliMovementComponent"));
+	HeliMovementComponent = CreateDefaultSubobject<UHeliMoveComp>(TEXT("HeliMovementComponent"));
 	HeliMovementComponent->SetUpdatedComponent(HeliMeshComponent);
 	HeliMovementComponent->SetNetAddressable();
 	HeliMovementComponent->SetIsReplicated(true);
@@ -145,7 +146,7 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	// crash impact settings
 	RestoreControlsDelay = 2.f;
-	CrashImpactDamageThreshold = 0.05f;
+	CrashControlsOnImpactThreshold = 0.2f;
 
 	// health bar
 	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
@@ -153,7 +154,7 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-	SpawnDelay = 1.5f;
+	SpawnDelay = 1.0f;
 }
 
 /*
@@ -165,7 +166,7 @@ void AHelicopter::MousePitch(float Value)
 	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
 	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
-		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
+		UHeliMoveComp* MovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
 		if (MovementComponent)
 		{
 			MovementComponent->AddPitch(Value*MouseSensitivity*InvertedAim);
@@ -178,7 +179,7 @@ void AHelicopter::MouseYaw(float Value)
 	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
 	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
-		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
+		UHeliMoveComp* MovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
 		if (MovementComponent)
 		{
 			MovementComponent->AddYaw(Value*MouseSensitivity);
@@ -191,7 +192,7 @@ void AHelicopter::MouseRoll(float Value)
 	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
 	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
-		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
+		UHeliMoveComp* MovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
 		if (MovementComponent)
 		{
 			MovementComponent->AddRoll(Value*MouseSensitivity);
@@ -204,7 +205,7 @@ void AHelicopter::KeyboardPitch(float Value)
 	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
 	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
-		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
+		UHeliMoveComp* MovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
 		if (MovementComponent)
 		{
 			MovementComponent->AddPitch(Value*KeyboardSensitivity);
@@ -217,7 +218,7 @@ void AHelicopter::KeyboardYaw(float Value)
 	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
 	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
-		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
+		UHeliMoveComp* MovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
 		if (MovementComponent)
 		{
 			MovementComponent->AddYaw(Value*KeyboardSensitivity);
@@ -230,7 +231,7 @@ void AHelicopter::KeyboardRoll(float Value)
 	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
 	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
-		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
+		UHeliMoveComp* MovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
 		if (MovementComponent)
 		{
 			MovementComponent->AddRoll(Value*KeyboardSensitivity);
@@ -243,7 +244,7 @@ void AHelicopter::Thrust(float Value)
 	AHeliPlayerController* MyPC = Cast<AHeliPlayerController>(Controller);
 	if (MyPC && MyPC->IsGameInputAllowed() && Value != 0.f)
 	{
-		UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
+		UHeliMoveComp* MovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
 		if (MovementComponent)
 		{
 			MovementComponent->AddThrust(Value);
@@ -285,7 +286,7 @@ void AHelicopter::SwitchCameraViewpoint()
 	}
 }
 
-UStaticMeshComponent * AHelicopter::GetHeliMeshComponent()
+UStaticMeshComponent* AHelicopter::GetHeliMeshComponent()
 {
 	return HeliMeshComponent;
 }
@@ -347,7 +348,7 @@ void AHelicopter::OnStopFire()
 
 void AHelicopter::ThrottleUpInput()
 {
-	UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
+	UHeliMoveComp* MovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
 	if (MovementComponent && !MovementComponent->IsActive())
 	{
 		return;
@@ -365,7 +366,7 @@ void AHelicopter::ThrottleUpInput()
 
 void AHelicopter::ThrottleDownInput()
 {
-	UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
+	UHeliMoveComp* MovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
 	if (MovementComponent && !MovementComponent->IsActive())
 	{
 		return;
@@ -884,25 +885,27 @@ void AHelicopter::OnCrashImpact(UPrimitiveComponent* HitComponent, AActor* Other
 		return;
 	}
 
-	// TODO(andrey): 
-	// 1 - notify on HUD that controls are damaged
-	// 2 - impact crash sound
-
 	float Damage = ComputeCrashImpactDamage();
 
-	if (Damage >= (MaxHealth * CrashImpactDamageThreshold))
+	if (Damage > 0.f)
+	{
+		Server_CrashImpactTakeDamage(Damage);
+		//UE_LOG(LogTemp, Error, TEXT("Damage = %f"), Damage);
+	}
+
+	if (Damage >= (MaxHealth * CrashControlsOnImpactThreshold))
 	{
 		CrashControls();
-
-		Server_CrashImpactTakeDamage(Damage);
-
-		//UE_LOG(LogTemp, Error, TEXT("Damage = %f"), Damage);
+		
+		// TODO(andrey): 
+		// 1 - notify on HUD that controls are damaged
+		// 2 - impact crash HARD sound		
 	}
 }
 
 void AHelicopter::CrashControls()
 {
-	UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
+	UHeliMoveComp* MovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
 	if (MovementComponent)
 	{
 		MovementComponent->SetActive(false);
@@ -922,7 +925,7 @@ void AHelicopter::CrashControls()
 
 void AHelicopter::RestoreControlsAfterCrashImpact()
 {
-	UHeliMovementComponent* MovementComponent = Cast<UHeliMovementComponent>(GetMovementComponent());
+	UHeliMoveComp* MovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
 	if (MovementComponent)
 	{
 		MovementComponent->SetActive(true);
@@ -1185,7 +1188,11 @@ void AHelicopter::InitHelicopter()
 	if (HeliMeshComponent)
 	{
 		HeliMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		HeliMeshComponent->SetSimulatePhysics(true);		
+		
+		if (IsLocallyControlled())
+		{
+			HeliMeshComponent->SetSimulatePhysics(true);	
+		}
 	}
 	
 	// enable movements
