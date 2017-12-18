@@ -23,7 +23,7 @@ UHeliMoveComp::UHeliMoveComp(const FObjectInitializer& ObjectInitializer)
 	bUseAddForceForThrust = true;
 
 	bAddLift = true;
-	GravityWeight = 1.f;
+	GravityWeight = 0.75f;
 
 	BaseThrust = 10000.f;
 
@@ -236,8 +236,13 @@ void UHeliMoveComp::SetPhysicsAngularVelocity(FVector NewAngularVelocity)
 }
 
 
-void UHeliMoveComp::SetPhysMovementState(FPhysMovementState TargetPhysMovementState)
+void UHeliMoveComp::SetPhysMovementState(const FPhysMovementState& TargetPhysMovementState)
 {
+	if (TargetPhysMovementState.Location.IsNearlyZero())
+	{
+		return;
+	}
+
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 	if (BaseComp)
 	{
@@ -253,8 +258,13 @@ void UHeliMoveComp::SetPhysMovementState(FPhysMovementState TargetPhysMovementSt
 	}
 }
 
-void UHeliMoveComp::SetPhysMovementStateSmoothly(FPhysMovementState TargetPhysMovementState, float DeltaTime)
-{		
+void UHeliMoveComp::SetPhysMovementStateSmoothly(const FPhysMovementState& TargetPhysMovementState, float DeltaTime)
+{	
+	if (TargetPhysMovementState.Location.IsNearlyZero())
+	{
+		return;
+	}
+
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 	if (BaseComp)
 	{
@@ -270,24 +280,9 @@ void UHeliMoveComp::SetPhysMovementStateSmoothly(FPhysMovementState TargetPhysMo
 	}
 }
 
-void UHeliMoveComp::OnRep_PhysMovementState(FPhysMovementState LastPhysMovementState)
-{	
-	// TODO(andrey): should we interpolate from the last phys state (LastPhysMovementState) to the new phys state (PhysMovementState)?
-	if (bUseInterpolationForMovementReplication)
-	{
-		//FTimerHandle MovementInterTimerHanlder; 
-		//GetWord()->GetTimerManager().SetTimer(MovementInterTimerHanlder, this, &UHeliMoveComp::GoToMovementStateSmoothly, InterpolationSpeed, false);
-	}
-	else
-	{	
-		SetPhysMovementState(PhysMovementState);
-	}
-
-}
-
 void UHeliMoveComp::MovementReplication()
 {
-	if (GetPawnOwner() && GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy)
+	if (bLocalPlayerAuthority)
 	{
 		UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 		if (BaseComp && BaseComp->IsSimulatingPhysics())
@@ -302,14 +297,14 @@ void UHeliMoveComp::MovementReplication()
 	}
 }
 
-bool UHeliMoveComp::Server_SetPhysMovementState_Validate(FPhysMovementState NewPhysMovementState)
+bool UHeliMoveComp::Server_SetPhysMovementState_Validate(const FPhysMovementState& NewPhysMovementState)
 {
 	return true;
 }
 
-void UHeliMoveComp::Server_SetPhysMovementState_Implementation(FPhysMovementState NewPhysMovementState)
+void UHeliMoveComp::Server_SetPhysMovementState_Implementation(const FPhysMovementState& NewPhysMovementState)
 {
-	SetPhysMovementState(NewPhysMovementState);
+	PhysMovementState = NewPhysMovementState;
 }
 
 
@@ -321,7 +316,9 @@ void UHeliMoveComp::InitializeComponent()
 
 void UHeliMoveComp::BeginPlay()
 {
-	Super::BeginPlay();	
+	Super::BeginPlay();
+
+	bLocalPlayerAuthority = GetPawnOwner() && GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy;
 }
 
 void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
@@ -335,8 +332,20 @@ void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	}
 
 	// add lift
-	if (bAddLift) {
+	if (bAddLift && bLocalPlayerAuthority) {
 		AddLift();
+	}
+
+	if (!bLocalPlayerAuthority) 
+	{
+		if (bUseInterpolationForMovementReplication)
+		{
+			SetPhysMovementStateSmoothly(PhysMovementState, DeltaTime);
+		}
+		else
+		{
+			SetPhysMovementState(PhysMovementState);
+		}
 	}
 
 	// replication

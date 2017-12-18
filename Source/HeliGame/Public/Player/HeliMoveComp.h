@@ -112,18 +112,17 @@ class HELIGAME_API UHeliMoveComp : public UPawnMovementComponent
 	void MovementReplication();
 
 	UFUNCTION(Reliable, Server, WithValidation)
-	void Server_SetPhysMovementState(FPhysMovementState NewMovementState);
+	void Server_SetPhysMovementState(const FPhysMovementState& NewMovementState);
 
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_PhysMovementState)
+	UPROPERTY(Transient, Replicated)
 	struct FPhysMovementState PhysMovementState;
-	
-	UFUNCTION()
-	void OnRep_PhysMovementState(FPhysMovementState LastPhysMovementState);
 
-	void SetPhysMovementState(FPhysMovementState TargetPhysMovementState);	
+	void SetPhysMovementState(const FPhysMovementState& TargetPhysMovementState);	
 	
-	// TODO(andrey): set phys movement state smoothly
-	void SetPhysMovementStateSmoothly(FPhysMovementState TargetPhysMovementState, float DeltaTime);
+	void SetPhysMovementStateSmoothly(const FPhysMovementState& TargetPhysMovementState, float DeltaTime);
+
+	/* whether this is a remove proxy or local player controlled */
+	bool bLocalPlayerAuthority;
 
 	/* controls whether use or not interpolation for movement replication. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
@@ -132,8 +131,6 @@ class HELIGAME_API UHeliMoveComp : public UPawnMovementComponent
 	/* controls how fast actual movement data will be interpolated with server's data. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
 	float InterpolationSpeed;
-
-	
 
 public:
 	UHeliMoveComp(const FObjectInitializer& ObjectInitializer);
