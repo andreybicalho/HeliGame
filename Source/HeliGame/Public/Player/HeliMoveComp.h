@@ -121,9 +121,6 @@ class HELIGAME_API UHeliMoveComp : public UPawnMovementComponent
 	
 	void SetPhysMovementStateSmoothly(const FPhysMovementState& TargetPhysMovementState, float DeltaTime);
 
-	/* whether this is a remove proxy or local player controlled */
-	bool bLocalPlayerAuthority;
-
 	/* controls whether use or not interpolation for movement replication. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
 	bool bUseInterpolationForMovementReplication;

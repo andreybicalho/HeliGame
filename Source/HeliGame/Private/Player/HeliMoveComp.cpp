@@ -268,11 +268,14 @@ void UHeliMoveComp::SetPhysMovementStateSmoothly(const FPhysMovementState& Targe
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 	if (BaseComp)
 	{
+		// NOTE(andrey): should we use slerp or rinterpto for rotation interpolation?
+		//Quat rotation = FQuat::Slerp(BaseComp->GetComponentRotation().Quaternion(), TargetPhysMovementState.Rotation.Quaternion(), 0.1f);
 		FRotator rotation = FMath::RInterpTo(BaseComp->GetComponentRotation(), TargetPhysMovementState.Rotation, DeltaTime, InterpolationSpeed);
 		FVector location = FMath::VInterpTo(BaseComp->GetComponentLocation(), TargetPhysMovementState.Location, DeltaTime, InterpolationSpeed);
 		FVector linearVelocity = FMath::VInterpTo(BaseComp->GetPhysicsLinearVelocity(), TargetPhysMovementState.LinearVelocity, DeltaTime, InterpolationSpeed);
 		FVector angularVelocity = FMath::VInterpTo(BaseComp->GetPhysicsAngularVelocityInDegrees(), TargetPhysMovementState.AngularVelocity, DeltaTime, InterpolationSpeed);
 
+		//BaseComp->SetWorldRotation(rotation);
 		BaseComp->SetWorldRotation(rotation.Quaternion());
 		BaseComp->SetWorldLocation(location);
 		BaseComp->SetPhysicsLinearVelocity(linearVelocity);
@@ -282,7 +285,7 @@ void UHeliMoveComp::SetPhysMovementStateSmoothly(const FPhysMovementState& Targe
 
 void UHeliMoveComp::MovementReplication()
 {
-	if (bLocalPlayerAuthority)
+	if ((GetPawnOwner() && GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy))
 	{
 		UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 		if (BaseComp && BaseComp->IsSimulatingPhysics())
@@ -316,9 +319,7 @@ void UHeliMoveComp::InitializeComponent()
 
 void UHeliMoveComp::BeginPlay()
 {
-	Super::BeginPlay();
-
-	bLocalPlayerAuthority = GetPawnOwner() && GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy;
+	Super::BeginPlay();	
 }
 
 void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
@@ -327,16 +328,19 @@ void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 
 	if (!PawnOwner || !UpdatedComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::TickComponent PawnOwner or UpdatedComponent not found!"));
+		//UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::TickComponent PawnOwner or UpdatedComponent not found!"));
 		return;
 	}
 
+	bool bLocalPlayerAuthority = GetPawnOwner() && GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy;
+	
 	// add lift
 	if (bAddLift && bLocalPlayerAuthority) {
 		AddLift();
 	}
 
-	if (!bLocalPlayerAuthority) 
+	// apply received replicated movement state
+	if (!bLocalPlayerAuthority)
 	{
 		if (bUseInterpolationForMovementReplication)
 		{
@@ -348,7 +352,7 @@ void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 		}
 	}
 
-	// replication
+	// send movement state
 	// Don't need to replicate movement in single player games
 	if (GEngine->GetNetMode(GetWorld()) != NM_Standalone)
 	{
