@@ -17,7 +17,7 @@ namespace EHeliGameMatchState
 
 namespace
 {
-	const FString GameVersionName("BirdsOfWar_v0.1.7");
+	const FString GameVersionName("BirdsOfWar_v0.1.8");
 }
 
 
@@ -37,4 +37,5 @@ DECLARE_LOG_CATEGORY_EXTERN(LogHeliWeapon, Log, All);
 #define SURFACE_HELICOCKPIT			SurfaceType1
 #define SURFACE_HELIFUSELAGE        SurfaceType2
 #define SURFACE_HELITAIL			SurfaceType3
+#define SURFACE_EXPLOSIVE			SurfaceType4
 
