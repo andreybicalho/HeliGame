@@ -538,6 +538,8 @@ public:
 	void RemoveHealthWidget();
 
 
+
+	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
 	
 /* overrides */
 private:

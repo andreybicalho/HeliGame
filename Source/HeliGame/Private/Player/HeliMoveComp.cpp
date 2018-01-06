@@ -23,7 +23,7 @@ UHeliMoveComp::UHeliMoveComp(const FObjectInitializer& ObjectInitializer)
 	bUseAddForceForThrust = true;
 
 	bAddLift = true;
-	GravityWeight = 0.75f;
+	GravityWeight = 0.70f;
 
 	BaseThrust = 10000.f;
 
@@ -31,9 +31,9 @@ UHeliMoveComp::UHeliMoveComp(const FObjectInitializer& ObjectInitializer)
 
 	MaximumAngularVelocity = 100.f;
 
-	InterpolationSpeed = 100.f;
-
-	bUseInterpolationForMovementReplication = false;
+	MaxNetworkSmoothingFactor = 60.f;
+	InterpolationSpeed = MaxNetworkSmoothingFactor;
+	bUseInterpolationForMovementReplication = true;
 }
 
 /*
@@ -308,6 +308,46 @@ bool UHeliMoveComp::Server_SetPhysMovementState_Validate(const FPhysMovementStat
 void UHeliMoveComp::Server_SetPhysMovementState_Implementation(const FPhysMovementState& NewPhysMovementState)
 {
 	PhysMovementState = NewPhysMovementState;
+}
+
+void UHeliMoveComp::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
+{		
+	if (inNetworkSmoothingFactor < 1.f)
+	{
+		// turn interpolation off
+		Server_SetNetworkSmoothingFactor(MaxNetworkSmoothingFactor, false);
+		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor Deactivated!"));
+	}
+	else if (inNetworkSmoothingFactor >= 100.f)
+	{
+		Server_SetNetworkSmoothingFactor(1.f, true);
+		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor is 100%, interpolation speed set to 1!"));
+	}
+	else
+	{
+		// normalize it between 1 and MaxNetworkSmoothingFactor
+		// ((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;		
+		float smoothFactorNormalized = ((MaxNetworkSmoothingFactor - 1.f) * (inNetworkSmoothingFactor - 0.f) / (100.f - 0.f)) + 1.f;
+		
+		// smaller values means more interpolation speed, greater values means that interpolation should happen more smoothly (slow interp speed)
+		float smoothFactor = MaxNetworkSmoothingFactor - smoothFactorNormalized;
+
+		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ inNetworkSmoothingFactor = %f, smoothFactorNormalized = %f, smoothFactor = %f"), inNetworkSmoothingFactor, smoothFactorNormalized, smoothFactor);
+
+		Server_SetNetworkSmoothingFactor(smoothFactor, true);
+	}
+}
+
+bool UHeliMoveComp::Server_SetNetworkSmoothingFactor_Validate(float InInterpolationSpeed, bool InbUseInterpolationForMovementReplication)
+{
+	return true;
+}
+
+void UHeliMoveComp::Server_SetNetworkSmoothingFactor_Implementation(float InInterpolationSpeed, bool InbUseInterpolationForMovementReplication)
+{
+	InterpolationSpeed = InInterpolationSpeed;
+
+	bUseInterpolationForMovementReplication = InbUseInterpolationForMovementReplication;
 }
 
 

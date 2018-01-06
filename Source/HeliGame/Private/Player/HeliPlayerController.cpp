@@ -338,6 +338,21 @@ void AHeliPlayerController::HideInGameOptionsMenu()
 	bAllowGameActions = true;
 }
 
+void AHeliPlayerController::RefreshUI()
+{
+	if (GetWorld() != nullptr)
+	{
+		UHeliGameInstance* heliGameInstance = GetWorld() != nullptr ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : nullptr;
+		if (heliGameInstance)
+		{
+			if (heliGameInstance->GetCurrentState() == EHeliGameInstanceState::LobbyMenu)
+			{
+				heliGameInstance->RefreshLobbyUI();
+			}
+		}
+	}
+}
+
 void AHeliPlayerController::OnShowScoreboard()
 {
 	AHeliHud* MyHud = Cast<AHeliHud>(GetHUD());
@@ -738,6 +753,35 @@ int32 AHeliPlayerController::GetInvertedAim()
 	return 1;
 }
 
+float AHeliPlayerController::GetNetworkSmoothingFactor()
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+
+	if (heliGameUserSettings)
+	{
+		return heliGameUserSettings->GetNetworkSmoothingFactor();
+	}
+
+	return 100;
+}
+
+void AHeliPlayerController::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());	
+
+	if (helicopter)
+	{
+		helicopter->SetNetworkSmoothingFactor(inNetworkSmoothingFactor);
+	}
+
+	if (heliGameUserSettings)
+	{
+		heliGameUserSettings->SetNetworkSmoothingFactor(inNetworkSmoothingFactor);
+		heliGameUserSettings->ApplySettings(false);
+	}
+}
+
 bool AHeliPlayerController::Server_RestartPlayer_Validate()
 {
 	return true;
@@ -790,7 +834,8 @@ void AHeliPlayerController::SetupInputComponent()
 	InputComponent->BindAction("FlushDebugLines", IE_Released, this, &AHeliPlayerController::FlushDebugLines);
 
 	InputComponent->BindAction("Suicide", IE_Pressed, this, &AHeliPlayerController::Suicide);
-
+	
+	InputComponent->BindAction("RefreshUI", IE_Pressed, this, &AHeliPlayerController::RefreshUI);
 }
 
 void AHeliPlayerController::ClientReturnToMainMenu_Implementation(const FString& InReturnReason)

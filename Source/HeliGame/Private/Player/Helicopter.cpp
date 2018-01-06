@@ -1147,6 +1147,14 @@ void AHelicopter::SetInvertedAim(int32 inInvertedAim)
 	InvertedAim = FMath::Clamp(inInvertedAim, -1, 1);
 }
 
+void AHelicopter::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
+{
+	UHeliMoveComp* heliMovementComponent = Cast<UHeliMoveComp>(GetMovementComponent());
+	if (heliMovementComponent)
+	{
+		heliMovementComponent->SetNetworkSmoothingFactor(inNetworkSmoothingFactor);
+	}
+}
 
 
 /*
@@ -1198,7 +1206,7 @@ void AHelicopter::InitHelicopter()
 	// enable movements
 	if (HeliMovementComponent && !HeliMovementComponent->IsActive())
 	{
-		HeliMovementComponent->SetActive(true);
+		HeliMovementComponent->SetActive(true);		
 	}
 
 	// set timer for rotors animation
@@ -1219,6 +1227,9 @@ void AHelicopter::InitHelicopter()
 
 		// allow game actions
 		heliPlayerController->SetAllowGameActions(true);
+
+		// network smoothing factor
+		SetNetworkSmoothingFactor(heliPlayerController->GetNetworkSmoothingFactor());
 
 		// hide scoreboard
 		AHeliHud* heliHud = Cast<AHeliHud>(heliPlayerController->GetHUD());

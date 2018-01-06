@@ -605,4 +605,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Lobby")
 	bool bShouldUpdateLobbyWidget;
+
+	UFUNCTION(exec)
+	void RefreshLobbyUI();
 };

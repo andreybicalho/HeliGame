@@ -20,6 +20,7 @@ void UHeliGameUserSettings::SetToDefaults()
 	MouseSensitiviy = 1.f;
 	KeyboardSensitivity = 1.f;
 	InvertedAim = 1;
+	NetworkSmoothingFactor = 100;
 }
 
 void UHeliGameUserSettings::ApplySettings(bool bCheckForCommandLineOverrides)
@@ -50,6 +51,16 @@ void UHeliGameUserSettings::SetInvertedAim(int32 inInvertedAim)
 int32 UHeliGameUserSettings::GetInvertedAim()
 {
 	return InvertedAim;
+}
+
+float UHeliGameUserSettings::GetNetworkSmoothingFactor()
+{
+	return NetworkSmoothingFactor;
+}
+
+void UHeliGameUserSettings::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
+{
+	NetworkSmoothingFactor = inNetworkSmoothingFactor;
 }
 
 

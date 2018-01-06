@@ -864,13 +864,13 @@ void UHeliGameInstance::BeginLobbyMenuState()
 		MyViewport->RemoveAllViewportWidgets();
 	}
 
-	StopLoadingScreen();
-
 	if (MyViewport && LobbyMenuWidgetTemplate)
 	{
 		if (LobbyMenu.IsValid())
 		{
 			LobbyMenu->AddToViewport();
+
+			UE_LOG(LogTemp, Display, TEXT("UHeliGameInstance::BeginLobbyMenuState ~ LobbyMenu added to viewport"));
 		}
 		else
 		{
@@ -883,6 +883,8 @@ void UHeliGameInstance::BeginLobbyMenuState()
 			LobbyMenu->AddToViewport();
 			LobbyMenu->SetUserFocus(FirstPC);
 			LobbyMenu->SetKeyboardFocus();
+
+			UE_LOG(LogTemp, Display, TEXT("UHeliGameInstance::BeginLobbyMenuState ~ LobbyMenu added to viewport - SpawnLocation %s"), *FirstPC->GetSpawnLocation().ToCompactString());
 		}
 	}
 }
@@ -926,6 +928,8 @@ void UHeliGameInstance::EndLobbyMenuState(EHeliGameInstanceState NextState)
 	if (MyViewport && LobbyMenu.IsValid())
 	{
 		LobbyMenu->RemoveFromViewport();
+
+		UE_LOG(LogTemp, Display, TEXT("UHeliGameInstance::EndLobbyMenuState ~ LobbyMenu removed from viewport"));
 	}
 }
 
@@ -1996,7 +2000,13 @@ uint8 UHeliGameInstance::GetNumberOfTeams()
 
 int32 UHeliGameInstance::GetNumberOfPlayersInTeam(uint8 TeamNum)
 {
-	return PlayerStateMaps[TeamNum].Num();
+	if (PlayerStateMaps.IsValidIndex(TeamNum))
+	{
+		return PlayerStateMaps[TeamNum].Num();
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("UHeliGameInstance::GetNumberOfPlayersInTeam - found 0 players in team %d"), TeamNum);
+	return 0;
 }
 
 AHeliPlayerState* UHeliGameInstance::GetPlayerStateFromPlayerInRankedPlayerMap(const FTeamPlayer& TeamPlayer) const
@@ -2016,11 +2026,11 @@ AHeliPlayerState* UHeliGameInstance::GetPlayerStateFromPlayerInRankedPlayerMap(c
 
 void UHeliGameInstance::UpdatePlayerStateMapsForLobby()
 {
-	APlayerController* const FirstPC = GetFirstLocalPlayerController();
+	AHeliPlayerController* const heliPlayerController = Cast<AHeliPlayerController>(GetFirstLocalPlayerController());
 
-	if (FirstPC != nullptr && FirstPC->GetWorld() != nullptr)
+	if (heliPlayerController != nullptr && heliPlayerController->GetWorld() != nullptr)
 	{
-		AHeliLobbyGameState* const GameState = Cast<AHeliLobbyGameState>(FirstPC->GetWorld()->GetGameState());
+		AHeliLobbyGameState* const GameState = Cast<AHeliLobbyGameState>(heliPlayerController->GetWorld()->GetGameState());
 		if (GameState)
 		{
 			const int32 NumTeams = FMath::Max(GameState->NumTeams, 1);
@@ -2162,4 +2172,10 @@ void UHeliGameInstance::ResquestRestartAllPlayers()
 	{
 		GameState->ResquestRestartAllPlayers();
 	}
+}
+
+void UHeliGameInstance::RefreshLobbyUI()
+{
+	UE_LOG(LogTemp, Display, TEXT("UHeliGameInstance::RefreshLobbyUI ~ requested to refresh lobby UI"));
+	GotoState(EHeliGameInstanceState::LobbyMenu);
 }
