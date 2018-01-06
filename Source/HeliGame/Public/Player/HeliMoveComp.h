@@ -122,11 +122,11 @@ class HELIGAME_API UHeliMoveComp : public UPawnMovementComponent
 	void SetPhysMovementStateSmoothly(const FPhysMovementState& TargetPhysMovementState, float DeltaTime);
 
 	/* controls whether use or not interpolation for movement replication. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Transient, Replicated, EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
 	bool bUseInterpolationForMovementReplication;
 
 	/* controls how fast actual movement data will be interpolated with server's data. Greater values means that it will interpolate faster. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Transient, Replicated, EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
 	float InterpolationSpeed;
 
 	/* Greater values means that it will interpolate faster, so much greater values will have the same effect as NO interpolation at all... */

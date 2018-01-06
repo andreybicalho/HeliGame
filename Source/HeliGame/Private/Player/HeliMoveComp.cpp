@@ -317,30 +317,31 @@ bool UHeliMoveComp::IsNetworkSmoothingFactorActive()
 
 void UHeliMoveComp::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
 {			
-	//Server_SetNetworkSmoothingFactor(inNetworkSmoothingFactor, true);
+	/*Server_SetNetworkSmoothingFactor(inNetworkSmoothingFactor, true);
 	InterpolationSpeed = inNetworkSmoothingFactor;
 	bUseInterpolationForMovementReplication = true;
 	UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ InterpolationSpeed = %f"), InterpolationSpeed);
 	if (inNetworkSmoothingFactor <= 0.f)
 	{
 		bUseInterpolationForMovementReplication = false;
+		Server_SetNetworkSmoothingFactor(inNetworkSmoothingFactor, false);
 		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor Deactivated!"));
-	}
+	}*/
 
 
 
 	//
-	/*if (inNetworkSmoothingFactor < 1.f)
+	if (inNetworkSmoothingFactor < 1.f)
 	{
 		// turn interpolation off
-		//Server_SetNetworkSmoothingFactor(MaxNetworkSmoothingFactor, false);
+		Server_SetNetworkSmoothingFactor(MaxNetworkSmoothingFactor, false);
 		InterpolationSpeed = MaxNetworkSmoothingFactor;
 		bUseInterpolationForMovementReplication = false;
 		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor Deactivated!"));
 	}
 	else if (inNetworkSmoothingFactor >= 100.f)
 	{
-		//Server_SetNetworkSmoothingFactor(1.f, true);
+		Server_SetNetworkSmoothingFactor(1.f, true);
 		InterpolationSpeed = 1.f;
 		bUseInterpolationForMovementReplication = true;
 		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor is 100%, interpolation speed set to 1!"));
@@ -356,10 +357,10 @@ void UHeliMoveComp::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
 
 		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ inNetworkSmoothingFactor = %f, smoothFactorNormalized = %f, smoothFactor = %f"), inNetworkSmoothingFactor, smoothFactorNormalized, smoothFactor);
 
-		//Server_SetNetworkSmoothingFactor(smoothFactor, true);
+		Server_SetNetworkSmoothingFactor(smoothFactor, true);
 		InterpolationSpeed = smoothFactor;
 		bUseInterpolationForMovementReplication = true;
-	}*/
+	}
 }
 
 bool UHeliMoveComp::Server_SetNetworkSmoothingFactor_Validate(float InInterpolationSpeed, bool InbUseInterpolationForMovementReplication)
@@ -430,6 +431,11 @@ void UHeliMoveComp::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(UHeliMoveComp, PhysMovementState, COND_SimulatedOnly);
+	
+	DOREPLIFETIME(UHeliMoveComp, InterpolationSpeed);
+	DOREPLIFETIME(UHeliMoveComp, bUseInterpolationForMovementReplication);
+	//DOREPLIFETIME_CONDITION(UHeliMoveComp, InterpolationSpeed, COND_SimulatedOnly);
+	//DOREPLIFETIME_CONDITION(UHeliMoveComp, bUseInterpolationForMovementReplication, COND_SimulatedOnly);
 }
 
 
