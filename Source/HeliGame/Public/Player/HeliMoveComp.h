@@ -157,6 +157,8 @@ public:
 
 	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
 
+	bool IsNetworkSmoothingFactorActive();
+
 	/* overrides */
 public:
 	void InitializeComponent() override;

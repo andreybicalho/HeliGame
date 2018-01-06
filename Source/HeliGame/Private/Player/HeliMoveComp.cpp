@@ -33,7 +33,7 @@ UHeliMoveComp::UHeliMoveComp(const FObjectInitializer& ObjectInitializer)
 
 	MaxNetworkSmoothingFactor = 60.f;
 	InterpolationSpeed = MaxNetworkSmoothingFactor;
-	bUseInterpolationForMovementReplication = true;
+	bUseInterpolationForMovementReplication = false;
 }
 
 /*
@@ -310,17 +310,39 @@ void UHeliMoveComp::Server_SetPhysMovementState_Implementation(const FPhysMoveme
 	PhysMovementState = NewPhysMovementState;
 }
 
+bool UHeliMoveComp::IsNetworkSmoothingFactorActive()
+{
+	return bUseInterpolationForMovementReplication;
+}
+
 void UHeliMoveComp::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
-{		
-	if (inNetworkSmoothingFactor < 1.f)
+{			
+	//Server_SetNetworkSmoothingFactor(inNetworkSmoothingFactor, true);
+	InterpolationSpeed = inNetworkSmoothingFactor;
+	bUseInterpolationForMovementReplication = true;
+	UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ InterpolationSpeed = %f"), InterpolationSpeed);
+	if (inNetworkSmoothingFactor <= 0.f)
+	{
+		bUseInterpolationForMovementReplication = false;
+		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor Deactivated!"));
+	}
+
+
+
+	//
+	/*if (inNetworkSmoothingFactor < 1.f)
 	{
 		// turn interpolation off
-		Server_SetNetworkSmoothingFactor(MaxNetworkSmoothingFactor, false);
+		//Server_SetNetworkSmoothingFactor(MaxNetworkSmoothingFactor, false);
+		InterpolationSpeed = MaxNetworkSmoothingFactor;
+		bUseInterpolationForMovementReplication = false;
 		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor Deactivated!"));
 	}
 	else if (inNetworkSmoothingFactor >= 100.f)
 	{
-		Server_SetNetworkSmoothingFactor(1.f, true);
+		//Server_SetNetworkSmoothingFactor(1.f, true);
+		InterpolationSpeed = 1.f;
+		bUseInterpolationForMovementReplication = true;
 		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor is 100%, interpolation speed set to 1!"));
 	}
 	else
@@ -334,8 +356,10 @@ void UHeliMoveComp::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
 
 		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ inNetworkSmoothingFactor = %f, smoothFactorNormalized = %f, smoothFactor = %f"), inNetworkSmoothingFactor, smoothFactorNormalized, smoothFactor);
 
-		Server_SetNetworkSmoothingFactor(smoothFactor, true);
-	}
+		//Server_SetNetworkSmoothingFactor(smoothFactor, true);
+		InterpolationSpeed = smoothFactor;
+		bUseInterpolationForMovementReplication = true;
+	}*/
 }
 
 bool UHeliMoveComp::Server_SetNetworkSmoothingFactor_Validate(float InInterpolationSpeed, bool InbUseInterpolationForMovementReplication)
@@ -373,7 +397,7 @@ void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	}
 
 	bool bLocalPlayerAuthority = GetPawnOwner() && GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy;
-	
+
 	// add lift
 	if (bAddLift && bLocalPlayerAuthority) {
 		AddLift();

@@ -20,7 +20,7 @@ void UHeliGameUserSettings::SetToDefaults()
 	MouseSensitiviy = 1.f;
 	KeyboardSensitivity = 1.f;
 	InvertedAim = 1;
-	NetworkSmoothingFactor = 100;
+	NetworkSmoothingFactor = -1;
 }
 
 void UHeliGameUserSettings::ApplySettings(bool bCheckForCommandLineOverrides)

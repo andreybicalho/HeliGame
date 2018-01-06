@@ -1230,6 +1230,7 @@ void AHelicopter::InitHelicopter()
 
 		// network smoothing factor
 		SetNetworkSmoothingFactor(heliPlayerController->GetNetworkSmoothingFactor());
+		
 
 		// hide scoreboard
 		AHeliHud* heliHud = Cast<AHeliHud>(heliPlayerController->GetHUD());
