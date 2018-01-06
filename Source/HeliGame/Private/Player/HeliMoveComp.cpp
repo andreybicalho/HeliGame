@@ -285,7 +285,7 @@ void UHeliMoveComp::SetPhysMovementStateSmoothly(const FPhysMovementState& Targe
 
 void UHeliMoveComp::MovementReplication()
 {
-	if ((GetPawnOwner() && GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy))
+	if ((GetPawnOwner() && GetPawnOwner()->IsLocallyControlled())) // && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy))
 	{
 		UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 		if (BaseComp && BaseComp->IsSimulatingPhysics())
