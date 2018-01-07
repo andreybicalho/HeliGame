@@ -2,6 +2,7 @@
 
 #include "HeliMoveComp.h"
 #include "HeliGame.h"
+#include "HeliGameUserSettings.h"
 #include "Components/PrimitiveComponent.h"
 #include "GameFramework/Pawn.h"
 #include "Net/UnrealNetwork.h"
@@ -316,32 +317,17 @@ bool UHeliMoveComp::IsNetworkSmoothingFactorActive()
 }
 
 void UHeliMoveComp::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
-{			
-	/*Server_SetNetworkSmoothingFactor(inNetworkSmoothingFactor, true);
-	InterpolationSpeed = inNetworkSmoothingFactor;
-	bUseInterpolationForMovementReplication = true;
-	UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ InterpolationSpeed = %f"), InterpolationSpeed);
-	if (inNetworkSmoothingFactor <= 0.f)
+{				
+	if (inNetworkSmoothingFactor < 0.5f)
 	{
-		bUseInterpolationForMovementReplication = false;
-		Server_SetNetworkSmoothingFactor(inNetworkSmoothingFactor, false);
-		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor Deactivated!"));
-	}*/
-
-
-
-	//
-	if (inNetworkSmoothingFactor < 1.f)
-	{
-		// turn interpolation off
-		Server_SetNetworkSmoothingFactor(MaxNetworkSmoothingFactor, false);
+		// turn interpolation off	
 		InterpolationSpeed = MaxNetworkSmoothingFactor;
 		bUseInterpolationForMovementReplication = false;
 		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor Deactivated!"));
 	}
 	else if (inNetworkSmoothingFactor >= 100.f)
 	{
-		Server_SetNetworkSmoothingFactor(1.f, true);
+		// minimum interpolation we allow
 		InterpolationSpeed = 1.f;
 		bUseInterpolationForMovementReplication = true;
 		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor is 100%, interpolation speed set to 1!"));
@@ -357,29 +343,23 @@ void UHeliMoveComp::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
 
 		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ inNetworkSmoothingFactor = %f, smoothFactorNormalized = %f, smoothFactor = %f"), inNetworkSmoothingFactor, smoothFactorNormalized, smoothFactor);
 
-		Server_SetNetworkSmoothingFactor(smoothFactor, true);
 		InterpolationSpeed = smoothFactor;
 		bUseInterpolationForMovementReplication = true;
 	}
 }
 
-bool UHeliMoveComp::Server_SetNetworkSmoothingFactor_Validate(float InInterpolationSpeed, bool InbUseInterpolationForMovementReplication)
-{
-	return true;
-}
-
-void UHeliMoveComp::Server_SetNetworkSmoothingFactor_Implementation(float InInterpolationSpeed, bool InbUseInterpolationForMovementReplication)
-{
-	InterpolationSpeed = InInterpolationSpeed;
-
-	bUseInterpolationForMovementReplication = InbUseInterpolationForMovementReplication;
-}
-
-
 /* overrides */
 void UHeliMoveComp::InitializeComponent()
 {
 	Super::InitializeComponent();
+
+	// if this is a remote proxies get network smoothing factor
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	if (heliGameUserSettings && GetPawnOwner() && !GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role == ENetRole::ROLE_SimulatedProxy)
+	{
+		SetNetworkSmoothingFactor(heliGameUserSettings->GetNetworkSmoothingFactor());
+		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::InitializeComponent ~ network smoothing factor changed to %f for simulated proxies!"), heliGameUserSettings->GetNetworkSmoothingFactor());
+	}
 }
 
 void UHeliMoveComp::BeginPlay()
@@ -395,7 +375,7 @@ void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::TickComponent PawnOwner or UpdatedComponent not found!"));
 		return;
-	}
+	}	
 
 	bool bLocalPlayerAuthority = GetPawnOwner() && GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy;
 
@@ -431,11 +411,6 @@ void UHeliMoveComp::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(UHeliMoveComp, PhysMovementState, COND_SimulatedOnly);
-	
-	DOREPLIFETIME(UHeliMoveComp, InterpolationSpeed);
-	DOREPLIFETIME(UHeliMoveComp, bUseInterpolationForMovementReplication);
-	//DOREPLIFETIME_CONDITION(UHeliMoveComp, InterpolationSpeed, COND_SimulatedOnly);
-	//DOREPLIFETIME_CONDITION(UHeliMoveComp, bUseInterpolationForMovementReplication, COND_SimulatedOnly);
 }
 
 
