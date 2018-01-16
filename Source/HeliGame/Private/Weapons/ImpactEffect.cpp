@@ -20,7 +20,7 @@ AImpactEffect::AImpactEffect()
 	bAutoDestroyWhenFinished = true;
 
 	DecalLifeSpan = 10.0f;
-	DecalSize = 16.0f;
+	DecalSize = 256.0f;
 
 }
 
@@ -70,6 +70,8 @@ UParticleSystem* AImpactEffect::GetImpactFX(EPhysicalSurface SurfaceType) const
 		return HeliFuselageFX;
 	case SURFACE_HELITAIL:
 		return HeliFuselageFX;
+	case SURFACE_EXPLOSIVE:
+		return ExplosiveSurfaceFX;
 	default:
 		return nullptr;
 	}
@@ -89,6 +91,8 @@ USoundCue* AImpactEffect::GetImpactSound(EPhysicalSurface SurfaceType) const
 		return HeliFuselageSound;
 	case SURFACE_HELITAIL:
 		return HeliFuselageSound;
+	case SURFACE_EXPLOSIVE:
+		return ExplosiveSurfaceSound;
 	default:
 		return nullptr;
 	}

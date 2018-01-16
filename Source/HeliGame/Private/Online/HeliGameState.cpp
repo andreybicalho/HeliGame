@@ -98,6 +98,19 @@ void AHeliGameState::RequestClientsGoToLobbyState()
 	}
 }
 
+void AHeliGameState::ResquestRestartAllPlayers()
+{
+	if (AuthorityGameMode)
+	{
+		// we are server, tell the gamemode
+		AHeliGameMode* const GameMode = Cast<AHeliGameMode>(AuthorityGameMode);
+		if (GameMode)
+		{
+			GameMode->RestartAllPlayers();
+		}
+	}
+}
+
 
 void AHeliGameState::GetRankedMap(int32 TeamIndex, RankedPlayerMap& OutRankedMap) const
 {

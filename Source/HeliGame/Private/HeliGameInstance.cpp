@@ -22,6 +22,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 
+
 UHeliGameInstance::UHeliGameInstance(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	, bIsOnline(false) // Default to LAN
@@ -863,13 +864,13 @@ void UHeliGameInstance::BeginLobbyMenuState()
 		MyViewport->RemoveAllViewportWidgets();
 	}
 
-	StopLoadingScreen();
-
 	if (MyViewport && LobbyMenuWidgetTemplate)
 	{
 		if (LobbyMenu.IsValid())
 		{
 			LobbyMenu->AddToViewport();
+
+			UE_LOG(LogTemp, Display, TEXT("UHeliGameInstance::BeginLobbyMenuState ~ LobbyMenu added to viewport"));
 		}
 		else
 		{
@@ -882,6 +883,8 @@ void UHeliGameInstance::BeginLobbyMenuState()
 			LobbyMenu->AddToViewport();
 			LobbyMenu->SetUserFocus(FirstPC);
 			LobbyMenu->SetKeyboardFocus();
+
+			UE_LOG(LogTemp, Display, TEXT("UHeliGameInstance::BeginLobbyMenuState ~ LobbyMenu added to viewport - SpawnLocation %s"), *FirstPC->GetSpawnLocation().ToCompactString());
 		}
 	}
 }
@@ -925,6 +928,8 @@ void UHeliGameInstance::EndLobbyMenuState(EHeliGameInstanceState NextState)
 	if (MyViewport && LobbyMenu.IsValid())
 	{
 		LobbyMenu->RemoveFromViewport();
+
+		UE_LOG(LogTemp, Display, TEXT("UHeliGameInstance::EndLobbyMenuState ~ LobbyMenu removed from viewport"));
 	}
 }
 
@@ -1117,6 +1122,8 @@ bool UHeliGameInstance::HostGame(ULocalPlayer* LocalPlayer, const FString& GameT
 bool UHeliGameInstance::JoinSession(ULocalPlayer* LocalPlayer, int32 SessionIndexInSearchResults)
 {
 	// needs to tear anything down based on current state?	
+	
+	ShowLoadingScreen("Loading...");
 
 	AHeliGameSession* const GameSession = GetGameSession();
 	if (GameSession)
@@ -1131,7 +1138,6 @@ bool UHeliGameInstance::JoinSession(ULocalPlayer* LocalPlayer, int32 SessionInde
 			{
 				// Go ahead and go into loading state now
 				// If we fail, the delegate will handle showing the proper messaging and move to the correct state
-				ShowLoadingScreen("Loading...");
 				GotoState(EHeliGameInstanceState::Playing);
 				return true;
 			}
@@ -1197,6 +1203,17 @@ void UHeliGameInstance::OnRegisterJoiningLocalPlayerComplete(const FUniqueNetId&
 	FinishJoinSession(Result);
 }
 
+
+void UHeliGameInstance::TravelToIP(const FString& IpAddress)
+{
+	APlayerController* const playerController = GetFirstLocalPlayerController();
+	
+	if(playerController && *IpAddress && !IpAddress.IsEmpty())
+	{ 
+		UE_LOG(LogLoad, Log, TEXT("UHeliGameInstance::TravelToIP ~ %s"), *IpAddress);
+		playerController->ClientTravel(IpAddress, TRAVEL_Absolute);
+	}
+}
 
 void UHeliGameInstance::InternalTravelToSession(const FName& SessionName)
 {
@@ -1309,7 +1326,7 @@ void UHeliGameInstance::UpdateAvailableServers()
 		int32 CurrentSearchIdx, NumSearchResults;
 		EOnlineAsyncTaskState::Type SearchState = GameSession->GetSearchResultStatus(CurrentSearchIdx, NumSearchResults);
 
-		UE_LOG(LogLoad, Log, TEXT("AHeliGameSession->GetSearchResultStatus: %s"), EOnlineAsyncTaskState::ToString(SearchState));
+		UE_LOG(LogTemp, Display, TEXT("UHeliGameInstance::UpdateAvailableServers ~ %s, %d, %d"), EOnlineAsyncTaskState::ToString(SearchState), CurrentSearchIdx, NumSearchResults);
 		switch (SearchState)
 		{
 			case EOnlineAsyncTaskState::InProgress:
@@ -1372,11 +1389,14 @@ void UHeliGameInstance::UpdateAvailableServers()
 				StopLoadingScreen();
 				// TODO: failed message
 				// intended fall-through
+				UE_LOG(LogTemp, Error, TEXT("UHeliGameInstance::UpdateAvailableServers ~ %s, %d, %d"), EOnlineAsyncTaskState::ToString(SearchState), CurrentSearchIdx, NumSearchResults);
 				break;
 			case EOnlineAsyncTaskState::NotStarted:
 				// intended fall-through
+				UE_LOG(LogTemp, Warning, TEXT("UHeliGameInstance::UpdateAvailableServers ~ %s, %d, %d"), EOnlineAsyncTaskState::ToString(SearchState), CurrentSearchIdx, NumSearchResults);
 				break;
 			default:
+				UE_LOG(LogTemp, Error, TEXT("UHeliGameInstance::UpdateAvailableServers ~ %s, %d, %d"), EOnlineAsyncTaskState::ToString(SearchState), CurrentSearchIdx, NumSearchResults);
 				break;
 				
 		}
@@ -1386,15 +1406,6 @@ void UHeliGameInstance::UpdateAvailableServers()
 
 void  UHeliGameInstance::JoinFromServerList(ULocalPlayer* LocalPlayer, FServerEntry Server)
 {	
-	UGameViewportClient* MyViewport = Cast<UGameViewportClient>(GetGameViewportClient());
-
-	if (MyViewport)
-	{
-		MyViewport->RemoveAllViewportWidgets();
-	}
-
-		
-
 	int ServerToJoin = Server.SearchResultsIndex;
 
 	UE_LOG(LogLoad, Log, TEXT("%s"), *FString::Printf(TEXT("JoinFromServerList: ServerName: %s, CurrentPlayers: %s, MaxPlayers: %s, GameType: %s, MapName: %s, Ping: %s, SearchResultsIndex: %s"), *Server.ServerName, *Server.CurrentPlayers, *Server.MaxPlayers, *Server.GameType, *Server.MapName, *Server.Ping, *FString::FromInt(Server.SearchResultsIndex)));
@@ -1989,7 +2000,13 @@ uint8 UHeliGameInstance::GetNumberOfTeams()
 
 int32 UHeliGameInstance::GetNumberOfPlayersInTeam(uint8 TeamNum)
 {
-	return PlayerStateMaps[TeamNum].Num();
+	if (PlayerStateMaps.IsValidIndex(TeamNum))
+	{
+		return PlayerStateMaps[TeamNum].Num();
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("UHeliGameInstance::GetNumberOfPlayersInTeam - found 0 players in team %d"), TeamNum);
+	return 0;
 }
 
 AHeliPlayerState* UHeliGameInstance::GetPlayerStateFromPlayerInRankedPlayerMap(const FTeamPlayer& TeamPlayer) const
@@ -2009,11 +2026,11 @@ AHeliPlayerState* UHeliGameInstance::GetPlayerStateFromPlayerInRankedPlayerMap(c
 
 void UHeliGameInstance::UpdatePlayerStateMapsForLobby()
 {
-	APlayerController* const FirstPC = GetFirstLocalPlayerController();
+	AHeliPlayerController* const heliPlayerController = Cast<AHeliPlayerController>(GetFirstLocalPlayerController());
 
-	if (FirstPC != nullptr && FirstPC->GetWorld() != nullptr)
+	if (heliPlayerController != nullptr && heliPlayerController->GetWorld() != nullptr)
 	{
-		AHeliLobbyGameState* const GameState = Cast<AHeliLobbyGameState>(FirstPC->GetWorld()->GetGameState());
+		AHeliLobbyGameState* const GameState = Cast<AHeliLobbyGameState>(heliPlayerController->GetWorld()->GetGameState());
 		if (GameState)
 		{
 			const int32 NumTeams = FMath::Max(GameState->NumTeams, 1);
@@ -2111,6 +2128,8 @@ void UHeliGameInstance::EndRoundAndRestartMatch()
 
 
 
+
+
 /****************************** ENUM HELPERS ***************************************************/
 
 FString UHeliGameInstance::GetEHeliGameInstanceStateEnumAsString(EHeliGameInstanceState EnumValue)
@@ -2139,3 +2158,24 @@ EHeliMap UHeliGameInstance::GetEHeliMapEnumValueFromString(const FString& EnumNa
 	return (EHeliMap)Enum->GetIndexByName(FName(*EnumName));
 }
 
+FString UHeliGameInstance::GetGameVersion()
+{
+	return GameVersionName;
+}
+
+void UHeliGameInstance::ResquestRestartAllPlayers()
+{
+	UWorld* const World = GetWorld();
+	AHeliGameState* const GameState = World != NULL ? World->GetGameState<AHeliGameState>() : NULL;
+
+	if (GameState)
+	{
+		GameState->ResquestRestartAllPlayers();
+	}
+}
+
+void UHeliGameInstance::RefreshLobbyUI()
+{
+	UE_LOG(LogTemp, Display, TEXT("UHeliGameInstance::RefreshLobbyUI ~ requested to refresh lobby UI"));
+	GotoState(EHeliGameInstanceState::LobbyMenu);
+}

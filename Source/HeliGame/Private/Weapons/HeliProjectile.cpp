@@ -67,11 +67,11 @@ void AHeliProjectile::PostInitializeComponents()
 }
 
 
-void AHeliProjectile::InitVelocity(FVector& ShootDirection)
+void AHeliProjectile::InitVelocity(FVector& ShootDirection, FVector& InitialVelocity)
 {
 	if (MovementComp)
 	{
-		MovementComp->Velocity = ShootDirection * MovementComp->InitialSpeed;
+		MovementComp->Velocity = (ShootDirection * MovementComp->InitialSpeed) + InitialVelocity;
 	}
 }
 

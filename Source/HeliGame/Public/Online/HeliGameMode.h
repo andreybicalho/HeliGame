@@ -72,6 +72,9 @@ public:
 
 	void RequestClientsGoToLobbyState();
 
+	// used to help debugging player restart/spawn point
+	void RestartAllPlayers();
+
 	/************************************************************************/
 	/* Damage & Killing                                                     */
 	/************************************************************************/

@@ -7,10 +7,17 @@
 		{
 			"Name": "HeliGame",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		}
 	],
 	"Plugins": [
+		{
+			"Name": "SteamVR",
+			"Enabled": false
+		},
 		{
 			"Name": "OnlineSubsystemSteam",
 			"Enabled": true

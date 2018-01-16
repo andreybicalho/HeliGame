@@ -100,7 +100,7 @@ void AHeliGameModeTDM::PostLogin(APlayerController* NewPlayer)
 
 	Super::PostLogin(NewPlayer);
 
-	RestartPlayer(NewPlayer);
+	//RestartPlayer(NewPlayer);
 }
 
 // TODO(andrey): remove choose team since we choose team in lobby

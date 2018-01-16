@@ -150,7 +150,7 @@ class HELIGAME_API AHelicopter : public APawn
 	float RestoreControlsDelay = 2.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CrashImpact", meta = (AllowPrivateAccess = "true"))
-	float CrashImpactDamageThreshold = 0.1f;
+	float CrashControlsOnImpactThreshold = 0.2f;
 
 	void CrashControls();
 
@@ -205,7 +205,8 @@ class HELIGAME_API AHelicopter : public APawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings", meta = (AllowPrivateAccess = "true"))
 	float KeyboardSensitivity = 1.f;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings", meta = (AllowPrivateAccess = "true"))
+	int32 InvertedAim = 1;
 	/*
 		Camera
 	*/
@@ -346,6 +347,10 @@ class HELIGAME_API AHelicopter : public APawn
 	class UWidgetComponent* HealthBarWidgetComponent;
 	
 protected:
+	void InitHelicopter();
+
+	float SpawnDelay = 1.f;
+
 	/*
 	*	Weapons
 	*/
@@ -438,6 +443,7 @@ public:
 
 	void SetMouseSensitivity(float inMouseSensitivity);
 	void SetKeyboardSensitivity(float inKeyboardSensitivity);
+	void SetInvertedAim(int32 inInvertedAim);
 
 
 
@@ -525,8 +531,6 @@ public:
 
 	void SetPlayerInfo(FName NewPlayerName, int32 NewTeamNumber);
 
-	void SetPlayerInfoFromPlayerState();
-
 	void UpdatePlayerInfo(FName playerName, int32 teamNumber);
 
 	void SetupPlayerInfoWidget();
@@ -534,6 +538,8 @@ public:
 	void RemoveHealthWidget();
 
 
+
+	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
 	
 /* overrides */
 private:

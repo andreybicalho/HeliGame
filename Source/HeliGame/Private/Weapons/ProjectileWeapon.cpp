@@ -79,7 +79,9 @@ void AProjectileWeapon::ServerFireProjectile_Implementation(FVector Origin, FVec
 	{
 		Projectile->Instigator = Instigator;
 		Projectile->SetOwner(this);
-		Projectile->InitVelocity(ShootDir);
+
+		FVector heliVelocity = GetPawnOwner()->GetVelocity();
+		Projectile->InitVelocity(ShootDir, heliVelocity);
 
 		UGameplayStatics::FinishSpawningActor(Projectile, SpawnTM);
 	}

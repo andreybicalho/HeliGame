@@ -28,7 +28,7 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	/** setup velocity */
-	void InitVelocity(FVector& ShootDirection);
+	void InitVelocity(FVector& ShootDirection, FVector& InitialVelocity);
 
 	/** handle hit */
 	UFUNCTION()

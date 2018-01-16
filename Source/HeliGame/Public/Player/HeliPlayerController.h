@@ -51,6 +51,9 @@ protected:
 public:
 	AHeliPlayerController(const FObjectInitializer& ObjectInitializer);
 
+	/* attempt to fix UI bug */
+	void RefreshUI();
+
 	/** shows scoreboard */
 	void OnShowScoreboard();
 
@@ -80,6 +83,18 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
 	float GetKeyboardSensitivity();
+
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
+	void SetInvertedAim(int32 inInvertedAim);
+
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
+	int32 GetInvertedAim();
+
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls|NetworkSmoothingFactor")
+	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
+
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls|NetworkSmoothingFactor")
+	float GetNetworkSmoothingFactor();
 
 	/** check if gameplay related actions (movement, weapon usage, etc) are allowed right now */
 	bool IsGameInputAllowed() const;
@@ -147,8 +162,6 @@ public:
 
 	UFUNCTION(Reliable, Client)
 	void ClientGoToPlayingState();
-
-	void UpdateTeamNumber(int32 teamNumber);
 
 	UFUNCTION(Reliable, Server, WithValidation)
 	void Server_RestartPlayer();

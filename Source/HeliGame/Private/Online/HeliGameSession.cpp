@@ -12,7 +12,7 @@
 
 namespace
 {
-	const FString CustomMatchKeyword("ANDREY_BIRDSOFSTEEL_GAME");
+	const FString CustomMatchKeyword = GameVersionName;
 }
 
 
@@ -88,7 +88,7 @@ void AHeliGameSession::OnDestroySessionComplete(FName InSessionName, bool bWasSu
 */
 void AHeliGameSession::OnFindSessionsComplete(bool bWasSuccessful)
 {
-	UE_LOG(LogOnlineGame, Verbose, TEXT("OnFindSessionsComplete bSuccess: %d"), bWasSuccessful);
+	UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::OnFindSessionsComplete ~ bSuccess: %d"), bWasSuccessful);
 
 	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub)
@@ -98,7 +98,7 @@ void AHeliGameSession::OnFindSessionsComplete(bool bWasSuccessful)
 		{
 			Sessions->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
 
-			UE_LOG(LogOnlineGame, Verbose, TEXT("Num Search Results: %d"), SearchSettings->SearchResults.Num());
+			UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::OnFindSessionsComplete ~ Num Search Results: %d"), SearchSettings->SearchResults.Num());
 			for (int32 SearchIdx = 0; SearchIdx < SearchSettings->SearchResults.Num(); SearchIdx++)
 			{
 				const FOnlineSessionSearchResult& SearchResult = SearchSettings->SearchResults[SearchIdx];
@@ -219,6 +219,8 @@ void AHeliGameSession::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName
 	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub)
 	{
+		UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::FindSessions ~ CustomMatchKeyword = %s, UserId = %s, InSessionName = %s, bIsLAN = %s"), *CustomMatchKeyword, *UserId->ToString(), *InSessionName.ToString(), bIsLAN ? *FString::Printf(TEXT("true")) : *FString::Printf(TEXT("false")));
+
 		CurrentSessionParams.SessionName = InSessionName;
 		CurrentSessionParams.bIsLAN = bIsLAN;
 		CurrentSessionParams.bIsPresence = bIsPresence;
@@ -258,6 +260,8 @@ bool AHeliGameSession::JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName 
 {
 	bool bResult = false;
 
+	UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::JoinSession ~ %s"), *InSessionName.ToString());
+
 	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub)
 	{
@@ -285,13 +289,14 @@ bool AHeliGameSession::TravelToSession(int32 ControllerId, FName InSessionName)
 			APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), ControllerId);
 			if (PC)
 			{
+				UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::TravelToSession ~ %s, %s"), *InSessionName.ToString(), *URL);
 				PC->ClientTravel(URL, TRAVEL_Absolute);
 				return true;
 			}
 		}
 		else
 		{
-			UE_LOG(LogOnlineGame, Warning, TEXT("Failed to join session %s"), *InSessionName.ToString());
+			UE_LOG(LogOnlineGame, Error, TEXT("Failed to join session %s"), *InSessionName.ToString());
 		}
 	}
 #if !UE_BUILD_SHIPPING
@@ -325,6 +330,8 @@ EOnlineAsyncTaskState::Type AHeliGameSession::GetSearchResultStatus(int32& Searc
 		{
 			SearchResultIdx = CurrentSessionParams.BestSessionIdx;
 			NumSearchResults = SearchSettings->SearchResults.Num();
+
+			UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::GetSearchResultStatus ~ SearchResultIdx = %d, NumSearchResults = %d"), SearchResultIdx, NumSearchResults);
 		}
 		return SearchSettings->SearchState;
 	}
@@ -347,6 +354,7 @@ const TArray<FOnlineSessionSearchResult> & AHeliGameSession::GetSearchResults() 
 void AHeliGameSession::OnNoMatchesAvailable()
 {
 	UE_LOG(LogOnlineGame, Verbose, TEXT("Matchmaking complete, no sessions available."));
+	UE_LOG(LogTemp, Warning, TEXT("Matchmaking complete, no sessions available."));
 	SearchSettings = NULL;
 }
 

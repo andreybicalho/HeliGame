@@ -275,16 +275,6 @@ void AHeliPlayerController::ClientGoToPlayingState_Implementation()
 	}
 }
 
-void AHeliPlayerController::UpdateTeamNumber(int32 teamNumber)
-{
-	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
-	if (helicopter)
-	{
-		helicopter->SetTeamNumber(teamNumber);
-		helicopter->SetupPlayerInfoWidget();
-	}
-}
-
 /** Ends and/or destroys game session */
 void AHeliPlayerController::CleanupSessionOnReturnToMenu()
 {
@@ -346,6 +336,21 @@ void AHeliPlayerController::HideInGameOptionsMenu()
 	}
 
 	bAllowGameActions = true;
+}
+
+void AHeliPlayerController::RefreshUI()
+{
+	if (GetWorld() != nullptr)
+	{
+		UHeliGameInstance* heliGameInstance = GetWorld() != nullptr ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : nullptr;
+		if (heliGameInstance)
+		{
+			if (heliGameInstance->GetCurrentState() == EHeliGameInstanceState::LobbyMenu)
+			{
+				heliGameInstance->RefreshLobbyUI();
+			}
+		}
+	}
 }
 
 void AHeliPlayerController::OnShowScoreboard()
@@ -717,6 +722,66 @@ float AHeliPlayerController::GetKeyboardSensitivity()
 	return 0.f;
 }
 
+void AHeliPlayerController::SetInvertedAim(int32 inInvertedAim)
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());
+
+	inInvertedAim = FMath::Clamp(inInvertedAim, -1, 1);
+
+	if (helicopter)
+	{
+		helicopter->SetInvertedAim(inInvertedAim);
+	}
+
+	if (heliGameUserSettings)
+	{		
+		heliGameUserSettings->SetInvertedAim(inInvertedAim);
+		heliGameUserSettings->ApplySettings(false);
+	}
+}
+
+int32 AHeliPlayerController::GetInvertedAim()
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+
+	if (heliGameUserSettings)
+	{
+		return heliGameUserSettings->GetInvertedAim();
+	}
+
+	return 1;
+}
+
+float AHeliPlayerController::GetNetworkSmoothingFactor()
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+
+	if (heliGameUserSettings)
+	{
+		return heliGameUserSettings->GetNetworkSmoothingFactor();
+	}
+
+	return 100;
+}
+
+void AHeliPlayerController::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());	
+
+	if (helicopter)
+	{
+		helicopter->SetNetworkSmoothingFactor(inNetworkSmoothingFactor);
+	}
+
+	if (heliGameUserSettings)
+	{
+		heliGameUserSettings->SetNetworkSmoothingFactor(inNetworkSmoothingFactor);
+		heliGameUserSettings->ApplySettings(false);
+	}
+}
+
 bool AHeliPlayerController::Server_RestartPlayer_Validate()
 {
 	return true;
@@ -769,7 +834,8 @@ void AHeliPlayerController::SetupInputComponent()
 	InputComponent->BindAction("FlushDebugLines", IE_Released, this, &AHeliPlayerController::FlushDebugLines);
 
 	InputComponent->BindAction("Suicide", IE_Pressed, this, &AHeliPlayerController::Suicide);
-
+	
+	InputComponent->BindAction("RefreshUI", IE_Pressed, this, &AHeliPlayerController::RefreshUI);
 }
 
 void AHeliPlayerController::ClientReturnToMainMenu_Implementation(const FString& InReturnReason)
@@ -811,14 +877,8 @@ void AHeliPlayerController::BeginPlayingState()
 	if (helicopter && heliPlayerState)
 	{
 		helicopter->UpdatePlayerInfo(FName(*heliPlayerState->GetPlayerName()), heliPlayerState->GetTeamNumber());
+		
 		//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayyerController::BeginPlayingState - PlayerName: %s  TeamNumber: %d"), *, heliPlayerState->GetTeamNumber());
-	}	
-
-	if (GetSpawnLocation().IsZero())
-	{
-		UE_LOG(LogTemp, Error, TEXT("AHeliPlayerController::BeginPlayingState - %s %s has Role %d, RemoteRole %d and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *GetSpawnLocation().ToString());
-
-		Server_RestartPlayer();
 	}
 }
 
@@ -838,7 +898,7 @@ void AHeliPlayerController::PreClientTravel(const FString& PendingURL, ETravelTy
 {
 	Super::PreClientTravel(PendingURL, TravelType, bIsSeamlessTravel);
 
-	UE_LOG(LogLoad, Display, TEXT("PreClientTravel --> %s"), *FString::Printf(TEXT("PendingURL: %s, bIsSeamlessTravel: %s"), *PendingURL, bIsSeamlessTravel ? *FString(TEXT("true")) : *FString(TEXT("false"))));
+	//UE_LOG(LogLoad, Display, TEXT("PreClientTravel --> %s"), *FString::Printf(TEXT("PendingURL: %s, bIsSeamlessTravel: %s"), *PendingURL, bIsSeamlessTravel ? *FString(TEXT("true")) : *FString(TEXT("false"))));
 
 	if (GetWorld() != NULL)
 	{
@@ -898,7 +958,7 @@ void AHeliPlayerController::SetSpawnLocation(const FVector& NewLocation)
 
 void AHeliPlayerController::Possess(APawn* aPawn)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerController::Possess - %s %s has Role %d, RemoteRole %d, Pawn: %s and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *aPawn->GetName(), *GetSpawnLocation().ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("AHeliPlayerController::Possess - %s %s has Role %d, RemoteRole %d, Pawn: %s and SpawnLocation: %s"), IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), *aPawn->GetName(), *GetSpawnLocation().ToString());
 
 	Super::Possess(aPawn);
 }

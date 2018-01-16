@@ -199,14 +199,14 @@ AActor* AHeliGameMode::ChoosePlayerStart_Implementation(AController* Player)
 		}
 	}
 
-	if(BestStart) 
+	/*if(BestStart) 
 	{ 
 		UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ %s %s has Role %d and RemoteRole %d: PreferredSpawns = %d, FallbackSpawns = %d PlayerStart = %s"), Player->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *Player->GetName(), (int32)Player->Role, (int32)Player->GetRemoteRole(), PreferredSpawns.Num(), FallbackSpawns.Num(), *BestStart->GetName());
 	} 
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("AHeliGameMode::ChoosePlayerStart_Implementation ~ %s %s has Role %d and RemoteRole %d: PreferredSpawns = %d, FallbackSpawns = %d"), Player->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *Player->GetName(), (int32)Player->Role, (int32)Player->GetRemoteRole(), PreferredSpawns.Num(), FallbackSpawns.Num());
-	}
+	}*/
 
 	return BestStart ? BestStart : Super::ChoosePlayerStart_Implementation(Player);
 }
@@ -263,19 +263,19 @@ void AHeliGameMode::RestartPlayer(AController* NewPlayer)
 {
 	Super::RestartPlayer(NewPlayer);
 	
-	UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::RestartPlayer ~ %s %s -- Role %d - RemoteRole %d"), NewPlayer->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *NewPlayer->GetName(), (int32)NewPlayer->Role, (int32)NewPlayer->GetRemoteRole());
+	//UE_LOG(LogTemp, Warning, TEXT("AHeliGameMode::RestartPlayer ~ %s %s -- Role %d - RemoteRole %d"), NewPlayer->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *NewPlayer->GetName(), (int32)NewPlayer->Role, (int32)NewPlayer->GetRemoteRole());
 }
 
 void AHeliGameMode::RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot)
 {
-	//Super::RestartPlayerAtPlayerStart(NewPlayer, StartSpot);
+	Super::RestartPlayerAtPlayerStart(NewPlayer, StartSpot);
 
-	AHeliPlayerController* heliPlayerController = Cast<AHeliPlayerController>(NewPlayer);
+	/*AHeliPlayerController* heliPlayerController = Cast<AHeliPlayerController>(NewPlayer);
 	if (heliPlayerController)
 	{
 		heliPlayerController->SetSpawnLocation(StartSpot->GetActorLocation());
 
-		UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::RestartPlayerAtPlayerStart ~ %s %s -- Role %d - RemoteRole %d, PlayerStart = %s -- set spawn location = %s"), NewPlayer->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *NewPlayer->GetName(), (int32)NewPlayer->Role, (int32)NewPlayer->GetRemoteRole(), *StartSpot->GetName(), *heliPlayerController->GetSpawnLocation().ToCompactString());
+		//UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::RestartPlayerAtPlayerStart ~ %s %s -- Role %d - RemoteRole %d, PlayerStart = %s -- set spawn location = %s"), NewPlayer->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *NewPlayer->GetName(), (int32)NewPlayer->Role, (int32)NewPlayer->GetRemoteRole(), *StartSpot->GetName(), *heliPlayerController->GetSpawnLocation().ToCompactString());
 	}
 
 	if (GetDefaultPawnClassForController(NewPlayer) != nullptr)
@@ -292,12 +292,12 @@ void AHeliGameMode::RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* S
 	{
 		NewPlayer->Possess(NewPlayer->GetPawn());
 		//FinishRestartPlayer(NewPlayer, StartSpot->GetActorRotation());
-	}
+	}*/
 }
 
 void AHeliGameMode::RestartPlayerAtTransform(AController* NewPlayer, const FTransform& SpawnTransform)
 {
-	UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::RestartPlayerAtTransform ~ %s %s -- Role %d - RemoteRole %d, -- set spawn location %s"), NewPlayer->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *NewPlayer->GetName(), (int32)NewPlayer->Role, (int32)NewPlayer->GetRemoteRole(), *SpawnTransform.GetLocation().ToCompactString());
+	//UE_LOG(LogTemp, Display, TEXT("AHeliGameMode::RestartPlayerAtTransform ~ %s %s -- Role %d - RemoteRole %d, -- set spawn location %s"), NewPlayer->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *NewPlayer->GetName(), (int32)NewPlayer->Role, (int32)NewPlayer->GetRemoteRole(), *SpawnTransform.GetLocation().ToCompactString());
 
 	Super::RestartPlayerAtTransform(NewPlayer, SpawnTransform);
 }
@@ -434,6 +434,19 @@ void AHeliGameMode::RequestClientsGoToLobbyState()
 		if (Controller && !Controller->IsLocalController())
 		{			
 			Controller->ClientReturnToLobbyState();
+		}
+	}
+}
+
+void AHeliGameMode::RestartAllPlayers()
+{
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		AHeliPlayerController* Controller = Cast<AHeliPlayerController>(*Iterator);
+
+		if (Controller && !Controller->IsLocalController())
+		{
+			RestartPlayer(Controller);
 		}
 	}
 }

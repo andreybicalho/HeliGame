@@ -20,6 +20,12 @@ class HELIGAME_API UHeliGameUserSettings : public UGameUserSettings
 	UPROPERTY(config)
 	float KeyboardSensitivity = 1.f;
 
+	UPROPERTY(config)
+	int32 InvertedAim = 1;
+
+	UPROPERTY(config)
+	float NetworkSmoothingFactor = 1000;
+
 	// interface UGameUserSettings
 	virtual void SetToDefaults() override;
 
@@ -36,4 +42,12 @@ public:
 	void SetKeyboardSensitivity(float inKeyboardSensitivity);
 
 	float GetKeyboardSensitivity();
+
+	void SetInvertedAim(int32 inInvertedAim);
+
+	int32 GetInvertedAim();
+
+	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
+
+	float GetNetworkSmoothingFactor();
 };

@@ -220,7 +220,7 @@ public:
 	void EndRoundAndRestartMatch();
 
 	UFUNCTION(BlueprintCallable, Category = "GameType")
-	void EndRoundAndGoToLobby();
+	void EndRoundAndGoToLobby();		
 
 
 	UFUNCTION(BlueprintCallable, Category = "ServerInfo")
@@ -233,6 +233,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GameType")
 	bool UpdateSessionSettings(ULocalPlayer* LocalPlayer, const FString& GameType, FName SessionName, const FString& MapName, FName CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
 
+	/** Join a a server directly (bypassing online subsystem) */
+	UFUNCTION(BlueprintCallable, Category = "Network")
+	void TravelToIP(const FString& IpAddress);
 
 	/** Travel directly to the named session */
 	void TravelToSession(const FName& SessionName);
@@ -361,14 +364,20 @@ public:
 
 
 
-	// enum helpers
+	// dev helpers
 	FString GetEHeliGameInstanceStateEnumAsString(EHeliGameInstanceState EnumValue);
 
-	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
+	UFUNCTION(BlueprintCallable, Category = "Dev|Helpers")
 	FString GetEHeliMapEnumAsString(EHeliMap EnumValue);
 
-	UFUNCTION(BlueprintCallable, Category = "GameInstanceState")
+	UFUNCTION(BlueprintCallable, Category = "Dev|Helpers")
 	EHeliMap GetEHeliMapEnumValueFromString(const FString& EnumName);
+
+	UFUNCTION(BlueprintCallable, Category = "Dev|Helpers")
+	void ResquestRestartAllPlayers();
+
+	UFUNCTION(BlueprintCallable, Category = "Dev|Helpers")
+	FString GetGameVersion();
 
 private:
 	 
@@ -596,4 +605,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Lobby")
 	bool bShouldUpdateLobbyWidget;
+
+	UFUNCTION(exec)
+	void RefreshLobbyUI();
 };

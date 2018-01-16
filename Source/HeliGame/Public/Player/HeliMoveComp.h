@@ -2,13 +2,14 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "GameFramework/PawnMovementComponent.h"
-#include "HeliMovementComponent.generated.h"
+#include "HeliMoveComp.generated.h"
 
 class UPrimitiveComponent;
 
 USTRUCT()
-struct FReplicatedMovementState
+struct FMovementState
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -24,12 +25,12 @@ struct FReplicatedMovementState
 	UPROPERTY()
 	FVector_NetQuantize100 AngularVelocity;
 
-	FReplicatedMovementState()
+	FMovementState()
 	{
 		Location = LinearVelocity = AngularVelocity = FVector::ZeroVector;
 		Rotation = FRotator::ZeroRotator;
 	}
-	FReplicatedMovementState(
+	FMovementState(
 		FVector_NetQuantize100 Loc,
 		FRotator Rot,
 		FVector_NetQuantize100 Vel,
@@ -44,13 +45,13 @@ struct FReplicatedMovementState
 };
 
 /**
-*
-*/
+ * 
+ */
 UCLASS()
-class HELIGAME_API UHeliMovementComponent : public UPawnMovementComponent
+class HELIGAME_API UHeliMoveComp : public UPawnMovementComponent
 {
 	GENERATED_BODY()
-
+	
 	/* Maximum angular velocity the body can get */
 	UPROPERTY(Category = "6DoFPhysics", EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	float MaximumAngularVelocity;
@@ -104,13 +105,35 @@ class HELIGAME_API UHeliMovementComponent : public UPawnMovementComponent
 
 	FVector ComputeThrust(UPrimitiveComponent* BaseComp, float InThrust);
 
+	/*
+		Movement Replication
+	*/
+	
+	void MovementReplication();
+
 	UFUNCTION(Reliable, Server, WithValidation)
-	void Server_UpdateMovementState(const FReplicatedMovementState& TargetMovementState);
+	void Server_SetMovementState(const FMovementState& NewMovementState);
 
-	void SetMovementState(const FReplicatedMovementState& TargetMovementState);
+	UPROPERTY(Transient, Replicated)
+	struct FMovementState ReplicatedMovementState;
 
+	void SetMovementState(const FMovementState& TargetMovementState);	
+	
+	void SetMovementStateSmoothly(const FMovementState& TargetMovementState, float DeltaTime);
+
+	/* controls whether use or not interpolation for movement replication. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
+	bool bUseInterpolationForMovementReplication;
+
+	/* controls how fast actual movement data will be interpolated with server's data. Greater values means that it will interpolate faster. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
+	float InterpolationSpeed;
+
+	/* Greater values means that it will interpolate faster, so much greater values will have the same effect as NO interpolation at all... */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
+	float MaxNetworkSmoothingFactor;
 public:
-	UHeliMovementComponent(const FObjectInitializer& ObjectInitializer);
+	UHeliMoveComp(const FObjectInitializer& ObjectInitializer);
 
 	void AddPitch(float InPitch);
 
@@ -123,6 +146,10 @@ public:
 	FVector GetPhysicsLinearVelocity();
 
 	FVector GetPhysicsAngularVelocity();
+
+	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
+
+	bool IsNetworkSmoothingFactorActive();
 
 	/* overrides */
 public:

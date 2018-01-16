@@ -37,10 +37,16 @@ public:
 	UParticleSystem* HeliCockpitFX;
 
 	UPROPERTY(EditDefaultsOnly)
+	UParticleSystem* ExplosiveSurfaceFX;
+
+	UPROPERTY(EditDefaultsOnly)
 	USoundCue* DefaultSound;
 
 	UPROPERTY(EditDefaultsOnly)
 	USoundCue* HeliFuselageSound;
+
+	UPROPERTY(EditDefaultsOnly)
+	USoundCue* ExplosiveSurfaceSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Decal")
 	UMaterial* DecalMaterial;
