@@ -218,28 +218,10 @@ FVector UHeliMoveComp::GetPhysicsAngularVelocity()
 	return FVector::ZeroVector;
 }
 
-void UHeliMoveComp::SetPhysicsLinearVelocity(FVector NewLinearVelocity)
-{
-	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (BaseComp && BaseComp->IsSimulatingPhysics())
-	{
-		BaseComp->SetPhysicsLinearVelocity(NewLinearVelocity, false);
-	}
-}
 
-void UHeliMoveComp::SetPhysicsAngularVelocity(FVector NewAngularVelocity)
+void UHeliMoveComp::SetMovementState(const FMovementState& TargetMovementState)
 {
-	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (BaseComp && BaseComp->IsSimulatingPhysics())
-	{
-		BaseComp->SetPhysicsAngularVelocityInDegrees(NewAngularVelocity, false);
-	}
-}
-
-
-void UHeliMoveComp::SetPhysMovementState(const FPhysMovementState& TargetPhysMovementState)
-{
-	if (TargetPhysMovementState.Location.IsNearlyZero())
+	if (TargetMovementState.Location.IsNearlyZero())
 	{
 		return;
 	}
@@ -247,10 +229,10 @@ void UHeliMoveComp::SetPhysMovementState(const FPhysMovementState& TargetPhysMov
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 	if (BaseComp)
 	{
-		FRotator rotation = TargetPhysMovementState.Rotation;
-		FVector location = TargetPhysMovementState.Location;
-		FVector linearVelocity = TargetPhysMovementState.LinearVelocity;
-		FVector angularVelocity = TargetPhysMovementState.AngularVelocity;
+		FRotator rotation = TargetMovementState.Rotation;
+		FVector location = TargetMovementState.Location;
+		FVector linearVelocity = TargetMovementState.LinearVelocity;
+		FVector angularVelocity = TargetMovementState.AngularVelocity;
 
 		BaseComp->SetWorldRotation(rotation.Quaternion());
 		BaseComp->SetWorldLocation(location);
@@ -259,9 +241,9 @@ void UHeliMoveComp::SetPhysMovementState(const FPhysMovementState& TargetPhysMov
 	}
 }
 
-void UHeliMoveComp::SetPhysMovementStateSmoothly(const FPhysMovementState& TargetPhysMovementState, float DeltaTime)
+void UHeliMoveComp::SetMovementStateSmoothly(const FMovementState& TargetMovementState, float DeltaTime)
 {	
-	if (TargetPhysMovementState.Location.IsNearlyZero())
+	if (TargetMovementState.Location.IsNearlyZero())
 	{
 		return;
 	}
@@ -271,10 +253,10 @@ void UHeliMoveComp::SetPhysMovementStateSmoothly(const FPhysMovementState& Targe
 	{
 		// NOTE(andrey): should we use slerp or rinterpto for rotation interpolation?
 		//Quat rotation = FQuat::Slerp(BaseComp->GetComponentRotation().Quaternion(), TargetPhysMovementState.Rotation.Quaternion(), 0.1f);
-		FRotator rotation = FMath::RInterpTo(BaseComp->GetComponentRotation(), TargetPhysMovementState.Rotation, DeltaTime, InterpolationSpeed);
-		FVector location = FMath::VInterpTo(BaseComp->GetComponentLocation(), TargetPhysMovementState.Location, DeltaTime, InterpolationSpeed);
-		FVector linearVelocity = FMath::VInterpTo(BaseComp->GetPhysicsLinearVelocity(), TargetPhysMovementState.LinearVelocity, DeltaTime, InterpolationSpeed);
-		FVector angularVelocity = FMath::VInterpTo(BaseComp->GetPhysicsAngularVelocityInDegrees(), TargetPhysMovementState.AngularVelocity, DeltaTime, InterpolationSpeed);
+		FRotator rotation = FMath::RInterpTo(BaseComp->GetComponentRotation(), TargetMovementState.Rotation, DeltaTime, InterpolationSpeed);
+		FVector location = FMath::VInterpTo(BaseComp->GetComponentLocation(), TargetMovementState.Location, DeltaTime, InterpolationSpeed);
+		FVector linearVelocity = FMath::VInterpTo(BaseComp->GetPhysicsLinearVelocity(), TargetMovementState.LinearVelocity, DeltaTime, InterpolationSpeed);
+		FVector angularVelocity = FMath::VInterpTo(BaseComp->GetPhysicsAngularVelocityInDegrees(), TargetMovementState.AngularVelocity, DeltaTime, InterpolationSpeed);
 
 		//BaseComp->SetWorldRotation(rotation);
 		BaseComp->SetWorldRotation(rotation.Quaternion());
@@ -291,7 +273,7 @@ void UHeliMoveComp::MovementReplication()
 		UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 		if (BaseComp && BaseComp->IsSimulatingPhysics())
 		{
-			Server_SetPhysMovementState(FPhysMovementState(
+			Server_SetMovementState(FMovementState(
 				BaseComp->GetComponentLocation(),
 				BaseComp->GetComponentRotation(),
 				BaseComp->GetPhysicsLinearVelocity(),
@@ -301,14 +283,14 @@ void UHeliMoveComp::MovementReplication()
 	}
 }
 
-bool UHeliMoveComp::Server_SetPhysMovementState_Validate(const FPhysMovementState& NewPhysMovementState)
+bool UHeliMoveComp::Server_SetMovementState_Validate(const FMovementState& NewMovementState)
 {
 	return true;
 }
 
-void UHeliMoveComp::Server_SetPhysMovementState_Implementation(const FPhysMovementState& NewPhysMovementState)
+void UHeliMoveComp::Server_SetMovementState_Implementation(const FMovementState& NewMovementState)
 {
-	PhysMovementState = NewPhysMovementState;
+	ReplicatedMovementState = NewMovementState;
 }
 
 bool UHeliMoveComp::IsNetworkSmoothingFactorActive()
@@ -389,11 +371,11 @@ void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	{
 		if (bUseInterpolationForMovementReplication)
 		{
-			SetPhysMovementStateSmoothly(PhysMovementState, DeltaTime);
+			SetMovementStateSmoothly(ReplicatedMovementState, DeltaTime);
 		}
 		else
 		{
-			SetPhysMovementState(PhysMovementState);
+			SetMovementState(ReplicatedMovementState);
 		}
 	}
 
@@ -410,7 +392,7 @@ void UHeliMoveComp::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(UHeliMoveComp, PhysMovementState, COND_SimulatedOnly);
+	DOREPLIFETIME_CONDITION(UHeliMoveComp, ReplicatedMovementState, COND_SimulatedOnly);
 }
 
 

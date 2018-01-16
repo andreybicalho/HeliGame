@@ -9,7 +9,7 @@
 class UPrimitiveComponent;
 
 USTRUCT()
-struct FPhysMovementState
+struct FMovementState
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -25,12 +25,12 @@ struct FPhysMovementState
 	UPROPERTY()
 	FVector_NetQuantize100 AngularVelocity;
 
-	FPhysMovementState()
+	FMovementState()
 	{
 		Location = LinearVelocity = AngularVelocity = FVector::ZeroVector;
 		Rotation = FRotator::ZeroRotator;
 	}
-	FPhysMovementState(
+	FMovementState(
 		FVector_NetQuantize100 Loc,
 		FRotator Rot,
 		FVector_NetQuantize100 Vel,
@@ -112,14 +112,14 @@ class HELIGAME_API UHeliMoveComp : public UPawnMovementComponent
 	void MovementReplication();
 
 	UFUNCTION(Reliable, Server, WithValidation)
-	void Server_SetPhysMovementState(const FPhysMovementState& NewMovementState);
+	void Server_SetMovementState(const FMovementState& NewMovementState);
 
 	UPROPERTY(Transient, Replicated)
-	struct FPhysMovementState PhysMovementState;
+	struct FMovementState ReplicatedMovementState;
 
-	void SetPhysMovementState(const FPhysMovementState& TargetPhysMovementState);	
+	void SetMovementState(const FMovementState& TargetMovementState);	
 	
-	void SetPhysMovementStateSmoothly(const FPhysMovementState& TargetPhysMovementState, float DeltaTime);
+	void SetMovementStateSmoothly(const FMovementState& TargetMovementState, float DeltaTime);
 
 	/* controls whether use or not interpolation for movement replication. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
@@ -146,10 +146,6 @@ public:
 	FVector GetPhysicsLinearVelocity();
 
 	FVector GetPhysicsAngularVelocity();
-
-	void SetPhysicsLinearVelocity(FVector NewLinearVelocity);
-
-	void SetPhysicsAngularVelocity(FVector NewAngularVelocity);
 
 	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
 

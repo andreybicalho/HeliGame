@@ -33,7 +33,7 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 {
 	PrimaryActorTick.bCanEverTick = false;
 	SetReplicates(true);
-	bReplicateMovement = false; // disable movement replication since we are doing movement replication my our own way
+	bReplicateMovement = false; // disable movement replication since we are doing movement replication by ourselves
 
 	// Create static mesh component, this is the main mesh
 	HeliMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HeliMeshComponent"));
