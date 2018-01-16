@@ -8,7 +8,7 @@
 class UPrimitiveComponent;
 
 USTRUCT()
-struct FMovementReplication
+struct FReplicatedMovementState
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -24,12 +24,12 @@ struct FMovementReplication
 	UPROPERTY()
 	FVector_NetQuantize100 AngularVelocity;
 
-	FMovementReplication()
+	FReplicatedMovementState()
 	{
 		Location = LinearVelocity = AngularVelocity = FVector::ZeroVector;
 		Rotation = FRotator::ZeroRotator;
 	}
-	FMovementReplication(
+	FReplicatedMovementState(
 		FVector_NetQuantize100 Loc,
 		FRotator Rot,
 		FVector_NetQuantize100 Vel,
@@ -104,27 +104,10 @@ class HELIGAME_API UHeliMovementComponent : public UPawnMovementComponent
 
 	FVector ComputeThrust(UPrimitiveComponent* BaseComp, float InThrust);
 
-	/*
-		Movement Replication
-	*/
-
-	UPROPERTY(Replicated)
-	struct FMovementReplication Movement;
-
 	UFUNCTION(Reliable, Server, WithValidation)
-	void Server_SendMovement(FMovementReplication NewMovement);
+	void Server_UpdateMovementState(const FReplicatedMovementState& TargetMovementState);
 
-	void MovementReplication(float DeltaTime);
-	void MovementReplication_Send();
-	void MovementReplication_Receive(float DeltaTime);
-
-	/* controls whether use or not interpolation for movement replication. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
-	bool bUseInterpolationForMovementReplication;
-	
-	/* controls how fast actual movement data will be interpolated with server's data. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
-	float InterpolationSpeed;
+	void SetMovementState(const FReplicatedMovementState& TargetMovementState);
 
 public:
 	UHeliMovementComponent(const FObjectInitializer& ObjectInitializer);
@@ -141,14 +124,14 @@ public:
 
 	FVector GetPhysicsAngularVelocity();
 
-	void SetPhysicsLinearVelocity(FVector NewLinearVelocity);
-
-	void SetPhysicsAngularVelocity(FVector NewAngularVelocity);
-
-/* overrides */
+	/* overrides */
 public:
-	// UActorComponent interface
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+	void InitializeComponent() override;
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	void BeginPlay() override;
+
+	// UActorComponent interface
+	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

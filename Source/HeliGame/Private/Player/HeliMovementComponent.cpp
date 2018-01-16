@@ -23,22 +23,47 @@ UHeliMovementComponent::UHeliMovementComponent(const FObjectInitializer& ObjectI
 	bUseAddForceForThrust = true;
 
 	bAddLift = true;
-	GravityWeight = 1.f;
+	GravityWeight = 0.70f;
 
 	BaseThrust = 10000.f;
 
-	MinimumTiltInclinationAcceleration = 10000.f;
+	MinimumTiltInclinationAcceleration = 5000.f;
 
 	MaximumAngularVelocity = 100.f;
+}
 
-	InterpolationSpeed = 100.f;
+void UHeliMovementComponent::SetMovementState(const FReplicatedMovementState& TargetMovementState)
+{
+	if (TargetMovementState.Location.IsNearlyZero())
+	{
+		return;
+	}
 
-	bUseInterpolationForMovementReplication = false;
+	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
+	if (BaseComp)
+	{
+		FRotator rotation = TargetMovementState.Rotation;
+		FVector location = TargetMovementState.Location;
+		FVector linearVelocity = TargetMovementState.LinearVelocity;
+		FVector angularVelocity = TargetMovementState.AngularVelocity;
+
+		BaseComp->SetWorldRotation(rotation.Quaternion());
+		BaseComp->SetWorldLocation(location);
+		BaseComp->SetPhysicsLinearVelocity(linearVelocity);
+		BaseComp->SetPhysicsAngularVelocityInDegrees(angularVelocity);
+	}
+}
+
+bool UHeliMovementComponent::Server_UpdateMovementState_Validate(const FReplicatedMovementState& TargetMovementState) { return true; }
+void UHeliMovementComponent::Server_UpdateMovementState_Implementation(const FReplicatedMovementState& TargetMovementState)
+{
+	SetMovementState(TargetMovementState);
 }
 
 /*
 Controls
 */
+
 void UHeliMovementComponent::AddPitch(float InPitch)
 {
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
@@ -62,8 +87,8 @@ void UHeliMovementComponent::AddYaw(float InYaw)
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 	if (IsActive() && BaseComp && BaseComp->IsSimulatingPhysics() && FMath::Abs(BaseComp->GetPhysicsAngularVelocityInDegrees().Size()) <= MaximumAngularVelocity)
 	{
-		const FVector AngularVelocity = BaseComp->GetUpVector() * InYaw;		
-		
+		const FVector AngularVelocity = BaseComp->GetUpVector() * InYaw;
+
 		if (bUseAddTorque)
 		{
 			BaseComp->AddTorqueInRadians(AngularVelocity, BoneName, bAccelChange);
@@ -71,7 +96,7 @@ void UHeliMovementComponent::AddYaw(float InYaw)
 		else
 		{
 			BaseComp->SetPhysicsAngularVelocityInDegrees(AngularVelocity, bAddToCurrent);
-		}		
+		}
 	}
 }
 
@@ -90,15 +115,26 @@ void UHeliMovementComponent::AddRoll(float InRoll)
 		{
 			BaseComp->SetPhysicsAngularVelocityInDegrees(AngularVelocity, bAddToCurrent);
 		}
-		//UE_LOG(LogTemp, Display, TEXT("InRoll = %f - Angular Velocity Rolling: (%s) = %f"), InRoll, *BaseComp->GetPhysicsAngularVelocityInDegrees().ToString(), FMath::Abs(BaseComp->GetPhysicsAngularVelocityInDegrees().Size()) );
 	}
 }
 
+void UHeliMovementComponent::AddThrust(float InThrust)
+{
+	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
+	if (IsActive() && BaseComp && BaseComp->IsSimulatingPhysics())
+	{
+		FVector ThrustForce = ComputeThrust(BaseComp, InThrust);
 
-
-/*
-Thrust
-*/
+		if (bUseAddForceForThrust)
+		{
+			BaseComp->AddForce(ThrustForce, BoneName, bAccelChange);
+		}
+		else
+		{
+			BaseComp->SetPhysicsLinearVelocity(ThrustForce, bAddToCurrent);
+		}
+	}
+}
 
 FVector UHeliMovementComponent::ComputeThrust(UPrimitiveComponent* BaseComp, float InThrust)
 {
@@ -126,26 +162,6 @@ FVector UHeliMovementComponent::ComputeThrust(UPrimitiveComponent* BaseComp, flo
 
 	return ThrustForce;
 }
-
-void UHeliMovementComponent::AddThrust(float InThrust)
-{
-	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (IsActive() && BaseComp && BaseComp->IsSimulatingPhysics())
-	{
-		FVector ThrustForce = ComputeThrust(BaseComp, InThrust);
-
-		if (bUseAddForceForThrust)
-		{
-			BaseComp->AddForce(ThrustForce, BoneName, bAccelChange);
-		}
-		else
-		{
-			BaseComp->SetPhysicsLinearVelocity(ThrustForce, bAddToCurrent);
-		}
-	}
-}
-
-
 
 /*
 Lift
@@ -217,140 +233,53 @@ FVector UHeliMovementComponent::GetPhysicsAngularVelocity()
 	return FVector::ZeroVector;
 }
 
-void UHeliMovementComponent::SetPhysicsLinearVelocity(FVector NewLinearVelocity)
-{
-	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (BaseComp && BaseComp->IsSimulatingPhysics())
-	{
-		BaseComp->SetPhysicsLinearVelocity(NewLinearVelocity, false);
-	}
-}
-
-void UHeliMovementComponent::SetPhysicsAngularVelocity(FVector NewAngularVelocity)
-{
-	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (BaseComp && BaseComp->IsSimulatingPhysics())
-	{
-		BaseComp->SetPhysicsAngularVelocityInDegrees(NewAngularVelocity, false);
-	}
-}
-
-
-/*
-Movement Replication (Client-side Authority)
-*/
-void UHeliMovementComponent::MovementReplication(float DeltaTime)
-{
-	if (GetPawnOwner())
-	{
-		if (GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy )
-		{
-			MovementReplication_Send();
-		}
-		else
-		{
-			MovementReplication_Receive(DeltaTime);
-		}
-	}
-
-}
-
-void UHeliMovementComponent::MovementReplication_Send()
-{
-	// Don't replicate invalid data
-	if (!GetPawnOwner() || (GetPawnOwner() && GetPawnOwner()->IsPendingKill()))
-	{
-		return;
-	}
-
-	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (BaseComp && BaseComp->IsSimulatingPhysics())
-	{
-		Server_SendMovement(
-			FMovementReplication(
-				BaseComp->GetComponentLocation(),
-				BaseComp->GetComponentRotation(),
-				BaseComp->GetPhysicsLinearVelocity(),
-				BaseComp->GetPhysicsAngularVelocityInDegrees()
-			)
-		);
-	}
-}
-
-void UHeliMovementComponent::MovementReplication_Receive(float DeltaTime)
-{
-	// Don't receive invalid or useless data
-	if (Movement.Location.IsNearlyZero() || !GetPawnOwner() || (GetPawnOwner() && GetPawnOwner()->IsPendingKill()))
-	{
-		return;
-	}
-
-	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (BaseComp && BaseComp->IsSimulatingPhysics())
-	{
-		FRotator rotation = Movement.Rotation;
-		FVector location = Movement.Location;
-		FVector linearVelocity = Movement.LinearVelocity;
-		FVector angularVelocity = Movement.AngularVelocity;
-		
-		if (bUseInterpolationForMovementReplication)
-		{
-			rotation = FMath::RInterpTo(BaseComp->GetComponentRotation(), Movement.Rotation, DeltaTime, InterpolationSpeed);
-			location = FMath::VInterpTo(BaseComp->GetComponentLocation(), Movement.Location, DeltaTime, InterpolationSpeed);
-			linearVelocity = FMath::VInterpTo(BaseComp->GetPhysicsLinearVelocity(), Movement.LinearVelocity, DeltaTime, InterpolationSpeed);
-			angularVelocity = FMath::VInterpTo(BaseComp->GetPhysicsAngularVelocityInDegrees(), Movement.AngularVelocity, DeltaTime, InterpolationSpeed);
-		}
-
-		BaseComp->SetWorldRotation(rotation.Quaternion());
-		BaseComp->SetWorldLocation(location);
-		BaseComp->SetPhysicsLinearVelocity(linearVelocity);
-		BaseComp->SetPhysicsAngularVelocityInDegrees(angularVelocity);
-	}
-}
-
-bool UHeliMovementComponent::Server_SendMovement_Validate(FMovementReplication NewMovement)
-{
-	return true;
-}
-
-void UHeliMovementComponent::Server_SendMovement_Implementation(FMovementReplication NewMovement)
-{
-	Movement = NewMovement;
-}
-
-
-
 /* overrides */
+void UHeliMovementComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+}
+
+void UHeliMovementComponent::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
 void UHeliMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (!PawnOwner || !UpdatedComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UHeliMovementComponent::TickComponent PawnOwner or UpdatedComponent not found!"));
+		//UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::TickComponent PawnOwner or UpdatedComponent not found!"));
 		return;
 	}
 
-	// add lift
-	if (bAddLift) {
-		AddLift();
+	bool bLocalPlayerAuthority = GetPawnOwner() && GetPawnOwner()->IsLocallyControlled();// && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy;
+
+
+	if (bLocalPlayerAuthority)
+	{
+		// add lift
+		if (bAddLift) {
+			AddLift();
+		}
+		// replicates
+		UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
+		if (BaseComp && BaseComp->IsSimulatingPhysics())
+		{
+			Server_UpdateMovementState(FReplicatedMovementState(
+				BaseComp->GetComponentLocation(),
+				BaseComp->GetComponentRotation(),
+				BaseComp->GetPhysicsLinearVelocity(),
+				BaseComp->GetPhysicsAngularVelocityInDegrees()
+			));
+		}
 	}
 
-	// replication
-	// Don't need to replicate movement in single player games
-	if (GEngine->GetNetMode(GetWorld()) != NM_Standalone)
-	{
-		MovementReplication(DeltaTime);
-	}
 }
 
 //							Replication List
 void UHeliMovementComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION(UHeliMovementComponent, Movement, COND_SkipOwner);
 }
-
-
-
