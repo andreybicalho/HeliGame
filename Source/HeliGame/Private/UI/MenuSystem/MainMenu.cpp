@@ -30,6 +30,9 @@ bool UMainMenu::Initialize()
 	if (!ensure(QuitButton != nullptr)) return false;
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu::QuitGame);
 
+	if (!ensure(BackToMainMenuButton != nullptr)) return false;
+	BackToMainMenuButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu);
+
 	if (!ensure(HostMenu != nullptr)) return false;
 
 	return true;

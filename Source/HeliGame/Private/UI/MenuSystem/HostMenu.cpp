@@ -7,7 +7,7 @@
 #include "Components/SpinBox.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
-#include "Components/CheckBox.h"
+#include "Components/ComboBoxString.h"
 
 bool UHostMenu::Initialize()
 {
@@ -32,20 +32,18 @@ bool UHostMenu::Initialize()
 
 void UHostMenu::HostServer()
 {
-	UE_LOG(LogTemp, Warning, TEXT("UHostMenu::HostServer"));
-	// TODO(andrey): fill session params with real data
 	FGameParams GameSessionParams;
 
 	GameSessionParams.bIsPresence = true;
 	GameSessionParams.bIsLAN = bIsLAN;
 	GameSessionParams.CustomServerName = ServerHostName->GetText().ToString();
-	GameSessionParams.SelectedGameModeName = FString(TEXT("HeliGameModeTDM"));
-	GameSessionParams.SelectedMapName = FString(TEXT("Dev"));
-	GameSessionParams.NumberOfPlayers = 10;
-	GameSessionParams.RoundTime = 30;
-	GameSessionParams.WarmupTime = 1;
+	GameSessionParams.SelectedGameModeName = GameModeComboBox->GetSelectedOption();
+	GameSessionParams.SelectedMapName = MapComboBox->GetSelectedOption();
+	GameSessionParams.NumberOfPlayers = FCString::Atoi(*NumberOfPlayersComboBox->GetSelectedOption());
+	GameSessionParams.RoundTime = RoundTimeSpinBox->GetValue();
+	GameSessionParams.WarmupTime = WarmupTimeSpinBox->GetValue();
 	GameSessionParams.bAllowFriendFireDamage = true;
-	GameSessionParams.TimeBetweenMatches = 60;
+	GameSessionParams.TimeBetweenMatches = TimeBetweenMatchesSpinBox->GetValue();
 	GameSessionParams.UserId = this->GetOwningLocalPlayer()->GetPreferredUniqueNetId();
 
 	if (!ensure(MenuInterface != nullptr)) return;
@@ -67,7 +65,8 @@ void UHostMenu::ToggleLan()
 }
 
 void UHostMenu::BackToMainMenu()
-{	
+{
+
 }
 
 

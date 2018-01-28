@@ -36,6 +36,9 @@ class HELIGAME_API UMainMenu : public UBaseMenuWidget
 	class UButton* AboutButton;
 
 	UPROPERTY(meta = (BindWidget))
+	class UButton* BackToMainMenuButton;
+
+	UPROPERTY(meta = (BindWidget))
 	class UButton* QuitButton;
 
 

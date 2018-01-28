@@ -13,10 +13,7 @@
 UCLASS()
 class HELIGAME_API UHostMenu : public UBaseMenuWidget
 {
-	GENERATED_BODY()
-	
-	UPROPERTY()
-	class UMainMenu* Parent;
+	GENERATED_BODY()	
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* HostServerButton;
@@ -44,7 +41,7 @@ class HELIGAME_API UHostMenu : public UBaseMenuWidget
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* ToggleLANButton;
-	
+
 	UPROPERTY(meta = (BindWidget))
 	class UButton* BackToMainHostMenuButton;
 
