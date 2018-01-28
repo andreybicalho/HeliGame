@@ -17,9 +17,8 @@ namespace EHeliGameMatchState
 
 namespace
 {
-	const FString GameVersionName("BirdsOfWar_v0.1.10");
+	const FString GameVersionName("BirdsOfWar_v0.2.0");
 }
-
 
 // need loging?
 //DECLARE_LOG_CATEGORY_EXTERN(LogHeli, Log, All);

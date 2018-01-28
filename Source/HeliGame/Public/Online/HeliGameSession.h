@@ -8,30 +8,25 @@
 
 
 struct FHeliGameSessionParams
-{
-
-	/** player custom server name when hosting a game */
-	FName CustomServerName;
-	FName SelectedGameModeName;
-	FName SelectedMapName;
-	/** Name of session settings are stored with */
+{	
+	FString CustomServerName;
+	FString SelectedGameModeName;
+	FString SelectedMapName;
 	FName SessionName;
-	/** LAN Match */
 	bool bIsLAN;
-	/** Presence enabled session */
 	bool bIsPresence;
-	/** Id of player initiating lobby */
 	TSharedPtr<const FUniqueNetId> UserId;
-	/** Current search result choice to join */
+	int32 NumberOfPlayers;
 	int32 BestSessionIdx;
 
 	FHeliGameSessionParams()
-		: CustomServerName(NAME_None)
-		, SelectedGameModeName(NAME_None)
-		, SelectedMapName(NAME_None)
+		: CustomServerName(FString(TEXT("None")))
+		, SelectedGameModeName(FString(TEXT("None")))
+		, SelectedMapName(FString(TEXT("None")))
 		, SessionName(NAME_None)
 		, bIsLAN(false)
 		, bIsPresence(false)
+		, NumberOfPlayers(10)
 		, BestSessionIdx(0)
 	{
 	}
@@ -173,7 +168,7 @@ public:
 	*
 	* @return bool true if successful, false otherwise
 	*/
-	bool HostSession(TSharedPtr<const FUniqueNetId> UserId, FName InSessionName, const FString& GameType, const FString& MapName, FName CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
+	bool HostSession(TSharedPtr<const FUniqueNetId> UserId, FName InSessionName, const FString& GameType, const FString& MapName, const FString& CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
 
 	/**
 	* Find an online session
@@ -266,5 +261,5 @@ public:
 
 
 	/* updates current session settings */
-	bool UpdateSessionSettings(TSharedPtr<const FUniqueNetId> UserId, FName InSessionName, const FString& GameType, const FString& MapName, FName CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
+	bool UpdateSessionSettings(TSharedPtr<const FUniqueNetId> UserId, FName InSessionName, const FString& GameType, const FString& MapName, const FString& CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
 };

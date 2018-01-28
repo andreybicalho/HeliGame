@@ -5,8 +5,11 @@
 #include "Engine/GameInstance.h"
 #include "OnlineIdentityInterface.h"
 #include "OnlineSessionInterface.h"
-#include "HeliGameState.h"
 #include "Containers/Ticker.h"
+
+#include "HeliGameState.h"
+#include "MenuInterface.h"
+
 #include "HeliGameInstance.generated.h"
 
 class FVariantData;
@@ -149,7 +152,7 @@ struct FTeamPlayer
  * 
  */
 UCLASS()
-class HELIGAME_API UHeliGameInstance : public UGameInstance
+class HELIGAME_API UHeliGameInstance : public UGameInstance, public IMenuInterface
 {
 	GENERATED_BODY()
 	
@@ -192,7 +195,7 @@ public:
 	
 
 	
-	bool HostGame(ULocalPlayer* LocalPlayer, const FString& GameType, const FString& CustomServerName, const FString& InTravelURL);
+	bool HostGame(FGameParams InGameSessionParams) override;
 	
 	bool JoinSession(ULocalPlayer* LocalPlayer, int32 SessionIndexInSearchResults);
 
@@ -231,7 +234,7 @@ public:
 
 	/* updates current session settings */
 	UFUNCTION(BlueprintCallable, Category = "GameType")
-	bool UpdateSessionSettings(ULocalPlayer* LocalPlayer, const FString& GameType, FName SessionName, const FString& MapName, FName CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
+	bool UpdateSessionSettings(ULocalPlayer* LocalPlayer, const FString& GameType, FName SessionName, const FString& MapName, const FString& CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
 
 	/** Join a a server directly (bypassing online subsystem) */
 	UFUNCTION(BlueprintCallable, Category = "Network")
@@ -403,8 +406,8 @@ private:
 
 
 
-	/** Main menu UI */
-	TWeakObjectPtr<UUserWidget> MainMenu;
+	/** Main menu UI */	
+	TWeakObjectPtr<class UMainMenu> MainMenu;
 
 	/** Hosting menu UI */
 	TWeakObjectPtr<UUserWidget> HostingMenu;
@@ -465,33 +468,15 @@ private:
 	void EndCurrentState(EHeliGameInstanceState NextState);
 	void BeginNewState(EHeliGameInstanceState NewState, EHeliGameInstanceState PrevState);
 
-	void BeginPendingInviteState();
-	void BeginWelcomeScreenState();
 	void BeginMainMenuState();
-	void BeginHostingMenuState();
-	void BeginFindServerMenuState();
-	void BeginPlayingState();
-	void BeginMessageMenuState();
-	void BeginOptionsMenuState();
 	void BeginLobbyMenuState();
-	void BeginAboutMenuState();
-
-	void EndPendingInviteState();
-	void EndWelcomeScreenState();
+	void BeginPlayingState();
 	void EndMainMenuState();
-	void EndHostingMenuState();
-	void EndFindServerMenuState();
+	void EndLobbyMenuState(EHeliGameInstanceState NextState);	
 	void EndPlayingState();
-	void EndMessageMenuState();
-	void EndOptionsMenuState();
-	void EndLobbyMenuState(EHeliGameInstanceState NextState);
-	void EndAboutMenuState();
-	
 
 	void AddNetworkFailureHandlers();
 	void RemoveNetworkFailureHandlers();
-
-
 
 
 	/** Called when there is an error trying to travel to a local session */

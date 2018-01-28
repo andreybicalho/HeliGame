@@ -12,10 +12,11 @@
 
 namespace
 {
-	const FString CustomMatchKeyword = GameVersionName;
+	const FString GameVersionKeyword = GameVersionName;
 }
 
-
+const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
+const static FName GAME_VERSION_SETTINGS_KEY = TEXT("GameVersion");
 
 
 /**************************************************************************************************************************
@@ -169,14 +170,22 @@ void AHeliGameSession::OnStartOnlineGameComplete(FName InSessionName, bool bWasS
 *                                                                                                                         *
 ***************************************************************************************************************************/
 
-bool AHeliGameSession::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName InSessionName, const FString& GameType, const FString& MapName, FName CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers)
+bool AHeliGameSession::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName InSessionName, const FString& GameType, const FString& MapName, const FString& CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers)
 {
 	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub)
 	{
+		UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::HostSession ~ Using %s Online Subsystem with %s Online Service."), *OnlineSub->GetSubsystemName().ToString(), *OnlineSub->GetOnlineServiceName().ToString());
+
+		if(OnlineSub->GetSubsystemName().IsEqual("NULL"))
+		{ 
+			UE_LOG(LogTemp, Warning, TEXT("AHeliGameSession::HostSession ~ 3rd party OnlineSubsystem NOT FOUND, using %s and LAN."), *OnlineSub->GetSubsystemName().ToString());
+			bIsLAN = true;
+		}
+
 		CurrentSessionParams.CustomServerName = CustomServerName;
-		CurrentSessionParams.SelectedGameModeName = FName(*GameType);
-		CurrentSessionParams.SelectedMapName = FName(*MapName);
+		CurrentSessionParams.SelectedGameModeName = GameType;
+		CurrentSessionParams.SelectedMapName = MapName;
 		CurrentSessionParams.SessionName = InSessionName;
 		CurrentSessionParams.bIsLAN = bIsLAN;
 		CurrentSessionParams.bIsPresence = bIsPresence;
@@ -186,21 +195,26 @@ bool AHeliGameSession::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName 
 		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
 		if (Sessions.IsValid() && CurrentSessionParams.UserId.IsValid())
 		{
-			HostSettings = MakeShareable(new FHeliOnlineSessionSettings(bIsLAN, bIsPresence, MaxPlayers));			
-			HostSettings->Set(SETTING_GAMEMODE, GameType, EOnlineDataAdvertisementType::ViaOnlineService);
-			HostSettings->Set(SETTING_MAPNAME, MapName, EOnlineDataAdvertisementType::ViaOnlineService);
-			HostSettings->Set(SETTING_MATCHING_HOPPER, FString("TeamDeathmatch"), EOnlineDataAdvertisementType::DontAdvertise);
-			HostSettings->Set(SETTING_MATCHING_TIMEOUT, 120.0f, EOnlineDataAdvertisementType::ViaOnlineService);
-			HostSettings->Set(SETTING_SESSION_TEMPLATE_NAME, FString("GameSession"), EOnlineDataAdvertisementType::DontAdvertise);
-			
+			UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::HostSession ~ Found Session Interface."));
 
-			HostSettings->Set(SEARCH_KEYWORDS, CustomMatchKeyword, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-			//HostSettings->Set(SETTING_CUSTOMSEARCHINT1, CustomServerName.ToString(), EOnlineDataAdvertisementType::ViaOnlineService);			
+			HostSettings = MakeShareable(new FHeliOnlineSessionSettings(bIsLAN, bIsPresence, MaxPlayers));
+			HostSettings->Set(GAME_VERSION_SETTINGS_KEY, GameVersionKeyword, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+			HostSettings->Set(SERVER_NAME_SETTINGS_KEY, CustomServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+
+			// TODO(andrey): create session with other attributes such as game type, map in order to search it by those
+			//HostSettings->Set(SETTING_GAMEMODE, GameType, EOnlineDataAdvertisementType::ViaOnlineService);
+			//HostSettings->Set(SETTING_MAPNAME, MapName, EOnlineDataAdvertisementType::ViaOnlineService);
+			//HostSettings->Set(SETTING_MATCHING_HOPPER, FString("TeamDeathmatch"), EOnlineDataAdvertisementType::DontAdvertise);
+			//HostSettings->Set(SETTING_MATCHING_TIMEOUT, 120.0f, EOnlineDataAdvertisementType::ViaOnlineService);
+			//HostSettings->Set(SETTING_SESSION_TEMPLATE_NAME, FString("GameSession"), EOnlineDataAdvertisementType::DontAdvertise);
 
 			OnCreateSessionCompleteDelegateHandle = Sessions->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
 			return Sessions->CreateSession(*CurrentSessionParams.UserId, CurrentSessionParams.SessionName, *HostSettings);
 		}
 	}
+
+	
+	
 #if !UE_BUILD_SHIPPING
 	else
 	{
@@ -210,6 +224,8 @@ bool AHeliGameSession::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName 
 	}
 #endif
 
+
+	UE_LOG(LogTemp, Warning, TEXT("AHeliGameSession::HostSession ~ Online Subsystem NOT FOUND!"));
 	return false;
 }
 
@@ -219,7 +235,7 @@ void AHeliGameSession::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName
 	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub)
 	{
-		UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::FindSessions ~ CustomMatchKeyword = %s, UserId = %s, InSessionName = %s, bIsLAN = %s"), *CustomMatchKeyword, *UserId->ToString(), *InSessionName.ToString(), bIsLAN ? *FString::Printf(TEXT("true")) : *FString::Printf(TEXT("false")));
+		UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::FindSessions ~ GameVersionKeyword = %s, UserId = %s, InSessionName = %s, bIsLAN = %s"), *GameVersionKeyword, *UserId->ToString(), *InSessionName.ToString(), bIsLAN ? *FString::Printf(TEXT("true")) : *FString::Printf(TEXT("false")));
 
 		CurrentSessionParams.SessionName = InSessionName;
 		CurrentSessionParams.bIsLAN = bIsLAN;
@@ -230,7 +246,7 @@ void AHeliGameSession::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName
 		if (Sessions.IsValid() && CurrentSessionParams.UserId.IsValid())
 		{
 			SearchSettings = MakeShareable(new FHeliOnlineSearchSettings(bIsLAN, bIsPresence));
-			SearchSettings->QuerySettings.Set(SEARCH_KEYWORDS, CustomMatchKeyword, EOnlineComparisonOp::Equals);
+			SearchSettings->QuerySettings.Set(GAME_VERSION_SETTINGS_KEY, GameVersionKeyword, EOnlineComparisonOp::Equals);
 
 			TSharedRef<FOnlineSessionSearch> SearchSettingsRef = SearchSettings.ToSharedRef();
 
@@ -240,6 +256,7 @@ void AHeliGameSession::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Online Subsystem NOT FOUND!"));		
 		OnFindSessionsComplete(false);
 	}
 }
@@ -431,14 +448,14 @@ bool AHeliGameSession::IsBusy() const
 	return false;
 }
 
-bool AHeliGameSession::UpdateSessionSettings(TSharedPtr<const FUniqueNetId> UserId, FName InSessionName, const FString& GameType, const FString& MapName, FName CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers)
+bool AHeliGameSession::UpdateSessionSettings(TSharedPtr<const FUniqueNetId> UserId, FName InSessionName, const FString& GameType, const FString& MapName, const FString& CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers)
 {	
 	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub)
 	{		
 		CurrentSessionParams.CustomServerName = CustomServerName;
-		CurrentSessionParams.SelectedGameModeName = FName(*GameType);
-		CurrentSessionParams.SelectedMapName = FName(*MapName);
+		CurrentSessionParams.SelectedGameModeName = GameType;
+		CurrentSessionParams.SelectedMapName = MapName;
 		CurrentSessionParams.SessionName = InSessionName;
 		CurrentSessionParams.bIsLAN = bIsLAN;
 		CurrentSessionParams.bIsPresence = bIsPresence;
@@ -449,19 +466,17 @@ bool AHeliGameSession::UpdateSessionSettings(TSharedPtr<const FUniqueNetId> User
 		if (Sessions.IsValid() && CurrentSessionParams.UserId.IsValid())
 		{
 			
-			HostSettings = MakeShareable(new FHeliOnlineSessionSettings(bIsLAN, bIsPresence, MaxPlayers));
-			HostSettings->Set(SETTING_GAMEMODE, GameType, EOnlineDataAdvertisementType::ViaOnlineService);
-			HostSettings->Set(SETTING_MAPNAME, MapName, EOnlineDataAdvertisementType::ViaOnlineService);
-			HostSettings->Set(SETTING_MATCHING_HOPPER, FString("TeamDeathmatch"), EOnlineDataAdvertisementType::DontAdvertise);
-			HostSettings->Set(SETTING_MATCHING_TIMEOUT, 120.0f, EOnlineDataAdvertisementType::ViaOnlineService);
-			HostSettings->Set(SETTING_SESSION_TEMPLATE_NAME, FString("GameSession"), EOnlineDataAdvertisementType::DontAdvertise);
-
-			HostSettings->Set(SEARCH_KEYWORDS, CustomMatchKeyword, EOnlineDataAdvertisementType::ViaOnlineService);
-			HostSettings->Set(SETTING_CUSTOMSEARCHINT1, CustomServerName.ToString(), EOnlineDataAdvertisementType::ViaOnlineService);
+			HostSettings = MakeShareable(new FHeliOnlineSessionSettings(bIsLAN, bIsPresence, MaxPlayers));						
+			HostSettings->Set(GAME_VERSION_SETTINGS_KEY, GameVersionKeyword, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+			HostSettings->Set(SERVER_NAME_SETTINGS_KEY, CustomServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 			return Sessions->UpdateSession(CurrentSessionParams.SessionName, *HostSettings, true);
 		}
 		
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Online Subsystem NOT FOUND!"));
 	}
 
 	return false;
