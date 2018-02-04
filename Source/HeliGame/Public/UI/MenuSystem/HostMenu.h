@@ -42,9 +42,6 @@ class HELIGAME_API UHostMenu : public UBaseMenuWidget
 	UPROPERTY(meta = (BindWidget))
 	class UButton* ToggleLANButton;
 
-	UPROPERTY(meta = (BindWidget))
-	class UButton* BackToMainHostMenuButton;
-
 	UFUNCTION()
 	void ToggleLan();
 
@@ -59,8 +56,5 @@ protected:
 public:
 	UFUNCTION()
 	void HostServer();
-
-	UFUNCTION()
-	void BackToMainMenu();
 	
 };

@@ -15,9 +15,6 @@ namespace
 	const FString GameVersionKeyword = GameVersionName;
 }
 
-const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
-const static FName GAME_VERSION_SETTINGS_KEY = TEXT("GameVersion");
-
 
 /**************************************************************************************************************************
 *                                                                                                                         *
@@ -177,7 +174,7 @@ bool AHeliGameSession::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName 
 	{
 		UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::HostSession ~ Using %s Online Subsystem with %s Online Service."), *OnlineSub->GetSubsystemName().ToString(), *OnlineSub->GetOnlineServiceName().ToString());
 
-		if(OnlineSub->GetSubsystemName().IsEqual("NULL"))
+		if(OnlineSub->GetSubsystemName().IsEqual("NULL") && !bIsLAN)
 		{ 
 			UE_LOG(LogTemp, Warning, TEXT("AHeliGameSession::HostSession ~ 3rd party OnlineSubsystem NOT FOUND, using %s and LAN."), *OnlineSub->GetSubsystemName().ToString());
 			bIsLAN = true;
@@ -195,6 +192,12 @@ bool AHeliGameSession::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName 
 		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
 		if (Sessions.IsValid() && CurrentSessionParams.UserId.IsValid())
 		{
+			auto ExistingSession = Sessions->GetNamedSession(CurrentSessionParams.SessionName);
+			if (ExistingSession != nullptr)
+			{
+				Sessions->DestroySession(CurrentSessionParams.SessionName);
+			}
+
 			UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::HostSession ~ Found Session Interface."));
 
 			HostSettings = MakeShareable(new FHeliOnlineSessionSettings(bIsLAN, bIsPresence, MaxPlayers));
@@ -202,24 +205,18 @@ bool AHeliGameSession::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName 
 			HostSettings->Set(SERVER_NAME_SETTINGS_KEY, CustomServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 			// TODO(andrey): create session with other attributes such as game type, map in order to search it by those
-			//HostSettings->Set(SETTING_GAMEMODE, GameType, EOnlineDataAdvertisementType::ViaOnlineService);
-			//HostSettings->Set(SETTING_MAPNAME, MapName, EOnlineDataAdvertisementType::ViaOnlineService);
-			//HostSettings->Set(SETTING_MATCHING_HOPPER, FString("TeamDeathmatch"), EOnlineDataAdvertisementType::DontAdvertise);
-			//HostSettings->Set(SETTING_MATCHING_TIMEOUT, 120.0f, EOnlineDataAdvertisementType::ViaOnlineService);
-			//HostSettings->Set(SETTING_SESSION_TEMPLATE_NAME, FString("GameSession"), EOnlineDataAdvertisementType::DontAdvertise);
+			HostSettings->Set(SETTING_GAMEMODE, GameType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+			HostSettings->Set(SETTING_MAPNAME, MapName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 			OnCreateSessionCompleteDelegateHandle = Sessions->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
-			return Sessions->CreateSession(*CurrentSessionParams.UserId, CurrentSessionParams.SessionName, *HostSettings);
+			return Sessions->CreateSession(*CurrentSessionParams.UserId, CurrentSessionParams.SessionName, *HostSettings);			
 		}
 	}
-
-	
-	
 #if !UE_BUILD_SHIPPING
 	else
 	{
 		// Hack workflow in development
-		OnCreatePresenceSessionComplete().Broadcast(GameSessionName, true);
+		OnCreatePresenceSessionComplete().Broadcast(InSessionName, true);
 		return true;
 	}
 #endif
@@ -235,6 +232,8 @@ void AHeliGameSession::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName
 	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub)
 	{
+		UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::FindSessions ~ Using %s Online Subsystem with %s Online Service."), *OnlineSub->GetSubsystemName().ToString(), *OnlineSub->GetOnlineServiceName().ToString());
+
 		UE_LOG(LogTemp, Display, TEXT("AHeliGameSession::FindSessions ~ GameVersionKeyword = %s, UserId = %s, InSessionName = %s, bIsLAN = %s"), *GameVersionKeyword, *UserId->ToString(), *InSessionName.ToString(), bIsLAN ? *FString::Printf(TEXT("true")) : *FString::Printf(TEXT("false")));
 
 		CurrentSessionParams.SessionName = InSessionName;
@@ -385,8 +384,7 @@ void AHeliGameSession::HandleMatchHasStarted()
 	{
 		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
 		if (Sessions.IsValid())
-		{			
-			//UE_LOG(LogOnlineGame, Log, TEXT("Starting session %s on server"), *GameSessionName.ToString());
+		{						
 			OnStartSessionCompleteDelegateHandle = Sessions->AddOnStartSessionCompleteDelegate_Handle(OnStartSessionCompleteDelegate);
 			Sessions->StartSession(GameSessionName);
 		}

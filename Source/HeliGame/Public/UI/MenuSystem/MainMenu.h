@@ -24,10 +24,10 @@ class HELIGAME_API UMainMenu : public UBaseMenuWidget
 	class UHostMenu* HostMenu;
 
 	UPROPERTY(meta = (BindWidget))
-	class UButton* ServersButton;
-	
+	class UFindServersMenu* FindServersMenu;
+
 	UPROPERTY(meta = (BindWidget))
-	class UWidget* ServersMenu;
+	class UButton* ServersButton;
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* OptionsButton;
@@ -72,4 +72,6 @@ public:
 
 	UFUNCTION()
 	void OpenHostMenu();
+
+	void SetAvailableServerList(TArray<FServerData> AvailableServersData);
 };

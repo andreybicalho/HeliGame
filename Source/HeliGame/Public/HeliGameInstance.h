@@ -42,18 +42,6 @@ enum class EHeliMap : uint8
 	BattleGround	UMETA(DisplayName = "BattleGround")
 };
 
-/** This class holds the value of what message to display when we are in the "MessageMenu" state */
-class FHeliPendingMessage
-{
-public:
-	FText	DisplayString;				// This is the display message in the main message body
-	FText	OKButtonString;				// This is the ok button text
-	FText	CancelButtonString;			// If this is not empty, it will be the cancel button text
-	FName	NextState;					// Final destination state once message is discarded
-
-	TWeakObjectPtr< ULocalPlayer > PlayerOwner;		// Owner of dialog who will have focus (can be NULL)
-};
-
 // struct for displaying servers info on a UMG Widget
 USTRUCT(BlueprintType)
 struct FServerEntry
@@ -194,9 +182,19 @@ public:
 	
 	
 
-	
+	/*
+	* MenuInterface
+	*/
 	bool HostGame(FGameParams InGameSessionParams) override;
+
+	bool FindServers(ULocalPlayer* PlayerOwner, bool bLAN) override;
+
+	bool JoinServer(ULocalPlayer* LocalPlayer, int32 SessionIndexInSearchResults) override;
+	// end of MenuInterface
 	
+	void RefreshServerList();
+
+
 	bool JoinSession(ULocalPlayer* LocalPlayer, int32 SessionIndexInSearchResults);
 
 	bool JoinSession(ULocalPlayer* LocalPlayer, const FOnlineSessionSearchResult& SearchResult);
@@ -237,7 +235,7 @@ public:
 	bool UpdateSessionSettings(ULocalPlayer* LocalPlayer, const FString& GameType, FName SessionName, const FString& MapName, const FString& CustomServerName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
 
 	/** Join a a server directly (bypassing online subsystem) */
-	UFUNCTION(BlueprintCallable, Category = "Network")
+	UFUNCTION(BlueprintCallable, Category = "Network", exec)
 	void TravelToIP(const FString& IpAddress);
 
 	/** Travel directly to the named session */

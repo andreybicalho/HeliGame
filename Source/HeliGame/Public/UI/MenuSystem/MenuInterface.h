@@ -39,6 +39,42 @@ struct FGameParams
 	}
 };
 
+struct FServerData
+{
+	FString ServerName;
+	FString CurrentPlayers;
+	FString MaxPlayers;
+	FString GameType;
+	FString MapName;
+	FString Ping;
+	int32 SearchResultsIndex;
+
+	FServerData()
+	{
+		ServerName = CurrentPlayers = MaxPlayers = GameType = MapName = Ping = "-";
+		SearchResultsIndex = -1; // invalid
+	}
+
+	FServerData(
+		FString ServName,
+		FString CurPlayers,
+		FString MaxP,
+		FString GType,
+		FString MName,
+		FString P,
+		int32 index
+	)
+		: ServerName(ServName)
+		, CurrentPlayers(CurPlayers)
+		, MaxPlayers(MaxP)
+		, GameType(GType)
+		, MapName(MName)
+		, Ping(P)
+		, SearchResultsIndex(index)
+
+	{}
+};
+
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
@@ -58,4 +94,7 @@ class HELIGAME_API IMenuInterface
 public:
 	virtual bool HostGame(FGameParams InGameSessionParams) = 0;
 	
+	virtual bool FindServers(class ULocalPlayer* PlayerOwner, bool bLAN) = 0;
+
+	virtual bool JoinServer(class ULocalPlayer* LocalPlayer, int32 SessionIndexInSearchResults) = 0;
 };

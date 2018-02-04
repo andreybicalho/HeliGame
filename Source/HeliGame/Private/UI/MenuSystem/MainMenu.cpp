@@ -2,6 +2,7 @@
 
 #include "MainMenu.h"
 #include "HostMenu.h"
+#include "FindServersMenu.h"
 
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
@@ -32,6 +33,7 @@ bool UMainMenu::Initialize()
 
 	if (!ensure(BackToMainMenuButton != nullptr)) return false;
 	BackToMainMenuButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu);
+	BackToMainMenuButton->SetVisibility(ESlateVisibility::Hidden);
 
 	if (!ensure(HostMenu != nullptr)) return false;
 
@@ -42,7 +44,10 @@ void UMainMenu::OpenMainMenu()
 {
 	if (!ensure(MenuSwitcher != nullptr)) return;
 	if (!ensure(MainMenu != nullptr)) return;
+	
+	BackToMainMenuButton->SetVisibility(ESlateVisibility::Hidden);
 	MenuSwitcher->SetActiveWidget(MainMenu);
+
 }
 
 void UMainMenu::OpenHostMenu()
@@ -51,21 +56,31 @@ void UMainMenu::OpenHostMenu()
 	if (!ensure(HostMenu != nullptr)) return;
 	HostMenu->SetMenuInterface(this->GetMenuInterface());
 	MenuSwitcher->SetActiveWidget(HostMenu);
+
+	BackToMainMenuButton->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UMainMenu::OpenServersMenu()
 {
 	if (!ensure(MenuSwitcher != nullptr)) return;
-	if (!ensure(ServersMenu != nullptr)) return;
-	MenuSwitcher->SetActiveWidget(ServersMenu);
+	if (!ensure(FindServersMenu != nullptr)) return;
+	
+	FindServersMenu->SetMenuInterface(this->GetMenuInterface());
+	MenuSwitcher->SetActiveWidget(FindServersMenu);
+
+	BackToMainMenuButton->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UMainMenu::OpenOptionsMenu()
 {
+
+	BackToMainMenuButton->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UMainMenu::OpenAboutMenu()
 {
+
+	BackToMainMenuButton->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UMainMenu::QuitGame()
@@ -77,4 +92,10 @@ void UMainMenu::QuitGame()
 	if (!ensure(PlayerController != nullptr)) return;
 
 	PlayerController->ConsoleCommand("Quit");
+}
+
+void UMainMenu::SetAvailableServerList(TArray<FServerData> AvailableServersData)
+{
+	if (!ensure(FindServersMenu != nullptr)) return;
+	FindServersMenu->SetAvailableServerList(AvailableServersData);
 }

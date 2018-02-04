@@ -1,7 +1,6 @@
 // Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #include "HostMenu.h"
-#include "MainMenu.h"
 
 #include "Components/EditableText.h"
 #include "Components/SpinBox.h"
@@ -19,9 +18,6 @@ bool UHostMenu::Initialize()
 
 	if (!ensure(ToggleLANButton != nullptr)) return false;
 	ToggleLANButton->OnClicked.AddDynamic(this, &UHostMenu::ToggleLan);
-
-	if (!ensure(BackToMainHostMenuButton != nullptr)) return false;
-	BackToMainHostMenuButton->OnClicked.AddDynamic(this, &UHostMenu::BackToMainMenu);
 
 	if (!ensure(LanText != nullptr)) return false;
 	LanText->SetText(FText::FromString(FString(TEXT("LAN"))));
@@ -63,11 +59,5 @@ void UHostMenu::ToggleLan()
 		LanText->SetText(FText::FromString(FString(TEXT("LAN"))));
 	}
 }
-
-void UHostMenu::BackToMainMenu()
-{
-
-}
-
 
 

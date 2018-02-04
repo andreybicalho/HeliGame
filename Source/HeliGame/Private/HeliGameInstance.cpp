@@ -8,6 +8,7 @@
 #include "HeliLobbyGameState.h"
 #include "Helicopter.h"
 #include "MainMenu.h"
+#include "FindServersMenu.h"
 
 #include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
@@ -37,7 +38,7 @@ UHeliGameInstance::UHeliGameInstance(const FObjectInitializer& ObjectInitializer
 	}
 
 	// main menu widget
-	static ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetBP(TEXT("/Game/MenuSystem/MainMenu"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetBP(TEXT("/Game/MenuSystem/WBP_MainMenu"));
 	if (MainMenuWidgetBP.Class != nullptr)
 	{
 		MainMenuWidgetTemplate = MainMenuWidgetBP.Class;
@@ -832,6 +833,50 @@ bool UHeliGameInstance::HostGame(FGameParams InGameSessionParams)
 	return false;
 }
 
+bool UHeliGameInstance::FindServers(class ULocalPlayer* PlayerOwner, bool bLAN)
+{
+	ShowLoadingScreen("Searching...");
+
+	return FindSessions(PlayerOwner, bLAN);
+}
+
+void UHeliGameInstance::RefreshServerList()
+{
+	TArray<FServerData> AvailableServersData;
+	AvailableServersData.Empty();
+	
+	for (FServerEntry server : AvailableServers)
+	{
+		FServerData serverData;
+		serverData.MaxPlayers = server.MaxPlayers;
+		serverData.CurrentPlayers = server.CurrentPlayers;
+		serverData.GameType = server.GameType;
+		serverData.MapName = server.MapName;
+		serverData.ServerName = server.ServerName;
+		serverData.Ping = server.Ping;
+		serverData.SearchResultsIndex = server.SearchResultsIndex;
+
+		AvailableServersData.Add(serverData);
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("UHeliGameInstance::FindServers ~ Found %d servers"), AvailableServersData.Num());
+	
+	if (MainMenu.IsValid() && !MainMenu->IsPendingKillOrUnreachable())
+	{		
+		MainMenu->SetAvailableServerList(AvailableServersData);
+	}
+
+}
+
+bool UHeliGameInstance::JoinServer(ULocalPlayer* LocalPlayer, int32 SessionIndexInSearchResults)
+{
+	UE_LOG(LogTemp, Display, TEXT("UHeliGameInstance::JoinServer ~ Joining in server from index = %d"), SessionIndexInSearchResults);
+
+	return JoinSession(LocalPlayer, SessionIndexInSearchResults);
+}
+// end of MenuInterface
+
+
 bool UHeliGameInstance::JoinSession(ULocalPlayer* LocalPlayer, int32 SessionIndexInSearchResults)
 {
 	// needs to tear anything down based on current state?	
@@ -871,7 +916,7 @@ bool UHeliGameInstance::JoinSession(ULocalPlayer* LocalPlayer, const FOnlineSess
 		OnJoinSessionCompleteDelegateHandle = GameSession->OnJoinSessionComplete().AddUObject(this, &UHeliGameInstance::OnJoinSessionComplete);
 		if (GameSession->JoinSession(LocalPlayer->GetPreferredUniqueNetId(), GameSessionName, SearchResult))
 		{
-			// If any error occured in the above, pending state would be set
+			// If any error occurred in the above, pending state would be set
 			if ((PendingState == CurrentState) || (PendingState == EHeliGameInstanceState::None))
 			{
 				// Go ahead and go into loading state now
@@ -1012,6 +1057,8 @@ void UHeliGameInstance::OnSearchSessionsComplete(bool bWasSuccessful)
 
 	UpdateAvailableServers();
 
+	RefreshServerList();
+
 	IsInSearchingServerProcess = false;
 
 	StopLoadingScreen();
@@ -1079,7 +1126,7 @@ void UHeliGameInstance::UpdateAvailableServers()
 						Result.Session.SessionSettings.Get(SETTING_MAPNAME, mapName);
 
 						FString serverName = FString(TEXT("NONE"));
-						Result.Session.SessionSettings.Get(SETTING_CUSTOMSEARCHINT1, serverName);
+						Result.Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, serverName);
 
 						FServerEntry NewServerEntry(
 							//Result.Session.OwningUserName,

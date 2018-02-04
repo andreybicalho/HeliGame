@@ -415,24 +415,6 @@ void AHeliHud::HideInGameOptionsMenu()
 	}
 }
 
-/***********************************************************************
-*                                                                      *
-************************************************************************/
-EHeliGameMatchState::Type AHeliHud::GetMatchState() const
-{
-	return MatchState;
-}
-
-void AHeliHud::SetMatchState(EHeliGameMatchState::Type NewState)
-{
-	MatchState = NewState;
-}
-
-bool AHeliHud::IsMatchOver() const
-{
-	return GetMatchState() == EHeliGameMatchState::Lost || GetMatchState() == EHeliGameMatchState::Won;
-}
-
 
 /***********************************************************************
 *                    Round and Warmup Timers                           *

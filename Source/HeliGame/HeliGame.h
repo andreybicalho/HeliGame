@@ -4,21 +4,13 @@
 
 #include "CoreMinimal.h"
 
-namespace EHeliGameMatchState
-{
-	enum Type
-	{
-		Warmup,
-		Playing,
-		Won,
-		Lost,
-	};
-}
-
 namespace
 {
 	const FString GameVersionName("BirdsOfWar_v0.2.0");
 }
+
+const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
+const static FName GAME_VERSION_SETTINGS_KEY = TEXT("GameVersion");
 
 // need loging?
 //DECLARE_LOG_CATEGORY_EXTERN(LogHeli, Log, All);

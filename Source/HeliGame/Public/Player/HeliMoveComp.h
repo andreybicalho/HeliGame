@@ -111,7 +111,7 @@ class HELIGAME_API UHeliMoveComp : public UPawnMovementComponent
 	
 	void MovementReplication();
 
-	UFUNCTION(Reliable, Server, WithValidation)
+	UFUNCTION(Unreliable, Server, WithValidation)
 	void Server_SetMovementState(const FMovementState& NewMovementState);
 
 	UPROPERTY(Transient, Replicated)

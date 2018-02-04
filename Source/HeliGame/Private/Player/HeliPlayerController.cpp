@@ -40,12 +40,6 @@ void AHeliPlayerController::ClientGameStarted_Implementation()
 	// Enable controls mode now the game has started
 	SetIgnoreMoveInput(false);
 
-	AHeliHud* MyHud = Cast<AHeliHud>(GetHUD());
-	if (MyHud)
-	{
-		MyHud->SetMatchState(EHeliGameMatchState::Playing);
-	}
-
 
 
 	// TODO: query achievements in online subsystem
@@ -157,12 +151,6 @@ void AHeliPlayerController::ClientGameEnded_Implementation(class AActor* EndGame
 
 	// Make sure that we still have valid view target
 	SetViewTarget(GetPawn());
-
-	AHeliHud* MyHud = Cast<AHeliHud>(GetHUD());
-	if (MyHud)
-	{
-		MyHud->SetMatchState(bIsWinner ? EHeliGameMatchState::Won : EHeliGameMatchState::Lost);
-	}
 
 	// TODO: UpdateSaveFileOnGameEnd(bIsWinner);
 	// TODO: UpdateAchievementsOnGameEnd();
