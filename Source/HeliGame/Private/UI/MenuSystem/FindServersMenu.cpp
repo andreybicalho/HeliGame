@@ -98,6 +98,8 @@ void UFindServersMenu::RefreshServerList()
 			Row->SetPing(serverData.Ping);
 			Row->Setup(this, serverIndex);
 			++serverIndex;
+
+			ServerList->AddChild(Row);
 		}
 	}
 }

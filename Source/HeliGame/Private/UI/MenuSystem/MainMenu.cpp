@@ -47,7 +47,7 @@ void UMainMenu::OpenMainMenu()
 	
 	BackToMainMenuButton->SetVisibility(ESlateVisibility::Hidden);
 	MenuSwitcher->SetActiveWidget(MainMenu);
-
+	QuitButton->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UMainMenu::OpenHostMenu()
@@ -58,6 +58,7 @@ void UMainMenu::OpenHostMenu()
 	MenuSwitcher->SetActiveWidget(HostMenu);
 
 	BackToMainMenuButton->SetVisibility(ESlateVisibility::Visible);
+	QuitButton->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainMenu::OpenServersMenu()
@@ -69,18 +70,21 @@ void UMainMenu::OpenServersMenu()
 	MenuSwitcher->SetActiveWidget(FindServersMenu);
 
 	BackToMainMenuButton->SetVisibility(ESlateVisibility::Visible);
+	QuitButton->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainMenu::OpenOptionsMenu()
 {
 
 	BackToMainMenuButton->SetVisibility(ESlateVisibility::Visible);
+	QuitButton->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainMenu::OpenAboutMenu()
 {
 
 	BackToMainMenuButton->SetVisibility(ESlateVisibility::Visible);
+	QuitButton->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainMenu::QuitGame()
