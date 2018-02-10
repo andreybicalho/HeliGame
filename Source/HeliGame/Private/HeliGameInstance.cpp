@@ -41,6 +41,7 @@ UHeliGameInstance::UHeliGameInstance(const FObjectInitializer& ObjectInitializer
 		MainMenuWidgetTemplate = MainMenuWidgetBP.Class;
 	}
 
+	this->
 
 
 	CurrentState = EHeliGameInstanceState::None;
@@ -84,7 +85,7 @@ void UHeliGameInstance::Init()
 
 	// Register delegate for ticker callback
 	TickDelegate = FTickerDelegate::CreateUObject(this, &UHeliGameInstance::Tick);
-	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(TickDelegate);
+	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(TickDelegate, 0.5);
 }
 
 void UHeliGameInstance::Shutdown()
@@ -990,8 +991,6 @@ bool UHeliGameInstance::Tick(float DeltaSeconds)
 	}
 
 	MaybeChangeState();
-	
-	//UGameViewportClient* MyViewport = Cast<UGameViewportClient>(GetGameViewportClient());
 
 	if (CurrentState != EHeliGameInstanceState::WelcomeScreen)
 	{
