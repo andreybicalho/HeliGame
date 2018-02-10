@@ -130,14 +130,6 @@ public:
 	/** get whether the player quit the match */
 	bool IsQuitter() const;
 
-	// RPC for the Server tell clients they should update lobby widget
-	UFUNCTION(Reliable, Client, BlueprintCallable, Category = "Lobby")
-	void Client_UpdateLobbyWidget();
-
-	// RPC for clients tell the server that other players should update theirs Lobby Widget
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_UpdateEverybodyLobbyWidget();
-
 	UFUNCTION()
 	void OnRep_PlayerName() override;	
 

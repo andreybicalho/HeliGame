@@ -26,6 +26,8 @@ class HELIGAME_API UHeliGameUserSettings : public UGameUserSettings
 	UPROPERTY(config)
 	float NetworkSmoothingFactor = 1000;
 
+	FString PlayerName;
+
 	// interface UGameUserSettings
 	virtual void SetToDefaults() override;
 
@@ -50,4 +52,8 @@ public:
 	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
 
 	float GetNetworkSmoothingFactor();
+
+	FString GetPlayerName();
+
+	void SetPlayerName(const FString& PlayerName);
 };

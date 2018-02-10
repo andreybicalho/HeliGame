@@ -61,7 +61,7 @@ void AHeliLobbyGameState::OnRep_bShouldUpdateLobbyWidget()
 		AHeliPlayerState* CurPlayerState = Cast<AHeliPlayerState>(PlayerArray[i]);
 		if (CurPlayerState)
 		{
-			CurPlayerState->Client_UpdateLobbyWidget();
+			//CurPlayerState->Client_UpdateLobbyWidget();
 		}
 	}
 }

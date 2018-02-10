@@ -51,9 +51,6 @@ protected:
 public:
 	AHeliPlayerController(const FObjectInitializer& ObjectInitializer);
 
-	/* attempt to fix UI bug */
-	void RefreshUI();
-
 	/** shows scoreboard */
 	void OnShowScoreboard();
 

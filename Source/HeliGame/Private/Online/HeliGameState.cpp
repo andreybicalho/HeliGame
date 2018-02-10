@@ -54,13 +54,6 @@ void AHeliGameState::RequestFinishAndExitToMainMenu()
 	}
 	else
 	{
-		// we are client, handle our own business
-		UHeliGameInstance* GameInstance = Cast<UHeliGameInstance>(GetGameInstance());
-		if (GameInstance)
-		{
-			GameInstance->RemoveSplitScreenPlayers();
-		}
-
 		AHeliPlayerController* const PrimaryPC = Cast<AHeliPlayerController>(GetGameInstance()->GetFirstLocalPlayerController());
 		if (PrimaryPC)
 		{

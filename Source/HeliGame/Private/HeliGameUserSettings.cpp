@@ -63,4 +63,13 @@ void UHeliGameUserSettings::SetNetworkSmoothingFactor(float inNetworkSmoothingFa
 	NetworkSmoothingFactor = inNetworkSmoothingFactor;
 }
 
+FString UHeliGameUserSettings::GetPlayerName()
+{
+	return PlayerName;
+}
+
+void UHeliGameUserSettings::SetPlayerName(const FString& NewPlayerName)
+{
+	PlayerName = NewPlayerName;
+}
 

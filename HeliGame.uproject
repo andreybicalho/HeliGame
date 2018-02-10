@@ -16,8 +16,16 @@
 	],
 	"Plugins": [
 		{
-			"Name": "SteamVR",
-			"Enabled": false
+			"Name": "OnlineSubsystem",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemUtils",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemNull",
+			"Enabled": true
 		},
 		{
 			"Name": "OnlineSubsystemSteam",

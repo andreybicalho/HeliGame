@@ -45,12 +45,12 @@ protected:
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
 	/** Delegate after starting a session */
 	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
-	/** Delegate for destroying a session */
-	FOnDestroySessionCompleteDelegate OnDestroySessionCompleteDelegate;
 	/** Delegate for searching for sessions */
 	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
 	/** Delegate after joining a session */
 	FOnJoinSessionCompleteDelegate OnJoinSessionCompleteDelegate;
+	/** Delegate for destroying a session */
+	FOnDestroySessionCompleteDelegate OnDestroySessionCompleteDelegate;
 	
 	/** Transient properties of a session during game creation/matchmaking */
 	FHeliGameSessionParams CurrentSessionParams;
@@ -157,6 +157,14 @@ public:
 	/** Default number of players allowed in a game */
 	static const int32 DEFAULT_NUM_PLAYERS = 64;
 
+	/** Handles to various registered delegates */
+	FDelegateHandle OnStartSessionCompleteDelegateHandle;
+	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
+	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
+	FDelegateHandle OnJoinSessionCompleteDelegateHandle;
+	FDelegateHandle OnDestroySessionCompleteDelegateHandle;
+
+
 	/**
 	* Host a new online session
 	*
@@ -192,14 +200,16 @@ public:
 	bool JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName InSessionName, int32 SessionIndexInSearchResults);
 
 	/**
-	* Joins a session via a search result
+	* Travel to a session URL (as client) for a given session
 	*
-	* @param SessionName name of session
-	* @param SearchResult Session to join
+	* @param ControllerId controller initiating the session travel
+	* @param SessionName name of session to travel to
 	*
-	* @return bool true if successful, false otherwise
+	* @return true if successful, false otherwise
 	*/
-	bool JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName InSessionName, const FOnlineSessionSearchResult& SearchResult);
+	bool TravelToSession(int32 ControllerId, FName InSessionName);
+
+
 
 	/** @return true if any online async work is in progress, false otherwise */
 	bool IsBusy() const;
@@ -231,8 +241,15 @@ public:
 	/** @return the delegate fired when search of session completes */
 	FOnFindSessionsComplete& OnFindSessionsComplete() { return FindSessionsCompleteEvent; }
 
+
+
+
+
+
+	/* Start session so other people can't join after stating session */
+	void StartSession();
 	/** Handle starting the match */
-	virtual void HandleMatchHasStarted() override;
+	// virtual void HandleMatchHasStarted() override;
 
 	/** Handles when the match has ended */
 	virtual void HandleMatchHasEnded() override;
@@ -242,22 +259,9 @@ public:
 
 
 
-	/**
-	* Travel to a session URL (as client) for a given session
-	*
-	* @param ControllerId controller initiating the session travel
-	* @param SessionName name of session to travel to
-	*
-	* @return true if successful, false otherwise
-	*/
-	bool TravelToSession(int32 ControllerId, FName InSessionName);
+	
 
-	/** Handles to various registered delegates */
-	FDelegateHandle OnStartSessionCompleteDelegateHandle;
-	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
-	FDelegateHandle OnDestroySessionCompleteDelegateHandle;
-	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
-	FDelegateHandle OnJoinSessionCompleteDelegateHandle;
+
 
 
 	/* updates current session settings */

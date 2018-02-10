@@ -30,6 +30,7 @@ void UHostMenu::HostServer()
 {
 	FGameParams GameSessionParams;
 
+	GameSessionParams.SessionName = GameSessionName;
 	GameSessionParams.bIsPresence = true;
 	GameSessionParams.bIsLAN = bIsLAN;
 	GameSessionParams.CustomServerName = ServerHostName->GetText().ToString();

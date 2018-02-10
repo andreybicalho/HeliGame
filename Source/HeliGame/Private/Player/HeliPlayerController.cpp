@@ -326,21 +326,6 @@ void AHeliPlayerController::HideInGameOptionsMenu()
 	bAllowGameActions = true;
 }
 
-void AHeliPlayerController::RefreshUI()
-{
-	if (GetWorld() != nullptr)
-	{
-		UHeliGameInstance* heliGameInstance = GetWorld() != nullptr ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : nullptr;
-		if (heliGameInstance)
-		{
-			if (heliGameInstance->GetCurrentState() == EHeliGameInstanceState::LobbyMenu)
-			{
-				heliGameInstance->RefreshLobbyUI();
-			}
-		}
-	}
-}
-
 void AHeliPlayerController::OnShowScoreboard()
 {
 	AHeliHud* MyHud = Cast<AHeliHud>(GetHUD());
@@ -822,8 +807,6 @@ void AHeliPlayerController::SetupInputComponent()
 	InputComponent->BindAction("FlushDebugLines", IE_Released, this, &AHeliPlayerController::FlushDebugLines);
 
 	InputComponent->BindAction("Suicide", IE_Pressed, this, &AHeliPlayerController::Suicide);
-	
-	InputComponent->BindAction("RefreshUI", IE_Pressed, this, &AHeliPlayerController::RefreshUI);
 }
 
 void AHeliPlayerController::ClientReturnToMainMenu_Implementation(const FString& InReturnReason)
