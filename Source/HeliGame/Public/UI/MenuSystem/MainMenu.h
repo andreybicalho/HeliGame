@@ -27,6 +27,12 @@ class HELIGAME_API UMainMenu : public UBaseMenuWidget
 	class UFindServersMenu* FindServersMenu;
 
 	UPROPERTY(meta = (BindWidget))
+	class UOptionsMenu* OptionsMenu;
+
+	UPROPERTY(meta = (BindWidget))
+	class UUserWidget* AboutMenu;
+
+	UPROPERTY(meta = (BindWidget))
 	class UButton* ServersButton;
 
 	UPROPERTY(meta = (BindWidget))
@@ -44,6 +50,12 @@ class HELIGAME_API UMainMenu : public UBaseMenuWidget
 
 	UPROPERTY(meta = (BindWidget))
 	class UWidgetSwitcher* MenuSwitcher;
+
+	UFUNCTION()
+	void OpenMainMenu();
+
+	UFUNCTION()
+	void OpenHostMenu();
 
 	UFUNCTION()
 	void OpenServersMenu();
@@ -66,12 +78,6 @@ protected:
 
 public:
 	UMainMenu(const FObjectInitializer & ObjectInitializer);
-
-	UFUNCTION()
-	void OpenMainMenu();
-
-	UFUNCTION()
-	void OpenHostMenu();
 
 	void SetAvailableServerList(TArray<FServerData> AvailableServersData);
 };

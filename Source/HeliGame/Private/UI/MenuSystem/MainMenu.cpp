@@ -3,6 +3,7 @@
 #include "MainMenu.h"
 #include "HostMenu.h"
 #include "FindServersMenu.h"
+#include "OptionsMenu.h"
 
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
@@ -75,6 +76,10 @@ void UMainMenu::OpenServersMenu()
 
 void UMainMenu::OpenOptionsMenu()
 {
+	if (!ensure(MenuSwitcher != nullptr)) return;
+	if (!ensure(OptionsMenu != nullptr)) return;
+
+	MenuSwitcher->SetActiveWidget(OptionsMenu);
 
 	BackToMainMenuButton->SetVisibility(ESlateVisibility::Visible);
 	QuitButton->SetVisibility(ESlateVisibility::Hidden);
@@ -82,6 +87,9 @@ void UMainMenu::OpenOptionsMenu()
 
 void UMainMenu::OpenAboutMenu()
 {
+	if (!ensure(MenuSwitcher != nullptr)) return;
+	if (!ensure(AboutMenu != nullptr)) return;
+	MenuSwitcher->SetActiveWidget(AboutMenu);
 
 	BackToMainMenuButton->SetVisibility(ESlateVisibility::Visible);
 	QuitButton->SetVisibility(ESlateVisibility::Hidden);

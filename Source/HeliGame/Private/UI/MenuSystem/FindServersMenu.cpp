@@ -80,10 +80,13 @@ void UFindServersMenu::SetAvailableServerList(TArray<FServerData> AvailableServe
 
 void UFindServersMenu::RefreshServerList()
 {
-	if (AvailableServers.Num() > 0)
+	if (ServerList)
 	{
 		ServerList->ClearChildren();
-
+	}
+		
+	if (AvailableServers.Num() > 0)
+	{
 		uint32 serverIndex = 0;
 		for (const FServerData& serverData : AvailableServers)
 		{

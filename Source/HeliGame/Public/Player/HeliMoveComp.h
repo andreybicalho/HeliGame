@@ -25,21 +25,27 @@ struct FMovementState
 	UPROPERTY()
 	FVector_NetQuantize100 AngularVelocity;
 
+	UPROPERTY()
+	float Timestamp;
+
 	FMovementState()
 	{
 		Location = LinearVelocity = AngularVelocity = FVector::ZeroVector;
 		Rotation = FRotator::ZeroRotator;
+		Timestamp = 0;
 	}
 	FMovementState(
 		FVector_NetQuantize100 Loc,
 		FRotator Rot,
 		FVector_NetQuantize100 Vel,
-		FVector_NetQuantize100 Angular
+		FVector_NetQuantize100 Angular,
+		float ReplicationTimeInSeconds
 	)
 		: Location(Loc)
 		, Rotation(Rot)
 		, LinearVelocity(Vel)
 		, AngularVelocity(Angular)
+		, Timestamp(ReplicationTimeInSeconds)
 
 	{}
 };
@@ -126,12 +132,22 @@ class HELIGAME_API UHeliMoveComp : public UPawnMovementComponent
 	bool bUseInterpolationForMovementReplication;
 
 	/* controls how fast actual movement data will be interpolated with server's data. Greater values means that it will interpolate faster. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
-	float InterpolationSpeed;
+	float CurrentInterpolationSpeed;
 
 	/* Greater values means that it will interpolate faster, so much greater values will have the same effect as NO interpolation at all... */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
-	float MaxNetworkSmoothingFactor;
+	float MaxInterpolationSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings|Replication", meta = (AllowPrivateAccess = "true"))
+	float MinInterpolationSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Helpers|Replication", meta = (AllowPrivateAccess = "true"))
+	bool bDrawRole;
+
+	FString GetRoleAsString(ENetRole inRole);
+
+	float LastTimeReplicatedMovementReceived = 0.f;
+
 public:
 	UHeliMoveComp(const FObjectInitializer& ObjectInitializer);
 

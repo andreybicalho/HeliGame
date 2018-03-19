@@ -6,7 +6,7 @@
 
 namespace
 {
-	const FString GameVersionName("BirdsOfWar_v0.2.0");
+	const FString GameVersionName("BirdsOfWar_v0.2.1");
 }
 
 const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
