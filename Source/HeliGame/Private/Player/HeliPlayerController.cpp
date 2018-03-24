@@ -40,12 +40,6 @@ void AHeliPlayerController::ClientGameStarted_Implementation()
 	// Enable controls mode now the game has started
 	SetIgnoreMoveInput(false);
 
-	AHeliHud* MyHud = Cast<AHeliHud>(GetHUD());
-	if (MyHud)
-	{
-		MyHud->SetMatchState(EHeliGameMatchState::Playing);
-	}
-
 
 
 	// TODO: query achievements in online subsystem
@@ -157,12 +151,6 @@ void AHeliPlayerController::ClientGameEnded_Implementation(class AActor* EndGame
 
 	// Make sure that we still have valid view target
 	SetViewTarget(GetPawn());
-
-	AHeliHud* MyHud = Cast<AHeliHud>(GetHUD());
-	if (MyHud)
-	{
-		MyHud->SetMatchState(bIsWinner ? EHeliGameMatchState::Won : EHeliGameMatchState::Lost);
-	}
 
 	// TODO: UpdateSaveFileOnGameEnd(bIsWinner);
 	// TODO: UpdateAchievementsOnGameEnd();
@@ -336,21 +324,6 @@ void AHeliPlayerController::HideInGameOptionsMenu()
 	}
 
 	bAllowGameActions = true;
-}
-
-void AHeliPlayerController::RefreshUI()
-{
-	if (GetWorld() != nullptr)
-	{
-		UHeliGameInstance* heliGameInstance = GetWorld() != nullptr ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : nullptr;
-		if (heliGameInstance)
-		{
-			if (heliGameInstance->GetCurrentState() == EHeliGameInstanceState::LobbyMenu)
-			{
-				heliGameInstance->RefreshLobbyUI();
-			}
-		}
-	}
 }
 
 void AHeliPlayerController::OnShowScoreboard()
@@ -834,8 +807,6 @@ void AHeliPlayerController::SetupInputComponent()
 	InputComponent->BindAction("FlushDebugLines", IE_Released, this, &AHeliPlayerController::FlushDebugLines);
 
 	InputComponent->BindAction("Suicide", IE_Pressed, this, &AHeliPlayerController::Suicide);
-	
-	InputComponent->BindAction("RefreshUI", IE_Pressed, this, &AHeliPlayerController::RefreshUI);
 }
 
 void AHeliPlayerController::ClientReturnToMainMenu_Implementation(const FString& InReturnReason)

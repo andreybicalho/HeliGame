@@ -24,7 +24,7 @@ public:
 class FHeliOnlineSearchSettings : public FOnlineSessionSearch
 {
 public:
-	FHeliOnlineSearchSettings(bool bSearchingLAN = false, bool bSearchingPresence = false);
+	FHeliOnlineSearchSettings(bool bSearchingLAN = true, bool bSearchingPresence = true);
 
 	virtual ~FHeliOnlineSearchSettings() {}
 };

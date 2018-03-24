@@ -101,18 +101,6 @@ public:
 	*                                                                       *
 	*************************************************************************/
 
-	/** Get state of current match. */
-	EHeliGameMatchState::Type GetMatchState() const;
-	/**
-	* Set state of current match.
-	*
-	* @param	NewState	The new match state.
-	*/
-	void SetMatchState(EHeliGameMatchState::Type NewState);
-
-	/* Is the match over (IE Is the state Won or Lost). */
-	bool IsMatchOver() const;
-
 	void EnableFirstPersonHud();
 
 	void DisableFirstPersonHud();
@@ -158,13 +146,6 @@ protected:
 	/** How long till enemy hit notify fades out completely. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crosshair", meta = (AllowPrivateAccess = "true"))
 	float LastEnemyHitDisplayTime;
-
-
-	/************************************************************************
-	*                                                                       *
-	*************************************************************************/
-	/** State of match. */
-	EHeliGameMatchState::Type MatchState;
 
 
 	/************************************************************************

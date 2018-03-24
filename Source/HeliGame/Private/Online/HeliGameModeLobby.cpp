@@ -31,19 +31,6 @@ void AHeliGameModeLobby::InitGameState()
 	if (MyGameState)
 	{
 		MyGameState->NumTeams = NumTeams;
-
-		// setting custom player configuration in the game state when hosting a match like custom server name, selected game mode, selected map, etc.
-		UHeliGameInstance* MyGameInstance = Cast<UHeliGameInstance>(GetGameInstance());
-		if (MyGameInstance)
-		{
-			MyGameState->ServerName = MyGameInstance->CustomServerName;
-			MyGameState->GameModeName = MyGameInstance->SelectedGameMode;
-			MyGameState->MapName = MyGameInstance->SelectedMapName;
-			MyGameState->MaxNumberOfPlayers = MyGameInstance->MaxNumberOfPlayers;
-			MyGameState->MaxRoundTime = MyGameInstance->RoundTime;
-			MyGameState->MaxWarmupTime = MyGameInstance->WarmupTime;
-		}
-
 	}
 }
 
@@ -65,25 +52,6 @@ void AHeliGameModeLobby::PostLogin(APlayerController* NewPlayer)
 		NewPC->ClientGameStarted();
 		NewPC->ClientStartOnlineGame();
 	}
-
-	// debug players roles
-	//PrintNetModeInfo(NewPlayer->GetNetMode());
-	//PrintRoleInfo(NewPlayer->Role);
-	//PrintController(NewPlayer);
-
-	// if i'm the host, (hosting a match, e.g., the server) set my custom states (playername, etc...)	
-	UHeliGameInstance* MyGameInstance = GetWorld() != NULL ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : NULL;		
-	//if (NewPlayer->GetNetMode() == NM_ListenServer && MyGameInstance)	
-	//if (NewPlayer->IsLocalController() && MyGameInstance)
-	if (NewPlayer->IsLocalPlayerController() && MyGameInstance) // using IsLocalPlayerController() since it is controlled by humans 
-	{		
-		if (!MyGameInstance->CustomPlayerName.IsEmpty())
-		{
-			NewPlayer->PlayerState->SetPlayerName(MyGameInstance->CustomPlayerName);
-		}		
-	}
-
-
 	
 	AHeliLobbyGameState* MyGameState = Cast<AHeliLobbyGameState>(GameState);
 	if (MyGameState)

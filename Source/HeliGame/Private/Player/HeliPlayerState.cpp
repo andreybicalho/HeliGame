@@ -7,10 +7,13 @@
 #include "HeliPlayerController.h"
 #include "HeliLobbyGameState.h"
 #include "Helicopter.h"
+#include "HeliGameUserSettings.h"
+
 #include "UObject/CoreOnline.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
+#include "Public/Engine.h"
 
 
 
@@ -52,13 +55,14 @@ void AHeliPlayerState::ClientInitialize(AController* InController)
 	Super::ClientInitialize(InController);
 
 	// local client will notify server about his new custom name	
-	UHeliGameInstance* MyGameInstance = GetWorld() != NULL ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : NULL;
-	if (MyGameInstance && !MyGameInstance->CustomPlayerName.IsEmpty())
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	
+	if (heliGameUserSettings && !heliGameUserSettings->GetPlayerName().IsEmpty())
 	{	
-		Server_SetPlayerName(MyGameInstance->CustomPlayerName);
+		Server_SetPlayerName(heliGameUserSettings->GetPlayerName());
 
 		// if we are in lobby, tell other players to update their lobby widget because this one changed its player name
-		AHeliLobbyGameState* LobbyGameState = GetWorld() != NULL ? GetWorld()->GetGameState<AHeliLobbyGameState>() : NULL;
+		AHeliLobbyGameState* LobbyGameState = GetWorld() != nullptr ? GetWorld()->GetGameState<AHeliLobbyGameState>() : nullptr;
 		if (LobbyGameState)
 		{
 			LobbyGameState->bShouldUpdateLobbyWidget++;
@@ -232,35 +236,6 @@ void AHeliPlayerState::Server_SetPlayerName_Implementation(const FString& NewPla
 	SetPlayerName(NewPlayerName);
 }
 
-void AHeliPlayerState::Client_UpdateLobbyWidget_Implementation()
-{
-	UHeliGameInstance* MyGameInstance = GetWorld() != NULL ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : NULL;
-	
-	if (MyGameInstance)
-	{
-		// updates settings
-		MyGameInstance->bShouldUpdateLobbyWidget = true;
-		// updates player list
-		MyGameInstance->bRequiresWidgetUpdate = true;
-	}
-}
-
-bool AHeliPlayerState::Server_UpdateEverybodyLobbyWidget_Validate()
-{
-	return true;
-}
-
-void AHeliPlayerState::Server_UpdateEverybodyLobbyWidget_Implementation()
-{
-	// enforce other player to update their lobby widget if we are in lobby game mode
-	AHeliLobbyGameState* MyGameState = Cast<AHeliLobbyGameState>(GetWorld()->GetGameState());
-	if (MyGameState)
-	{
-		MyGameState->bShouldUpdateLobbyWidget++;
-	}
-	
-}
-
 void AHeliPlayerState::OnRep_PlayerName()
 {
 	Super::OnRep_PlayerName();
@@ -306,17 +281,6 @@ void AHeliPlayerState::Server_SetPlayerReady_Implementation(bool bNewPlayerReady
 	if (MyGameState)
 	{
 		MyGameState->bShouldUpdateLobbyWidget++;
-	}
-
-	// updates server's lobby widget 
-	UHeliGameInstance* MyGameInstance = GetWorld() != NULL ? Cast<UHeliGameInstance>(GetWorld()->GetGameInstance()) : NULL;
-
-	if (MyGameInstance)
-	{
-		// updates settings
-		MyGameInstance->bShouldUpdateLobbyWidget = true;
-		// updates player list
-		MyGameInstance->bRequiresWidgetUpdate = true;
 	}
 }
 

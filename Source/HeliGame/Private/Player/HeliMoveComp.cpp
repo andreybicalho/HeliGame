@@ -3,10 +3,12 @@
 #include "HeliMoveComp.h"
 #include "HeliGame.h"
 #include "HeliGameUserSettings.h"
+
 #include "Components/PrimitiveComponent.h"
 #include "GameFramework/Pawn.h"
 #include "Net/UnrealNetwork.h"
 #include "Public/Engine.h"
+#include "DrawDebugHelpers.h"
 
 UHeliMoveComp::UHeliMoveComp(const FObjectInitializer& ObjectInitializer)
 {
@@ -32,9 +34,12 @@ UHeliMoveComp::UHeliMoveComp(const FObjectInitializer& ObjectInitializer)
 
 	MaximumAngularVelocity = 100.f;
 
-	MaxNetworkSmoothingFactor = 60.f;
-	InterpolationSpeed = MaxNetworkSmoothingFactor;
+	MaxInterpolationSpeed = 60.f;
+	MinInterpolationSpeed = 1.f;
+	CurrentInterpolationSpeed = MaxInterpolationSpeed;
 	bUseInterpolationForMovementReplication = false;
+
+	bDrawRole = false;
 }
 
 /*
@@ -227,7 +232,7 @@ void UHeliMoveComp::SetMovementState(const FMovementState& TargetMovementState)
 	}
 
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (BaseComp)
+	if (BaseComp && TargetMovementState.Timestamp >= LastTimeReplicatedMovementReceived)
 	{
 		FRotator rotation = TargetMovementState.Rotation;
 		FVector location = TargetMovementState.Location;
@@ -238,6 +243,8 @@ void UHeliMoveComp::SetMovementState(const FMovementState& TargetMovementState)
 		BaseComp->SetWorldLocation(location);
 		BaseComp->SetPhysicsLinearVelocity(linearVelocity);
 		BaseComp->SetPhysicsAngularVelocityInDegrees(angularVelocity);
+
+		LastTimeReplicatedMovementReceived = TargetMovementState.Timestamp;
 	}
 }
 
@@ -249,20 +256,22 @@ void UHeliMoveComp::SetMovementStateSmoothly(const FMovementState& TargetMovemen
 	}
 
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (BaseComp)
+	if (BaseComp && TargetMovementState.Timestamp >= LastTimeReplicatedMovementReceived)
 	{
 		// NOTE(andrey): should we use slerp or rinterpto for rotation interpolation?
 		//Quat rotation = FQuat::Slerp(BaseComp->GetComponentRotation().Quaternion(), TargetPhysMovementState.Rotation.Quaternion(), 0.1f);
-		FRotator rotation = FMath::RInterpTo(BaseComp->GetComponentRotation(), TargetMovementState.Rotation, DeltaTime, InterpolationSpeed);
-		FVector location = FMath::VInterpTo(BaseComp->GetComponentLocation(), TargetMovementState.Location, DeltaTime, InterpolationSpeed);
-		FVector linearVelocity = FMath::VInterpTo(BaseComp->GetPhysicsLinearVelocity(), TargetMovementState.LinearVelocity, DeltaTime, InterpolationSpeed);
-		FVector angularVelocity = FMath::VInterpTo(BaseComp->GetPhysicsAngularVelocityInDegrees(), TargetMovementState.AngularVelocity, DeltaTime, InterpolationSpeed);
+		FRotator rotation = FMath::RInterpTo(BaseComp->GetComponentRotation(), TargetMovementState.Rotation, DeltaTime, CurrentInterpolationSpeed);
+		FVector location = FMath::VInterpTo(BaseComp->GetComponentLocation(), TargetMovementState.Location, DeltaTime, CurrentInterpolationSpeed);
+		FVector linearVelocity = FMath::VInterpTo(BaseComp->GetPhysicsLinearVelocity(), TargetMovementState.LinearVelocity, DeltaTime, CurrentInterpolationSpeed);
+		FVector angularVelocity = FMath::VInterpTo(BaseComp->GetPhysicsAngularVelocityInDegrees(), TargetMovementState.AngularVelocity, DeltaTime, CurrentInterpolationSpeed);
 
 		//BaseComp->SetWorldRotation(rotation);
 		BaseComp->SetWorldRotation(rotation.Quaternion());
 		BaseComp->SetWorldLocation(location);
 		BaseComp->SetPhysicsLinearVelocity(linearVelocity);
 		BaseComp->SetPhysicsAngularVelocityInDegrees(angularVelocity);
+
+		LastTimeReplicatedMovementReceived = TargetMovementState.Timestamp;
 	}
 }
 
@@ -273,11 +282,17 @@ void UHeliMoveComp::MovementReplication()
 		UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 		if (BaseComp && BaseComp->IsSimulatingPhysics())
 		{
+			if (BaseComp->GetPhysicsLinearVelocity().IsNearlyZero())
+			{
+				return;
+			}
+
 			Server_SetMovementState(FMovementState(
 				BaseComp->GetComponentLocation(),
 				BaseComp->GetComponentRotation(),
 				BaseComp->GetPhysicsLinearVelocity(),
-				BaseComp->GetPhysicsAngularVelocityInDegrees()
+				BaseComp->GetPhysicsAngularVelocityInDegrees(),
+				GetWorld()->TimeSeconds
 			));
 		}
 	}
@@ -300,35 +315,53 @@ bool UHeliMoveComp::IsNetworkSmoothingFactorActive()
 
 void UHeliMoveComp::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
 {				
-	if (inNetworkSmoothingFactor < 0.5f)
+	if (inNetworkSmoothingFactor < 0.1f)
 	{
 		// turn interpolation off	
-		InterpolationSpeed = MaxNetworkSmoothingFactor;
+		CurrentInterpolationSpeed = MaxInterpolationSpeed;
 		bUseInterpolationForMovementReplication = false;
 		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor Deactivated!"));
 	}
 	else if (inNetworkSmoothingFactor >= 100.f)
 	{
 		// minimum interpolation we allow
-		InterpolationSpeed = 1.f;
+		CurrentInterpolationSpeed = MinInterpolationSpeed;
 		bUseInterpolationForMovementReplication = true;
-		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor is 100%, interpolation speed set to 1!"));
+		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor is 100%, CurrentInterpolationSpeed = %f"), MinInterpolationSpeed);
 	}
 	else
 	{
-		// normalize it between 1 and MaxNetworkSmoothingFactor
+		// normalize it between MinInterpolationSpeed and MaxInterpolationSpeed
 		// ((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;		
-		float smoothFactorNormalized = ((MaxNetworkSmoothingFactor - 1.f) * (inNetworkSmoothingFactor - 0.f) / (100.f - 0.f)) + 1.f;
+		float smoothFactorNormalized = ((MaxInterpolationSpeed - MinInterpolationSpeed) * (inNetworkSmoothingFactor - 0.f) / (100.f - 0.f)) + MinInterpolationSpeed;
 		
 		// smaller values means more interpolation speed, greater values means that interpolation should happen more smoothly (slow interp speed)
-		float smoothFactor = MaxNetworkSmoothingFactor - smoothFactorNormalized;
-
-		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ inNetworkSmoothingFactor = %f, smoothFactorNormalized = %f, smoothFactor = %f"), inNetworkSmoothingFactor, smoothFactorNormalized, smoothFactor);
-
-		InterpolationSpeed = smoothFactor;
+		CurrentInterpolationSpeed = MaxInterpolationSpeed - smoothFactorNormalized;
 		bUseInterpolationForMovementReplication = true;
+
+		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ inNetworkSmoothingFactor = %f, smoothFactorNormalized = %f, CurrentInterpolationSpeed = %f"), inNetworkSmoothingFactor, smoothFactorNormalized, CurrentInterpolationSpeed);
 	}
 }
+
+FString UHeliMoveComp::GetRoleAsString(ENetRole inRole)
+{
+	switch (inRole)
+	{
+	case ROLE_MAX:
+		return FString(TEXT("ROLE_MAX"));
+	case ROLE_Authority:
+		return FString(TEXT("ROLE_Authority"));
+	case ROLE_AutonomousProxy:
+		return FString(TEXT("ROLE_AutonomousProxy"));
+	case ROLE_SimulatedProxy:
+		return FString(TEXT("ROLE_SimulatedProxy"));
+	case ROLE_None:
+		return FString(TEXT("ROLE_None"));
+	default:
+		return "Error";
+	}	
+}
+
 
 /* overrides */
 void UHeliMoveComp::InitializeComponent()
@@ -385,6 +418,13 @@ void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	{
 		MovementReplication();
 	}
+
+
+	if (bDrawRole)
+	{
+		DrawDebugString(GetWorld(), FVector(0, 0, 200), GetRoleAsString(GetPawnOwner()->Role), GetPawnOwner(), FColor::White, DeltaTime);
+	}
+
 }
 
 //							Replication List
