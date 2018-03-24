@@ -30,7 +30,7 @@ namespace EHeliCrosshairDirection
 AHeliHud::AHeliHud()
 {
 	// Set the crosshair texture
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDMainTextureOb(TEXT("/Game/HeliBattle/UI/Textures/HUDMain"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDMainTextureOb(TEXT("/Game/Textures/UI/HUDMain"));
 	HUDMainTexture = HUDMainTextureOb.Object;
 
 	// getting drawings from texture for the crosshair
@@ -59,12 +59,11 @@ AHeliHud::AHeliHud()
 	LastEnemyHitDisplayTime = 0.2f;
 	LastEnemyHitTime = -LastEnemyHitDisplayTime;
 
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCenterDotObj(TEXT("/Game/HeliBattle/UI/Textures/T_CenterDot_M.T_CenterDot_M"));
-	CenterDotIcon = UCanvas::MakeIcon(HUDCenterDotObj.Object);	
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCenterDotObj(TEXT("/Game/Textures/UI/T_CenterDot_M.T_CenterDot_M"));
+	CenterDotIcon = UCanvas::MakeIcon(HUDCenterDotObj.Object);
 
-
-	static ConstructorHelpers::FObjectFinder<UFont> BigFontOb(TEXT("/Game/HeliBattle/UI/Roboto51"));
-	static ConstructorHelpers::FObjectFinder<UFont> NormalFontOb(TEXT("/Game/HeliBattle/UI/Roboto18"));
+	static ConstructorHelpers::FObjectFinder<UFont> BigFontOb(TEXT("/Game/MenuSystem/Resources/Audiowide-Regular_Font"));
+	static ConstructorHelpers::FObjectFinder<UFont> NormalFontOb(TEXT("/Game/MenuSystem/Resources/Audiowide-Regular_Font"));
 
 	BigFont = BigFontOb.Object;
 	NormalFont = NormalFontOb.Object;
