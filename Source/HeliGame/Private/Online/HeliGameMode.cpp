@@ -23,14 +23,13 @@
 AHeliGameMode::AHeliGameMode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	/* Assign the class types used by this gamemode */
-	
-	//  Player
+		
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Blueprints/Helicopter_BP"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
-	// HUD
+
 	static ConstructorHelpers::FClassFinder<AHeliHud> HudBPClass(TEXT("/Game/Blueprints/HeliHud_BP"));
 	if (HudBPClass.Class != NULL)
 	{
@@ -43,7 +42,6 @@ AHeliGameMode::AHeliGameMode(const FObjectInitializer& ObjectInitializer) : Supe
 
 	bAllowFriendlyFireDamage = false;
 
-	/* Default team is 0 for players and 1 for enemies */
 	PlayerTeamNum = 0;
 }
 

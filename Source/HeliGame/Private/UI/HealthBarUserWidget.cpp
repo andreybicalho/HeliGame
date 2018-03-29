@@ -2,7 +2,7 @@
 
 #include "HealthBarUserWidget.h"
 #include "HeliGame.h"
-#include "Helicopter.h"
+#include "HeliFighterVehicle.h"
 
 
 UHealthBarUserWidget::UHealthBarUserWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -87,7 +87,7 @@ float UHealthBarUserWidget::GetCurrentHealth()
 	return 0.f;	
 }
 
-void UHealthBarUserWidget::SetOwningPawn(TWeakObjectPtr<AHelicopter> InOwningPawn)
+void UHealthBarUserWidget::SetOwningPawn(TWeakObjectPtr<AHeliFighterVehicle> InOwningPawn)
 {
 	OwningPawn = InOwningPawn;
 }

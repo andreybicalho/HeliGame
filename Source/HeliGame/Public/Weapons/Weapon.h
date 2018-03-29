@@ -13,7 +13,7 @@
 
 class UStaticMeshComponent;
 class UArrowComponent;
-class AHelicopter;
+class AHeliFighterVehicle;
 class UAudioComponent;
 class USoundCue;
 class UParticleSystemComponent;
@@ -183,7 +183,7 @@ public:
 
 	/** get pawn owner */
 	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
-	class AHelicopter* GetPawnOwner() const;
+	class AHeliFighterVehicle* GetPawnOwner() const;
 
 	/** check if weapon has infinite ammo (include owner's cheats) */
 	UFUNCTION(BlueprintCallable, Category = "WeaponConfig")
@@ -194,7 +194,7 @@ public:
 	bool HasInfiniteClip() const;
 
 	/** set the weapon's owning pawn */
-	void SetOwningPawn (AHelicopter* NewOwner);
+	void SetOwningPawn (AHeliFighterVehicle* NewOwner);
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -207,7 +207,7 @@ public:
 protected:
 	/** pawn owner */
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_MyPawn)
-	class AHelicopter* MyPawn;
+	class AHeliFighterVehicle* MyPawn;
 
 	/** weapon data */
 	UPROPERTY(EditDefaultsOnly, Category = "Config")

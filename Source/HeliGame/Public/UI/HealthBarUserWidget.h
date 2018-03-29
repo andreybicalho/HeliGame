@@ -22,7 +22,7 @@ class HELIGAME_API UHealthBarUserWidget : public UUserWidget
 	UPROPERTY(EditDefaultsOnly, Category = "Health Display", meta = (AllowPrivateAccess = "true"))
 	struct FLinearColor FriendColor;
 
-	TWeakObjectPtr<class AHelicopter> OwningPawn;
+	TWeakObjectPtr<class AHeliFighterVehicle> OwningPawn;
 
 	void SetupCurrentColor();
 
@@ -45,7 +45,7 @@ protected:
 public:
 	UHealthBarUserWidget(const FObjectInitializer& ObjectInitializer);
 
-	void SetOwningPawn(TWeakObjectPtr<class AHelicopter> InOwningPawn);
+	void SetOwningPawn(TWeakObjectPtr<class AHeliFighterVehicle> InOwningPawn);
 
 	UFUNCTION(BlueprintCallable, Category = "Display")
 	void SetupWidget();

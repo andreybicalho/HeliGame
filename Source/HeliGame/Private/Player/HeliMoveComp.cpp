@@ -26,11 +26,11 @@ UHeliMoveComp::UHeliMoveComp(const FObjectInitializer& ObjectInitializer)
 	bUseAddForceForThrust = true;
 
 	bAddLift = true;
-	GravityWeight = 0.70f;
+	GravityWeight = 0.90f;
 
 	BaseThrust = 10000.f;
 
-	MinimumTiltInclinationAcceleration = 5000.f;
+	MinimumTiltInclinationAcceleration = 3000.f;
 
 	MaximumAngularVelocity = 100.f;
 

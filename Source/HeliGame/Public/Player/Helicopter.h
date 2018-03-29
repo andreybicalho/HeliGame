@@ -2,122 +2,44 @@
 
 #pragma once
 
-#include "GameFramework/Pawn.h"
-#include "GameFramework/DamageType.h"
+#include "HeliFighterVehicle.h"
 #include "Helicopter.generated.h"
 
 class UStaticMeshComponent;
 class UCurveFloat;
-class USoundCue;
 class UAudioComponent;
-
-USTRUCT()
-struct FTakeHitData
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY()
-	float ActualDamage;
-
-	UPROPERTY()
-	UClass* DamageTypeClass;
-
-	UPROPERTY()
-	TWeakObjectPtr<class AHelicopter> PawnInstigator;
-
-	UPROPERTY()
-	TWeakObjectPtr<class AActor> DamageCauser;
-
-	UPROPERTY()
-	uint8 DamageEventClassID;
-
-	UPROPERTY()
-	bool bKilled;
-
-private:
-
-	UPROPERTY()
-	uint8 EnsureReplicationByte;
-
-	UPROPERTY()
-	FDamageEvent GeneralDamageEvent;
-
-	UPROPERTY()
-	FPointDamageEvent PointDamageEvent;
-
-	UPROPERTY()
-	FRadialDamageEvent RadialDamageEvent;
-
-public:
-	FTakeHitData()
-		: ActualDamage(0),
-		DamageTypeClass(nullptr),
-		PawnInstigator(nullptr),
-		DamageCauser(nullptr),
-		DamageEventClassID(0),
-		bKilled(false),
-		EnsureReplicationByte(0)
-	{}
-
-	FDamageEvent& GetDamageEvent()
-	{
-		switch (DamageEventClassID)
-		{
-		case FPointDamageEvent::ClassID:
-			if (PointDamageEvent.DamageTypeClass == nullptr)
-			{
-				PointDamageEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : UDamageType::StaticClass();
-			}
-			return PointDamageEvent;
-
-		case FRadialDamageEvent::ClassID:
-			if (RadialDamageEvent.DamageTypeClass == nullptr)
-			{
-				RadialDamageEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : UDamageType::StaticClass();
-			}
-			return RadialDamageEvent;
-
-		default:
-			if (GeneralDamageEvent.DamageTypeClass == nullptr)
-			{
-				GeneralDamageEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : UDamageType::StaticClass();
-			}
-			return GeneralDamageEvent;
-		}
-	}
-
-
-	void SetDamageEvent(const FDamageEvent& DamageEvent)
-	{
-		DamageEventClassID = DamageEvent.GetTypeID();
-		switch (DamageEventClassID)
-		{
-		case FPointDamageEvent::ClassID:
-			PointDamageEvent = *((FPointDamageEvent const*)(&DamageEvent));
-			break;
-		case FRadialDamageEvent::ClassID:
-			RadialDamageEvent = *((FRadialDamageEvent const*)(&DamageEvent));
-			break;
-		default:
-			GeneralDamageEvent = DamageEvent;
-		}
-	}
-
-
-	void EnsureReplication()
-	{
-		EnsureReplicationByte++;
-	}
-};
 
 /**
  * 
  */
 UCLASS()
-class HELIGAME_API AHelicopter : public APawn
+class HELIGAME_API AHelicopter : public AHeliFighterVehicle
 {
 	GENERATED_BODY()
+
+private:
+	/** [server] perform PlayerState related setup */
+	virtual void PossessedBy(class AController *C) override;
+
+	/** [client] perform PlayerState related setup */
+	virtual void OnRep_PlayerState() override;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:
+	/** spawn inventory, setup initial variables */
+	virtual void PostInitializeComponents() override;
 	
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void PawnClientRestart() override;
+
+	virtual UPawnMovementComponent *GetMovementComponent() const override { return HeliMovementComponent; }
+
+private:
 	/*
 	*	Main Helicopter Mesh
 	*/
@@ -207,30 +129,6 @@ class HELIGAME_API AHelicopter : public APawn
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings", meta = (AllowPrivateAccess = "true"))
 	int32 InvertedAim = 1;
-	/*
-		Camera
-	*/
-
-	/** Spring arm that will offset the first person viewpoint for the camera */
-	UPROPERTY(Category = "Camera", EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* SpringArmFirstPerson;
-
-	/** Spring arm that will offset the third person viewpoint for the camera */
-	UPROPERTY(Category = "Camera", EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* SpringArmThirdPerson;
-
-	/** Camera component */
-	UPROPERTY(Category = "Camera", EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* Camera;
-
-
-	/*
-	*	Weapons
-	*/
-	
-	/** socket or bone name for attaching Primary weapon mesh */
-	UPROPERTY(Category = "Weapon", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	FName PrimaryWeaponAttachPoint;
 
 
 	/*
@@ -275,24 +173,6 @@ class HELIGAME_API AHelicopter : public APawn
 	void EnableFirstPersonHud();
 
 	/*
-	* Player Info (HUD)
-	*/
-
-	UPROPERTY(ReplicatedUsing = OnRep_PlayerInfo, Transient)
-	int32 TeamNumber = -1;
-
-	UPROPERTY(ReplicatedUsing = OnRep_PlayerInfo, Transient)
-	FName PlayerName = FName(TEXT("unknown"));
-
-	UFUNCTION()
-	void OnRep_PlayerInfo();
-
-	FTimerHandle TimerHandle_PlayerState;	
-
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_UpdatePlayerInfo(FName NewPlayerName, int32 NewTeamNumber);
-
-	/*
 	*	Sounds
 	*/
 	
@@ -317,10 +197,7 @@ class HELIGAME_API AHelicopter : public APawn
 
 	/*
 		Health Regen
-	*/
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
-	float MaxHealth;
+	*/	
 
 	UFUNCTION(Reliable, Server, WithValidation, BlueprintCallable, Category = "RepairSettings")
 	void Server_AddHealth(float Value);
@@ -339,77 +216,16 @@ class HELIGAME_API AHelicopter : public APawn
 
 	UPROPERTY(EditDefaultsOnly, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
 	float RepairVelocityThreshould;		
-
-	UPROPERTY(Category = "HealthSettings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FName HealthBarSocketName = TEXT("HealthBarSocket");
-
-	UPROPERTY(Category = "HealthSettings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UWidgetComponent* HealthBarWidgetComponent;
 	
 protected:
 	void InitHelicopter();
 
-	float SpawnDelay = 1.f;
-
-	/*
-	*	Weapons
-	*/
-
-	/** current firing state */
-	uint8 bWantsToFire : 1;
-
-	/** [server] remove all weapons and destroy them */
-	void RemoveWeapons();
-
-	/* [server] spawn default primary weapon and equip it */
-	void SpawnDefaultPrimaryWeaponAndEquip();
-
-	/*
-	*	Damaging & Death
-	*/
-
-	// Current health
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "HealthSettings", meta = (AllowPrivateAccess = "true"))
-	float Health;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	USoundCue* SoundTakeHit;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	USoundCue* DeathExplosionSound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Effects")
-	UParticleSystem* DeathExplosionFX;
-
-	/* Holds hit data to replicate hits and death to clients */
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_LastTakeHitInfo)
-	struct FTakeHitData LastTakeHitInfo;
-
-	UFUNCTION()
-	void OnRep_LastTakeHitInfo();
-
-	bool bIsDying;
-
-	virtual void PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser, bool bKilled);
-
-	void ReplicateHit(float DamageTaken, struct FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser, bool bKilled);
-
-
-
-	/** Kill this pawn */
-	virtual bool CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const;
-
-	/** Returns True if the pawn can die in the current state */
-	virtual bool Die(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser);
-
-	virtual void OnDeath(float KillingDamage, FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser);
+	void OnDeath(float KillingDamage, FDamageEvent const &DamageEvent, APawn *PawnInstigator, AActor *DamageCauser) override;
 
 public:
 	AHelicopter(const FObjectInitializer& ObjectInitializer);
 
 	UStaticMeshComponent* GetHeliMeshComponent();
-
-
 
 	/*
 	*	Action Inputs
@@ -424,18 +240,11 @@ public:
 	void Thrust(float Value);
 	
 	void SwitchCameraViewpoint();
-	void EnableFirstPersonViewpoint();
-	void EnableThirdPersonViewpoint();
 	
 	void OnStartRepair();
 	void OnStopRepair();
 
 	void DebugSomething();
-
-	void OnStartFire();
-	void OnStopFire();
-
-	void OnReloadWeapon();
 	
 	void ThrottleUpInput();
 	void ThrottleDownInput();
@@ -445,132 +254,5 @@ public:
 	void SetKeyboardSensitivity(float inKeyboardSensitivity);
 	void SetInvertedAim(int32 inInvertedAim);
 
-
-
-	/*
-	*       Weapons
-	*/
-
-	/** default weapon to spawn on begin play function */
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<class AWeapon>  DefaultPrimaryWeaponToSpawn;	
-
-	/** get Primary weapon attach point */
-	FName GetPrimaryWeaponAttachPoint() const;
-
-	/** get current weapon attach point */
-	FName GetCurrentWeaponAttachPoint() const;
-
-	bool bPrimaryWeaponEquiped;
-
-	/** Current weapon */
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_Weapon)
-	class AWeapon* CurrentWeapon;
-
-	// actor can have a lot of weapons, but it can uses only one at a time
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	AWeapon* GetCurrentWeaponEquiped();
-
-	/* OnRep functions can use a parameter to hold the previous value of the variable. Very useful when you need to handle UnEquip etc. */
-	UFUNCTION()
-	void OnRep_Weapon(AWeapon* LastWeapon);
-
-	/** set weapon */
-	void SetWeapon(class AWeapon* NewWeapon, class AWeapon* LastWeapon);
-
-	/**
-	* [server + local] equips weapon from inventory
-	*
-	* @param Weapon	Weapon to equip
-	*/
-	void EquipWeapon(class AWeapon* NewWeapon);
-
-	UFUNCTION(Reliable, Server, WithValidation)
-	void Server_EquipWeapon(AWeapon* NewWeapon);
-
-	// Weapon usage
-
-	/** [local] starts weapon fire */
-	void StartWeaponFire();
-
-	/** [local] stops weapon fire */
-	void StopWeaponFire();
-
-	/** check if pawn can fire weapon */
-	bool CanFire() const;
-
-	/** check if pawn can reload weapon */
-	bool CanReload() const;
-
-	/** check if pawn is still alive */
-	bool IsAlive() const;
-
-	/* check if pawn is in first person view */
-	bool IsFirstPersonView();
-	
-	/** Kill this pawn */
-	virtual void KilledBy(class APawn* EventInstigator);
-
-	/** Pawn suicide */
-	virtual void Suicide();	
-
-
-	/*
-	* Player Info (HUD)
-	*/
-
-	void SetTeamNumber(int32 NewTeamNumber);
-
-	int32 GetTeamNumber();
-
-	FName GetPlayerName();
-
-	void SetPlayerName(FName NewPlayerName);
-
-	float GetHealthPercent();
-
-	void SetPlayerInfo(FName NewPlayerName, int32 NewTeamNumber);
-
-	void UpdatePlayerInfo(FName playerName, int32 teamNumber);
-
-	void SetupPlayerInfoWidget();
-
-	void RemoveHealthWidget();
-
-
-
 	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
-	
-/* overrides */
-private:
-	/** [server] perform PlayerState related setup */
-	virtual void PossessedBy(class AController* C) override;
-
-	/** [client] perform PlayerState related setup */
-	virtual void OnRep_PlayerState() override;
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	/* Take damage & handle death */
-	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
-
-public:
-	//virtual void Tick(float DeltaTime) override;	
-
-	/** spawn inventory, setup initial variables */
-	virtual void PostInitializeComponents() override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* HeliInputComponent) override;
-
-	virtual UPawnMovementComponent* GetMovementComponent() const override { return HeliMovementComponent; }
-	
-	virtual void PawnClientRestart() override;
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	// TODO(andrey): remove
-	FString LogNetRole();
 };
