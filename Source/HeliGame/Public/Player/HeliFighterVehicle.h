@@ -170,6 +170,7 @@ protected:
 
 	UPROPERTY(Category = "HealthSettings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent *HealthBarWidgetComponent;
+	
 	/*
 	* Camera
 	*/
@@ -241,6 +242,18 @@ protected:
 	virtual bool Die(float KillingDamage, FDamageEvent const &DamageEvent, AController *Killer, AActor *DamageCauser);
 
 	virtual void OnDeath(float KillingDamage, FDamageEvent const &DamageEvent, APawn *PawnInstigator, AActor *DamageCauser);
+
+
+
+	/** Main loop sound cue */
+
+	UPROPERTY(Category = "Sound", EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	class USoundCue* MainLoopSound;
+
+	class UAudioComponent* PlaySound(class USoundCue* Sound);
+
+	UPROPERTY(BlueprintReadWrite, Category = "Sound", meta = (AllowPrivateAccess = "true"))
+	class UAudioComponent* MainAudioComponent;
 
 public:
 	AHeliFighterVehicle(const FObjectInitializer &ObjectInitializer);

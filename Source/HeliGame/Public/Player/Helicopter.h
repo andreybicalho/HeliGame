@@ -50,7 +50,6 @@ private:
 	UFUNCTION()
 	void OnCrashImpact(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	// Server should apply damage
 	UFUNCTION(Reliable, Server, WithValidation, Category = "CrashImpact")
 	void Server_CrashImpactTakeDamage(float Damage);
 
@@ -166,23 +165,12 @@ private:
 	/*
 	*	Sounds
 	*/
-	
-	/** Main rotor loop sound cue */
-	UPROPERTY(Category = "HelicopterSound", EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-	USoundCue* MainRotorLoopSound;
-	
-	/** Play Heli sounds */
-	UAudioComponent*  PlayHeliSound(USoundCue* Sound);
-	
-	// heli audio component
-	UPROPERTY(BlueprintReadWrite, Category = "HelicopterSound", meta = (AllowPrivateAccess = "true"))
-	UAudioComponent* HeliAC;
 
 	// max pitch for rotor sound
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HelicopterSound", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound", meta = (AllowPrivateAccess = "true"))
 	float MaxRotorPitch;
 	// min pitch for rotor sound
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HelicopterSound", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound", meta = (AllowPrivateAccess = "true"))
 	float MinRotorPitch;
 
 

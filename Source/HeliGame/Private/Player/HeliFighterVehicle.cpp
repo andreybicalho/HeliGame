@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/SceneComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Sound/SoundCue.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -585,4 +586,15 @@ void AHeliFighterVehicle::RemoveHealthWidget()
 		HealthBarWidgetComponent->SetWidget(nullptr);
 		HealthBarWidgetComponent->SetActive(false);
 	}
+}
+
+UAudioComponent* AHeliFighterVehicle::PlaySound(USoundCue* Sound)
+{
+	UAudioComponent* AC = NULL;
+	if (Sound)
+	{
+		AC = UGameplayStatics::SpawnSoundAttached(Sound, this->GetRootComponent());
+	}
+
+	return AC;
 }

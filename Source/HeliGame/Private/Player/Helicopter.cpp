@@ -20,7 +20,7 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 {	
 	bReplicateMovement = false; // disable movement replication since we are doing movement replication by ourselves
 
-	// physics and colllisions
+	// physics and collisions
 	MainStaticMeshComponent->SetSimulatePhysics(false);
 	MainStaticMeshComponent->SetLinearDamping(0.4f);
 	MainStaticMeshComponent->SetAngularDamping(1.f);
@@ -336,9 +336,9 @@ void AHelicopter::ThrottleUpInput()
 
 	GetWorld()->GetTimerManager().SetTimer(ThrottleDisplayTimerHandle, this, &AHelicopter::UpdatesThrottleForDisplayingAdd, RefreshThrottleTime, true);
 
-	if (HeliAC)
+	if (MainAudioComponent)
 	{
-		HeliAC->SetPitchMultiplier(MaxRotorPitch);
+		MainAudioComponent->SetPitchMultiplier(MaxRotorPitch);
 	}
 }
 
@@ -354,9 +354,9 @@ void AHelicopter::ThrottleDownInput()
 
 	GetWorld()->GetTimerManager().SetTimer(ThrottleDisplayTimerHandle, this, &AHelicopter::UpdatesThrottleForDisplayingSub, RefreshThrottleTime, true);
 
-	if (HeliAC)
+	if (MainAudioComponent)
 	{
-		HeliAC->SetPitchMultiplier(MinRotorPitch);
+		MainAudioComponent->SetPitchMultiplier(MinRotorPitch);
 	}
 }
 
@@ -376,9 +376,9 @@ void AHelicopter::ThrottleReleased()
 		GetWorld()->GetTimerManager().SetTimer(ThrottleDisplayTimerHandle, this, &AHelicopter::UpdatesThrottleForDisplayingAdd, RefreshThrottleTime, true);
 	}
 
-	if (HeliAC)
+	if (MainAudioComponent)
 	{
-		HeliAC->SetPitchMultiplier(1.0f);
+		MainAudioComponent->SetPitchMultiplier(1.0f);
 	}
 }
 
@@ -407,18 +407,6 @@ void AHelicopter::UpdatesThrottleForDisplayingSub()
 	{
 		GetWorldTimerManager().ClearTimer(ThrottleDisplayTimerHandle);
 	}
-}
-
-// play some sound of the heli
-UAudioComponent*  AHelicopter::PlayHeliSound(USoundCue* Sound)
-{
-	UAudioComponent* AC = NULL;
-	if (Sound)
-	{
-		AC = UGameplayStatics::SpawnSoundAttached(Sound, this->GetRootComponent());
-	}
-
-	return AC;
 }
 
 float AHelicopter::GetThrottle()
@@ -513,9 +501,9 @@ void AHelicopter::CrashControls()
 		}
 	}
 
-	if (HeliAC)
+	if (MainAudioComponent)
 	{
-		HeliAC->SetPitchMultiplier(MinRotorPitch);
+		MainAudioComponent->SetPitchMultiplier(MinRotorPitch);
 	}
 }
 
@@ -529,9 +517,9 @@ void AHelicopter::RestoreControlsAfterCrashImpact()
 		GetWorldTimerManager().ClearTimer(TimerHandle_RestoreControls);
 	}
 
-	if (HeliAC)
+	if (MainAudioComponent)
 	{
-		HeliAC->SetPitchMultiplier(1.f);
+		MainAudioComponent->SetPitchMultiplier(1.f);
 	}
 }
 
@@ -684,8 +672,8 @@ void AHelicopter::InitHelicopter()
 		GetWorld()->GetTimerManager().SetTimer(RotorAnimTimerHandle, this, &AHelicopter::ApplyRotationOnRotors, MaxTimeRotorAnimation, true);
 
 	// start sound
-	if ((HeliAC == nullptr) || (HeliAC && !HeliAC->IsPlaying()))
-		HeliAC = PlayHeliSound(MainRotorLoopSound);
+	if ((MainAudioComponent == nullptr) || (MainAudioComponent && !MainAudioComponent->IsPlaying()))
+		MainAudioComponent = PlaySound(MainLoopSound);
 
 	EnableFirstPersonHud();
 
@@ -731,9 +719,9 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const &DamageEvent, 
 	// turn off rotors anim
 	GetWorldTimerManager().ClearTimer(RotorAnimTimerHandle);
 	// turn sound off
-	if (HeliAC)
+	if (MainAudioComponent)
 	{
-		HeliAC->Stop();
+		MainAudioComponent->Stop();
 	}
 	// hide meshes on game
 	MainStaticMeshComponent->SetVisibility(false);
