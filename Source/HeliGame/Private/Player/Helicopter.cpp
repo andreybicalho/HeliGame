@@ -85,8 +85,7 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	MinThrottleIncreasingDecreasingStep = 5.f;
 	isThrottleReleased = true;
 
-	// Health and repairing settings
-	MaxHealth = 100.f;
+	// Health and repairing settings	
 	HealthRegenRate = 0.5f;
 	LastHealedTime = 0.0f;
 	MinRestoreHealthValue = 1.f;

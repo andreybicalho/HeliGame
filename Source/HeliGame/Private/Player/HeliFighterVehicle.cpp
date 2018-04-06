@@ -59,6 +59,7 @@ AHeliFighterVehicle::AHeliFighterVehicle(const FObjectInitializer &ObjectInitial
 	// health bar
 	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));	
 	HealthBarWidgetComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform, HealthBarSocketName);
+	MaxHealth = 100.f;
 
 	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
