@@ -358,6 +358,7 @@ void AHeliFighterVehicle::KilledBy(APawn *EventInstigator)
 
 float AHeliFighterVehicle::TakeDamage(float Damage, struct FDamageEvent const &DamageEvent, class AController *EventInstigator, class AActor *DamageCauser)
 {
+	//UE_LOG(LogTemp, Display, TEXT("AHeliFighterVehicle::TakeDamage ~ Health = %f, Damage Taken = %f"), Health, Damage);
 	if (Health <= 0.f)
 	{
 		return 0.f;
@@ -504,8 +505,8 @@ void AHeliFighterVehicle::SetupPlayerInfoWidget()
 {
 	if (HealthBarWidgetComponent)
 	{
-		// only remote clients shows the health bar and player name
-		if (!IsLocallyControlled())
+		// only remote clients, or bots, shows the health bar and player name
+		if (!IsLocallyControlled() || !IsPlayerControlled())
 		{
 			UHealthBarUserWidget *HealthBarUserWidget = Cast<UHealthBarUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
 			if (HealthBarUserWidget)
