@@ -143,6 +143,10 @@ private:
  	FName PrimaryWeaponAttachPoint;
 
 protected:
+	/** StaticMesh component that will be the visuals for our flying pawn and physics body */
+	UPROPERTY(Category = "Mesh", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* MainStaticMeshComponent;
+
 	/*
 	* Player Info (HUD)
 	*/

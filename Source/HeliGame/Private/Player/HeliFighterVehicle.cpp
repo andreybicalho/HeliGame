@@ -21,7 +21,9 @@ AHeliFighterVehicle::AHeliFighterVehicle(const FObjectInitializer &ObjectInitial
 	PrimaryActorTick.bCanEverTick = false;
 	SetReplicates(true);
 
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	// Create static mesh component, this is the main mesh
+	MainStaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MainStaticMeshComponent"));
+	RootComponent = MainStaticMeshComponent;
 
 	// camera
 	SpringArmFirstPerson = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmFirstPerson"));
@@ -33,7 +35,7 @@ AHeliFighterVehicle::AHeliFighterVehicle(const FObjectInitializer &ObjectInitial
 	SpringArmFirstPerson->CameraRotationLagSpeed = 60.f;
 
 	SpringArmThirdPerson = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmThirdPerson"));
-	SpringArmThirdPerson->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	SpringArmThirdPerson->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);	
 	SpringArmThirdPerson->bInheritPitch = false;
 	SpringArmThirdPerson->bInheritYaw = true;
 	SpringArmThirdPerson->bInheritRoll = false;
@@ -44,7 +46,7 @@ AHeliFighterVehicle::AHeliFighterVehicle(const FObjectInitializer &ObjectInitial
 	SpringArmThirdPerson->CameraRotationLagSpeed = 10.f;
 	SpringArmThirdPerson->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));	
 	Camera->AttachToComponent(SpringArmFirstPerson, FAttachmentTransformRules::KeepRelativeTransform);
 
 	// weapon
@@ -54,7 +56,7 @@ AHeliFighterVehicle::AHeliFighterVehicle(const FObjectInitializer &ObjectInitial
 	CurrentWeapon = nullptr;
 
 	// health bar
-	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
+	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));	
 	HealthBarWidgetComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform, HealthBarSocketName);
 
 	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -67,12 +69,6 @@ void AHeliFighterVehicle::PostInitializeComponents()
 {
 	//UE_LOG(LogTemp, Display, TEXT("AHeliFighterVehicle::PostInitializeComponents - %f"), GetWorld()->GetRealTimeSeconds());
 	Super::PostInitializeComponents();
-
-	SpringArmFirstPerson->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	SpringArmThirdPerson->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	Camera->AttachToComponent(SpringArmFirstPerson, FAttachmentTransformRules::KeepRelativeTransform);
-
-	HealthBarWidgetComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform, HealthBarSocketName);
 
 	if (HasAuthority())
 	{

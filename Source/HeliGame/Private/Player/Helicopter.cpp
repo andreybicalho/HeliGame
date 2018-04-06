@@ -20,35 +20,30 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 {	
 	bReplicateMovement = false; // disable movement replication since we are doing movement replication by ourselves
 
-	// Create static mesh component, this is the main mesh
-	HeliMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HeliMeshComponent"));
-	RootComponent = HeliMeshComponent;
+	// physics and colllisions
+	MainStaticMeshComponent->SetSimulatePhysics(false);
+	MainStaticMeshComponent->SetLinearDamping(0.4f);
+	MainStaticMeshComponent->SetAngularDamping(1.f);
+	MainStaticMeshComponent->SetEnableGravity(true);
 
-	// physics
-	HeliMeshComponent->SetSimulatePhysics(false);
-	HeliMeshComponent->SetLinearDamping(0.4f);
-	HeliMeshComponent->SetAngularDamping(1.f);
-	HeliMeshComponent->SetEnableGravity(true);
-
-	// collisions
-	HeliMeshComponent->SetCollisionProfileName("HeliMeshComponent");
-	HeliMeshComponent->SetCollisionObjectType(COLLISION_HELICOPTER);
-	HeliMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	HeliMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
-	HeliMeshComponent->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-	HeliMeshComponent->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
-	HeliMeshComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-	HeliMeshComponent->SetCollisionResponseToChannel(COLLISION_HELICOPTER, ECR_Block);
-	HeliMeshComponent->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
-	HeliMeshComponent->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
-	HeliMeshComponent->bGenerateOverlapEvents = true;
-	HeliMeshComponent->SetNotifyRigidBodyCollision(true);
+	MainStaticMeshComponent->SetCollisionProfileName("MainStaticMeshComponent");
+	MainStaticMeshComponent->SetCollisionObjectType(COLLISION_HELICOPTER);
+	MainStaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	MainStaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
+	MainStaticMeshComponent->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	MainStaticMeshComponent->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+	MainStaticMeshComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	MainStaticMeshComponent->SetCollisionResponseToChannel(COLLISION_HELICOPTER, ECR_Block);
+	MainStaticMeshComponent->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
+	MainStaticMeshComponent->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
+	MainStaticMeshComponent->bGenerateOverlapEvents = true;
+	MainStaticMeshComponent->SetNotifyRigidBodyCollision(true);
 	OnCrashImpactDelegate.BindUFunction(this, "OnCrashImpact");
-	HeliMeshComponent->OnComponentHit.Add(OnCrashImpactDelegate);
+	MainStaticMeshComponent->OnComponentHit.Add(OnCrashImpactDelegate);
 
 	// movement component
 	HeliMovementComponent = CreateDefaultSubobject<UHeliMoveComp>(TEXT("HeliMovementComponent"));
-	HeliMovementComponent->SetUpdatedComponent(HeliMeshComponent);
+	HeliMovementComponent->SetUpdatedComponent(MainStaticMeshComponent);
 	HeliMovementComponent->SetNetAddressable();
 	HeliMovementComponent->SetIsReplicated(true);
 	HeliMovementComponent->SetActive(false);
@@ -69,13 +64,13 @@ AHelicopter::AHelicopter(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	MaxTimeRotorAnimation = 0.03f;
 	// create static mesh component for the main rotor
 	MainRotorMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MainRotorMeshComp"));
-	MainRotorMeshComponent->AttachToComponent(HeliMeshComponent, FAttachmentTransformRules::KeepRelativeTransform, MainRotorAttachSocketName);
+	MainRotorMeshComponent->AttachToComponent(MainStaticMeshComponent, FAttachmentTransformRules::KeepRelativeTransform, MainRotorAttachSocketName);
 	MainRotorMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MainRotorMeshComponent->SetSimulatePhysics(false);
 
 
 	TailRotorMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TailRotorMeshComp"));
-	TailRotorMeshComponent->AttachToComponent(HeliMeshComponent, FAttachmentTransformRules::KeepRelativeTransform, TailRotorAttachSocketName);
+	TailRotorMeshComponent->AttachToComponent(MainStaticMeshComponent, FAttachmentTransformRules::KeepRelativeTransform, TailRotorAttachSocketName);
 	TailRotorMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	TailRotorMeshComponent->SetSimulatePhysics(false);
 
@@ -320,7 +315,7 @@ void AHelicopter::SwitchCameraViewpoint()
 
 UStaticMeshComponent* AHelicopter::GetHeliMeshComponent()
 {
-	return HeliMeshComponent;
+	return MainStaticMeshComponent;
 }
 
 void AHelicopter::DebugSomething()
@@ -548,13 +543,13 @@ float AHelicopter::ComputeCrashImpactDamage()
 	{
 		// get damage based on impact momentum
 		float Speed = GetVelocity().Size() / 100.f;
-		float Mass = HeliMeshComponent->GetMass();
+		float Mass = MainStaticMeshComponent->GetMass();
 		float ImpactMomentum = Speed * Mass;
 		float BaseDamage = MaxHealth * CrashImpactDamageCurve->GetFloatValue(ImpactMomentum);
 
 		// increase it with tilt/inclination angles		
-		float TiltAngle = FMath::Abs(FVector::DotProduct(FVector::UpVector, HeliMeshComponent->GetRightVector()));
-		float InclinationAngle = FMath::Abs(FVector::DotProduct(FVector::UpVector, HeliMeshComponent->GetForwardVector()));
+		float TiltAngle = FMath::Abs(FVector::DotProduct(FVector::UpVector, MainStaticMeshComponent->GetRightVector()));
+		float InclinationAngle = FMath::Abs(FVector::DotProduct(FVector::UpVector, MainStaticMeshComponent->GetForwardVector()));
 		float TiltInclinationWeight = FMath::Clamp((TiltAngle + InclinationAngle), 0.f, 1.f);
 		ActualDamage = BaseDamage * TiltInclinationWeight;
 
@@ -668,13 +663,13 @@ void AHelicopter::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
 void AHelicopter::InitHelicopter() 
 {
 	// enable collision
-	if (HeliMeshComponent)
+	if (MainStaticMeshComponent)
 	{
-		HeliMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		MainStaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		
 		if (IsLocallyControlled())
 		{
-			HeliMeshComponent->SetSimulatePhysics(true);	
+			MainStaticMeshComponent->SetSimulatePhysics(true);	
 		}
 	}
 	
@@ -741,7 +736,7 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const &DamageEvent, 
 		HeliAC->Stop();
 	}
 	// hide meshes on game
-	HeliMeshComponent->SetVisibility(false);
+	MainStaticMeshComponent->SetVisibility(false);
 	MainRotorMeshComponent->SetVisibility(false);
 	TailRotorMeshComponent->SetVisibility(false);
 	// disable movement component
@@ -750,8 +745,8 @@ void AHelicopter::OnDeath(float KillingDamage, FDamageEvent const &DamageEvent, 
 		HeliMovementComponent->SetActive(false);
 	}
 	//disable collisions on mesh
-	HeliMeshComponent->SetSimulatePhysics(false);
-	HeliMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MainStaticMeshComponent->SetSimulatePhysics(false);
+	MainStaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	RemoveWeapons();
 	RemoveHealthWidget();

@@ -41,15 +41,6 @@ public:
 
 private:
 	/*
-	*	Main Helicopter Mesh
-	*/
-
-	/** StaticMesh component that will be the visuals for our flying pawn */
-	UPROPERTY(Category = "Mesh", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* HeliMeshComponent;
-
-
-	/*
 	*	Crash Impact
 	*/
 
@@ -101,10 +92,10 @@ private:
 	float MaxTimeRotorAnimation;
 
 	UPROPERTY(Category = "Mesh", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* MainRotorMeshComponent = nullptr;
+	UStaticMeshComponent* MainRotorMeshComponent = nullptr;
 
 	UPROPERTY(Category = "Mesh", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* TailRotorMeshComponent = nullptr;
+	UStaticMeshComponent* TailRotorMeshComponent = nullptr;
 
 	UPROPERTY(Category = "Mesh", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FName MainRotorAttachSocketName = TEXT("MainRotorSocket");
@@ -225,6 +216,7 @@ protected:
 public:
 	AHelicopter(const FObjectInitializer& ObjectInitializer);
 
+	UFUNCTION(BlueprintCallable, Category = "Mesh")
 	UStaticMeshComponent* GetHeliMeshComponent();
 
 	/*
