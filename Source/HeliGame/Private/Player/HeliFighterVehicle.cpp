@@ -7,6 +7,7 @@
 #include "HealthBarUserWidget.h"
 #include "HeliGameMode.h"
 #include "HeliHud.h" // TODO(andrey): remover acoplamento do HUD, deixar hud somente nas classes derivadas desta
+#include "HeliPlayerState.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Components/SceneComponent.h"
@@ -335,6 +336,29 @@ AWeapon *AHeliFighterVehicle::GetCurrentWeaponEquiped()
 /************************************************************************/
 /*                          Heli Damage & Death                         */
 /************************************************************************/
+
+bool AHeliFighterVehicle::IsEnemyFor(AController *TestPC) const
+{
+	if (TestPC == Controller || TestPC == nullptr)
+	{
+		return false;
+	}
+
+	AHeliPlayerState *TestPlayerState = Cast<AHeliPlayerState>(TestPC->PlayerState);
+	AHeliPlayerState *MyPlayerState = Cast<AHeliPlayerState>(PlayerState);
+
+	bool bIsEnemy = true;
+	if (GetWorld()->GetGameState())
+	{
+		const AHeliGameMode *DefGame = GetWorld()->GetGameState()->GetDefaultGameMode<AHeliGameMode>();
+		if (DefGame && MyPlayerState && TestPlayerState)
+		{
+			bIsEnemy = DefGame->CanDealDamage(TestPlayerState, MyPlayerState);
+		}
+	}
+
+	return bIsEnemy;
+}
 
 void AHeliFighterVehicle::Suicide()
 {

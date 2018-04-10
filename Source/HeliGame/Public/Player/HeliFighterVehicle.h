@@ -327,7 +327,14 @@ public:
 	
 	/** Pawn suicide */
 	virtual void Suicide();
- 	
+
+	/**
+	* Check if pawn is enemy if given controller.
+	*
+	* @param	TestPC	Controller to check against.
+	*/
+	bool IsEnemyFor(AController *TestPC) const;
+
 	/*
 	* Player Info (HUD)
 	*/

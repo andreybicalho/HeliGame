@@ -11,6 +11,9 @@ class HELIGAME_API AHeliBot : public AHeliFighterVehicle
 {
 	GENERATED_BODY()
 
+	UPROPERTY(Category = "MovementSettings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UFloatingPawnMovement* MovementComponent;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,4 +45,8 @@ private:
 
 protected:
 	void OnDeath(float KillingDamage, FDamageEvent const &DamageEvent, APawn *PawnInstigator, AActor *DamageCauser) override;
+
+public:
+	UPROPERTY(EditAnywhere, Category = "Behavior")
+	class UBehaviorTree *BotBehavior;
 };

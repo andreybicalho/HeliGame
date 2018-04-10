@@ -6,6 +6,7 @@
 
 #include "Curves/CurveFloat.h"
 #include "Components/AudioComponent.h"
+#include "GameFramework/FloatingPawnMovement.h"
 
 AHeliBot::AHeliBot(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -32,6 +33,13 @@ AHeliBot::AHeliBot(const FObjectInitializer &ObjectInitializer) : Super(ObjectIn
 	OnCrashImpactDelegate.BindUFunction(this, "OnCrashImpact");
 	MainStaticMeshComponent->OnComponentHit.Add(OnCrashImpactDelegate);
 
+
+	// movement component
+	MovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MovementComponent"));
+	MovementComponent->SetUpdatedComponent(MainStaticMeshComponent);
+	MovementComponent->SetNetAddressable();
+	MovementComponent->SetIsReplicated(true);
+	MovementComponent->SetActive(true);
 }
 
 // Called when the game starts or when spawned
