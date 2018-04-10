@@ -553,7 +553,7 @@ FString UHeliGameInstance::BuildTravelURLFromSessionParams(FGameParams InGameSes
 	FString TimeBetweenMatchesOption = FString(TEXT("?TimeBetweenMatches=")) + FString::FromInt(InGameSessionParams.TimeBetweenMatches);
 	FString MaxNumberOfPlayersOption = FString(TEXT("?MaxNumberOfPlayers=")) + FString::FromInt(InGameSessionParams.NumberOfPlayers);
 
-	return SelectedMapName + SelectedGameModeName + FString(TEXT("?listen")) + LANOption + WarmupTimeOption + RoundTimeOption + TimeBetweenMatchesOption + FriendFire;
+	return SelectedMapName + SelectedGameModeName + FString(TEXT("?listen")) + LANOption + WarmupTimeOption + RoundTimeOption + TimeBetweenMatchesOption + FriendFire + FString(TEXT("?CustomServerName=")) + CustomServerName;// +FString(TEXT("?GameModeName=")) + InGameSessionParams.SelectedGameModeName;
 }
 
 /** Callback which is intended to be called upon session creation */
