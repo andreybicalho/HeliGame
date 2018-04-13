@@ -385,4 +385,6 @@ protected:
 protected:
 	/** Returns Mesh1P subobject **/
 	FORCEINLINE UStaticMeshComponent* GetMesh1P() const { return Mesh1P; }
+
+	FORCEINLINE UArrowComponent* GetWeaponArrow() const { return WeaponArrow; }
 };

@@ -52,6 +52,8 @@ void AHeliBot::BeginPlay()
 		MainAudioComponent = PlaySound(MainLoopSound);
 	}
 
+	EnableThirdPersonViewpoint();
+
 	// setup health bar
 	SetupPlayerInfoWidget();
 }

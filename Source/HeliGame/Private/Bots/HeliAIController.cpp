@@ -13,6 +13,7 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "GameFramework/GameStateBase.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AHeliAIController::AHeliAIController(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -39,6 +40,7 @@ void AHeliAIController::Possess(APawn* InPawn)
 
 		// binds "Enemy" key from the blackboard to this int32 EnemyKeyID
 		EnemyKeyID = BlackboardComponent->GetKeyID("Enemy");
+		DestinationKeyID = BlackboardComponent->GetKeyID("Destination");
 
 		BehaviorComponent->StartTree(*(Bot->BotBehavior));
 	}
@@ -247,6 +249,10 @@ void AHeliAIController::ShootEnemy()
 		if (LineOfSightTo(Enemy, MyBot->GetActorLocation()))
 		{
 			bCanShoot = true;
+
+			// aim at the enemy
+			FRotator BotRot = UKismetMathLibrary::FindLookAtRotation(MyBot->GetActorLocation(), Enemy->GetActorLocation());
+			MyBot->SetActorRotation(BotRot);
 		}
 	}
 
@@ -258,4 +264,46 @@ void AHeliAIController::ShootEnemy()
 	{
 		MyBot->StopWeaponFire();
 	}
+}
+
+void AHeliAIController::LookAtDestination()
+{
+	AHeliBot* MyBot = Cast<AHeliBot>(GetPawn());	
+
+	if (BlackboardComponent && MyBot)
+	{
+		FVector Destination = BlackboardComponent->GetValue<UBlackboardKeyType_Vector>(DestinationKeyID);
+
+		if (!Destination.IsNearlyZero())
+		{
+			FRotator BotRot = UKismetMathLibrary::FindLookAtRotation(MyBot->GetActorLocation(), Destination);
+			MyBot->SetActorRotation(BotRot);
+		}		
+	}
+}
+
+void AHeliAIController::LookAtEnemy()
+{
+	AHeliBot* myBot = Cast<AHeliBot>(GetPawn());
+	AHeliFighterVehicle* enemy = GetEnemy();
+
+	if (enemy && myBot)
+	{		
+		FRotator botRot = UKismetMathLibrary::FindLookAtRotation(myBot->GetActorLocation(), enemy->GetActorLocation());
+		myBot->SetActorRotation(botRot);
+	}
+}
+
+void AHeliAIController::SmoothLookAtEnemy(float DeltaTime, float InterpSpeed)
+{
+	AHeliBot* myBot = Cast<AHeliBot>(GetPawn());
+	AHeliFighterVehicle* enemy = GetEnemy();
+
+	if (enemy && myBot)
+	{
+		FRotator botRotationTarget = UKismetMathLibrary::FindLookAtRotation(myBot->GetActorLocation(), enemy->GetActorLocation());
+		FRotator rotation = FMath::RInterpTo(myBot->GetActorRotation(), botRotationTarget, DeltaTime, InterpSpeed);
+		myBot->SetActorRotation(rotation);
+	}
+	
 }

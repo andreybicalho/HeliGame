@@ -22,7 +22,7 @@ AProjectileWeapon::AProjectileWeapon(const FObjectInitializer& ObjectInitializer
 void AProjectileWeapon::FireWeapon()
 {		
 	FVector Origin = GetMuzzleLocation();
-	FVector ShootDir = GetActorForwardVector();
+	FVector ShootDir = GetWeaponArrow()->GetForwardVector();//GetActorForwardVector();
 
 	if(MyPawn->IsFirstPersonView())
 	{

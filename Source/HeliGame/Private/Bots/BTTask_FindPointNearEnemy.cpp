@@ -25,19 +25,17 @@ EBTNodeResult::Type UBTTask_FindPointNearEnemy::ExecuteTask(UBehaviorTreeCompone
     APawn* myBot = myController->GetPawn();
     AHeliFighterVehicle* enemy = myController->GetEnemy();
 
-	FVector distanceFromEnemy = myBot->GetActorLocation() - enemy->GetActorLocation();
-	FVector minimumDistance = (distanceFromEnemy).GetSafeNormal() * MinimumDistanceFromEnemy;
-	
-	FVector location = enemy->GetActorLocation() + minimumDistance;
-	if (distanceFromEnemy.Size() < location.Size())
-	{
-		location = myBot->GetActorLocation();
-	}
-
-
-
     if(myBot && enemy)
     {
+		FVector distanceFromEnemy = myBot->GetActorLocation() - enemy->GetActorLocation();
+		FVector minimumDistance = (distanceFromEnemy).GetSafeNormal() * MinimumDistanceFromEnemy;
+
+		FVector location = enemy->GetActorLocation() + minimumDistance;
+		if (distanceFromEnemy.Size() < location.Size())
+		{
+			location = myBot->GetActorLocation();
+		}
+
         OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Vector>(BlackboardKey.GetSelectedKeyID(), location);
         return EBTNodeResult::Succeeded;
     }

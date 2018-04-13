@@ -37,6 +37,7 @@ private:
 
 protected:	
 	int32 EnemyKeyID;
+	int32 DestinationKeyID;
 
 	/** Handle for efficient management of Respawn timer */
 	FTimerHandle TimerHandle_Respawn;
@@ -65,4 +66,13 @@ public:
 	bool HasWeaponLOSToEnemy(AActor *InEnemyActor, const bool bAnyEnemy) const;
 	
 	void Respawn();
+
+	UFUNCTION(BlueprintCallable, Category = "Behavior")
+	void LookAtDestination();
+
+	UFUNCTION(BlueprintCallable, Category = "Behavior")
+	void LookAtEnemy();
+
+	UFUNCTION(BlueprintCallable, Category = "Behavior")
+	void SmoothLookAtEnemy(float DeltaTime, float InterpSpeed);
 };
