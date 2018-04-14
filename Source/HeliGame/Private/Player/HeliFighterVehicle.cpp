@@ -163,24 +163,18 @@ bool AHeliFighterVehicle::IsFirstPersonView()
 
 void AHeliFighterVehicle::EnableFirstPersonViewpoint()
 {
-	if (!SpringArmFirstPerson->IsActive())
-	{
-		SpringArmThirdPerson->Deactivate();
+	SpringArmThirdPerson->Deactivate();
 
-		SpringArmFirstPerson->Activate(false);
-		Camera->AttachToComponent(SpringArmFirstPerson, FAttachmentTransformRules::KeepRelativeTransform);
-	}
+	SpringArmFirstPerson->Activate(false);
+	Camera->AttachToComponent(SpringArmFirstPerson, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void AHeliFighterVehicle::EnableThirdPersonViewpoint()
 {
-	if (!SpringArmThirdPerson->IsActive())
-	{
-		SpringArmFirstPerson->Deactivate();
+	SpringArmFirstPerson->Deactivate();
 
-		SpringArmThirdPerson->Activate(false);
-		Camera->AttachToComponent(SpringArmThirdPerson, FAttachmentTransformRules::KeepRelativeTransform);
-	}
+	SpringArmThirdPerson->Activate(false);
+	Camera->AttachToComponent(SpringArmThirdPerson, FAttachmentTransformRules::KeepRelativeTransform);	
 }
 
 /***************************************************************************************

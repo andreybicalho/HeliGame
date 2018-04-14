@@ -37,7 +37,7 @@ UHeliMoveComp::UHeliMoveComp(const FObjectInitializer& ObjectInitializer)
 	MaxInterpolationSpeed = 60.f;
 	MinInterpolationSpeed = 1.f;
 	CurrentInterpolationSpeed = MaxInterpolationSpeed;
-	bUseInterpolationForMovementReplication = false;
+	bUseInterpolationForMovementReplication = true;
 
 	bDrawRole = false;
 }

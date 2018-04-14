@@ -22,7 +22,7 @@ AProjectileWeapon::AProjectileWeapon(const FObjectInitializer& ObjectInitializer
 void AProjectileWeapon::FireWeapon()
 {		
 	FVector Origin = GetMuzzleLocation();
-	FVector ShootDir = GetWeaponArrow()->GetForwardVector();//GetActorForwardVector();
+	FVector ShootDir = GetActorForwardVector();
 
 	if(MyPawn->IsFirstPersonView())
 	{
@@ -81,7 +81,7 @@ void AProjectileWeapon::ServerFireProjectile_Implementation(FVector Origin, FVec
 		Projectile->SetOwner(this);
 
 		FVector heliVelocity = GetPawnOwner()->GetVelocity();
-		Projectile->InitVelocity(ShootDir, heliVelocity);
+		Projectile->InitVelocity(ShootDir, heliVelocity);		
 
 		UGameplayStatics::FinishSpawningActor(Projectile, SpawnTM);
 	}
