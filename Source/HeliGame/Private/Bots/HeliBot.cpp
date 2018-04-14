@@ -11,12 +11,13 @@
 AHeliBot::AHeliBot(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = false;
+	SetReplicates(true);
 
 	// physics and collisions
-	MainStaticMeshComponent->SetSimulatePhysics(false);
+	MainStaticMeshComponent->SetSimulatePhysics(true);
 	MainStaticMeshComponent->SetLinearDamping(0.4f);
 	MainStaticMeshComponent->SetAngularDamping(1.f);
-	MainStaticMeshComponent->SetEnableGravity(true);
+	MainStaticMeshComponent->SetEnableGravity(false);
 
 	MainStaticMeshComponent->SetCollisionProfileName("MainStaticMeshComponent");
 	MainStaticMeshComponent->SetCollisionObjectType(COLLISION_HELICOPTER);
