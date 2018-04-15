@@ -8,7 +8,7 @@ public class HeliGame : ModuleRules
 	{
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "OnlineSubsystem", "OnlineSubsystemUtils", "RHI" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "OnlineSubsystem", "OnlineSubsystemUtils", "RHI", "AIModule", "GameplayTasks" });
         //DynamicallyLoadedModuleNames.Add("OnlineSubsystemNull");
 
         // Enable Steam here

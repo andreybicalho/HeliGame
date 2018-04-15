@@ -23,6 +23,10 @@ bool UHostMenu::Initialize()
 	LanText->SetText(FText::FromString(FString(TEXT("LAN"))));
 	bIsLAN = true;
 
+	if (!ensure(ServerHostName != nullptr)) return false;
+	ServerHostName->SetHintText(FText::FromString(FString(TEXT("Your server name"))));
+	ServerHostName->SetText(FText::FromString(FString(TEXT("### Birds of War ###"))));
+
 	return true;
 }
 
@@ -42,6 +46,7 @@ void UHostMenu::HostServer()
 	GameSessionParams.bAllowFriendFireDamage = true;
 	GameSessionParams.TimeBetweenMatches = TimeBetweenMatchesSpinBox->GetValue();
 	GameSessionParams.UserId = this->GetOwningLocalPlayer()->GetPreferredUniqueNetId();
+	GameSessionParams.NumberOfBots = FCString::Atoi(*NumberOfBotsComboBox->GetSelectedOption());
 
 	if (!ensure(MenuInterface != nullptr)) return;
 	MenuInterface->HostGame(GameSessionParams);

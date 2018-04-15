@@ -109,8 +109,11 @@ void AHeliPlayerState::ScorePoints(int32 Points)
 		{
 			MyGameState->TeamScores.AddZeroed(TeamNumber - MyGameState->TeamScores.Num() + 1);
 		}
-
-		MyGameState->TeamScores[TeamNumber] += Points;
+		
+		if (MyGameState->TeamScores.IsValidIndex(TeamNumber))
+		{
+			MyGameState->TeamScores[TeamNumber] += Points;
+		}		
 	}
 }
 

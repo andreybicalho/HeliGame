@@ -21,20 +21,10 @@ struct FGameParams
 	int32 RoundTime;
 	int32 TimeBetweenMatches;
 	bool bAllowFriendFireDamage;
+	int32 NumberOfBots;
 
 	FGameParams()
-		: CustomServerName(FString(TEXT("None")))
-		, SelectedGameModeName(FString(TEXT("None")))
-		, SelectedMapName(FString(TEXT("None")))
-		, SessionName(NAME_None)
-		, bIsLAN(false)
-		, bIsPresence(false)
-		, NumberOfPlayers(10)
-		, BestSessionIdx(0)
-		, WarmupTime(1)
-		, RoundTime(999)
-		, TimeBetweenMatches(999)
-		, bAllowFriendFireDamage(false)
+		: CustomServerName(FString(TEXT("None"))), SelectedGameModeName(FString(TEXT("None"))), SelectedMapName(FString(TEXT("None"))), SessionName(NAME_None), bIsLAN(false), bIsPresence(false), NumberOfPlayers(10), BestSessionIdx(0), WarmupTime(1), RoundTime(999), TimeBetweenMatches(999), bAllowFriendFireDamage(false), NumberOfBots(0)
 	{
 	}
 };

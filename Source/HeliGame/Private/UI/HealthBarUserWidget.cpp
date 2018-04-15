@@ -1,8 +1,7 @@
 // Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #include "HealthBarUserWidget.h"
-#include "HeliGame.h"
-#include "Helicopter.h"
+#include "HeliFighterVehicle.h"
 
 
 UHealthBarUserWidget::UHealthBarUserWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -18,7 +17,7 @@ void UHealthBarUserWidget::SetupWidget()
 	{
 		PlayerName = OwningPawn->GetPlayerName().ToString();
 
-		AHelicopter* myPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
+		AHeliFighterVehicle* myPawn = Cast<AHeliFighterVehicle>(GetOwningPlayerPawn());
 		if (myPawn && (myPawn != OwningPawn))
 		{
 			float distance = (myPawn->GetActorLocation() - OwningPawn->GetActorLocation()).Size();
@@ -38,7 +37,7 @@ void UHealthBarUserWidget::NativeTick(const FGeometry& MyGeometry, float InDelta
 	// scale with distance
 	if (OwningPawn.IsValid())
 	{
-		AHelicopter* myPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
+		AHeliFighterVehicle* myPawn = Cast<AHeliFighterVehicle>(GetOwningPlayerPawn());
 		if (myPawn && (myPawn != OwningPawn))
 		{
 			float distance = (myPawn->GetActorLocation() - OwningPawn->GetActorLocation()).Size();
@@ -52,7 +51,7 @@ void UHealthBarUserWidget::NativeTick(const FGeometry& MyGeometry, float InDelta
 
 void UHealthBarUserWidget::SetupCurrentColor()
 {
-	AHelicopter* OwningPlayerPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
+	AHeliFighterVehicle* OwningPlayerPawn = Cast<AHeliFighterVehicle>(GetOwningPlayerPawn());
 	if (OwningPlayerPawn && OwningPawn.IsValid())
 	{
 		if (OwningPawn == OwningPlayerPawn)
@@ -87,7 +86,7 @@ float UHealthBarUserWidget::GetCurrentHealth()
 	return 0.f;	
 }
 
-void UHealthBarUserWidget::SetOwningPawn(TWeakObjectPtr<AHelicopter> InOwningPawn)
+void UHealthBarUserWidget::SetOwningPawn(TWeakObjectPtr<AHeliFighterVehicle> InOwningPawn)
 {
 	OwningPawn = InOwningPawn;
 }

@@ -1,6 +1,10 @@
 # Visual Studio 2015 user specific files
 .vs/
 
+# Visual Studio Code
+.vscode/
+Source/.vscode/
+
 # Compiled Object files
 *.slo
 *.lo

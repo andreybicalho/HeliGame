@@ -10,6 +10,8 @@
 #include "HeliGameSession.h"
 #include "HeliTeamStart.h"
 #include "HeliGameInstance.h"
+#include "HeliAIController.h"
+
 #include "UObject/ConstructorHelpers.h"
 #include "Public/TimerManager.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -23,14 +25,13 @@
 AHeliGameMode::AHeliGameMode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	/* Assign the class types used by this gamemode */
-	
-	//  Player
+		
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Blueprints/Helicopter_BP"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
-	// HUD
+
 	static ConstructorHelpers::FClassFinder<AHeliHud> HudBPClass(TEXT("/Game/Blueprints/HeliHud_BP"));
 	if (HudBPClass.Class != NULL)
 	{
@@ -41,9 +42,14 @@ AHeliGameMode::AHeliGameMode(const FObjectInitializer& ObjectInitializer) : Supe
 	PlayerStateClass = AHeliPlayerState::StaticClass();
 	GameStateClass = AHeliGameState::StaticClass();
 
+	static ConstructorHelpers::FClassFinder<APawn> BotPawnOb(TEXT("/Game/Blueprints/Bots/EnemyBot_BP"));
+	BotPawnClass = BotPawnOb.Class;
+
+	bAllowBots = true;
+	bNeedsBotCreation = true;
+	
 	bAllowFriendlyFireDamage = false;
 
-	/* Default team is 0 for players and 1 for enemies */
 	PlayerTeamNum = 0;
 }
 
@@ -71,10 +77,19 @@ void AHeliGameMode::InitGame(const FString& InMapName, const FString& Options, F
 
 	bAllowFriendlyFireDamage = Options.Contains(TEXT("?bAllowFriendlyFireDamage"));
 
+	const int32 BotsCountOptionValue = UGameplayStatics::GetIntOption(Options, "Bots", 0);
+	SetAllowBots(BotsCountOptionValue > 0 ? true : false, BotsCountOptionValue);
+
 	Super::InitGame(MapName, Options, ErrorMessage);
 
 	// this is a multiplayer game we should never pause it
 	bPauseable = false;
+}
+
+void AHeliGameMode::SetAllowBots(bool bInAllowBots, int32 InMaxBots)
+{
+	bAllowBots = bInAllowBots;
+	MaxBots = InMaxBots;
 }
 
 void AHeliGameMode::InitGameState()
@@ -304,6 +319,14 @@ void AHeliGameMode::RestartPlayerAtTransform(AController* NewPlayer, const FTran
 
 void AHeliGameMode::HandleMatchIsWaitingToStart()
 {
+	Super::HandleMatchIsWaitingToStart();
+
+	if (bNeedsBotCreation)
+	{
+		CreateBotControllers();
+		bNeedsBotCreation = false;
+	}
+
 	if (bDelayedStart)
 	{
 		// start warmup if needed
@@ -325,10 +348,12 @@ void AHeliGameMode::HandleMatchIsWaitingToStart()
 
 void AHeliGameMode::HandleMatchHasStarted()
 {
-	Super::HandleMatchHasStarted();
+	bNeedsBotCreation = true;
+	Super::HandleMatchHasStarted();	
 
 	AHeliGameState* const MyGameState = Cast<AHeliGameState>(GameState);
 	MyGameState->RemainingTime = RoundTime;
+	StartBots();
 
 	// notify players
 	for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)
@@ -547,4 +572,76 @@ bool AHeliGameMode::IsImmediatelyPlayerRestartAllowedAfterDeath()
 FString AHeliGameMode::GetGameModeName()
 {
 	return FString(TEXT("AHeliGameMode"));
+}
+
+void AHeliGameMode::CreateBotControllers()
+{
+	UWorld *World = GetWorld();
+	int32 ExistingBots = 0;
+	for (FConstControllerIterator It = World->GetControllerIterator(); It; ++It)
+	{
+		AHeliAIController *AIC = Cast<AHeliAIController>(*It);
+		if (AIC)
+		{
+			++ExistingBots;
+		}
+	}
+
+	// Create any necessary AIControllers.  Hold off on Pawn creation until pawns are actually necessary or need recreating.
+	int32 botNum = ExistingBots;
+	for (int32 i = 0; i < MaxBots - ExistingBots; ++i)
+	{
+		CreateBot(botNum + i);
+	}
+}
+
+AHeliAIController *AHeliGameMode::CreateBot(int32 botNum)
+{
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.Instigator = nullptr;
+	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnInfo.OverrideLevel = nullptr;
+
+	UWorld *World = GetWorld();
+	AHeliAIController *AIC = World->SpawnActor<AHeliAIController>(SpawnInfo);
+	InitBot(AIC, botNum);
+
+	return AIC;
+}
+
+void AHeliGameMode::StartBots()
+{
+	// checking number of existing human player.
+	UWorld *World = GetWorld();
+	for (FConstControllerIterator It = World->GetControllerIterator(); It; ++It)
+	{
+		AHeliAIController *AIC = Cast<AHeliAIController>(*It);
+		if (AIC)
+		{
+			RestartPlayer(AIC);
+		}
+	}
+}
+
+void AHeliGameMode::InitBot(AHeliAIController *AIC, int32 botNum)
+{
+	if (AIC)
+	{
+		AHeliPlayerState* playerState = Cast<AHeliPlayerState>(AIC->PlayerState);
+		if (playerState)
+		{
+			FString BotName = FString::Printf(TEXT("Bot %d"), botNum);
+			playerState->Server_SetPlayerName(BotName);
+		}
+	}
+}
+
+UClass *AHeliGameMode::GetDefaultPawnClassForController_Implementation(AController *InController)
+{
+	if (InController->IsA<AHeliAIController>())
+	{
+		return BotPawnClass;
+	}
+
+	return Super::GetDefaultPawnClassForController_Implementation(InController);
 }

@@ -127,7 +127,25 @@ public:
 
 	virtual FString GetGameModeName();
 
-protected:
+	/*
+	* Bots
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bots")
+	TSubclassOf<APawn> BotPawnClass;
+
+	UFUNCTION(exec)
+	void SetAllowBots(bool bInAllowBots, int32 inMaxBots = 8);
+
+	/** Creates AIControllers for all bots */
+	void CreateBotControllers();
+
+	/** Create a bot */
+	class AHeliAIController* CreateBot(int32 botNum);
+
+	/** returns default pawn class for given controller */
+	virtual UClass *GetDefaultPawnClassForController_Implementation(AController *InController) override;
+
+  protected:
 	/** score for kill */
 	UPROPERTY(config)
 	int32 KillScore;
@@ -155,5 +173,22 @@ protected:
 	*/
 	virtual TSubclassOf<AGameSession> GetGameSessionClass() const override;
 	
-	
+	/*
+	* Bots
+	*/
+	UPROPERTY(config)
+	int32 MaxBots;
+
+	UPROPERTY()
+	TArray<class AHeliAIController*> BotControllers;
+
+	bool bNeedsBotCreation;
+
+	bool bAllowBots;		
+
+	/** spawning all bots for this game */
+	void StartBots();
+
+	/** initialization for bot after creation */
+	virtual void InitBot(class AHeliAIController *AIC, int32 botNum);
 };

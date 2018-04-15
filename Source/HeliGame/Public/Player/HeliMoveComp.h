@@ -32,7 +32,7 @@ struct FMovementState
 	{
 		Location = LinearVelocity = AngularVelocity = FVector::ZeroVector;
 		Rotation = FRotator::ZeroRotator;
-		Timestamp = 0;
+		Timestamp = 1;
 	}
 	FMovementState(
 		FVector_NetQuantize100 Loc,
@@ -115,7 +115,7 @@ class HELIGAME_API UHeliMoveComp : public UPawnMovementComponent
 		Movement Replication
 	*/
 	
-	void MovementReplication();
+	void SendMovementState();
 
 	UFUNCTION(Unreliable, Server, WithValidation)
 	void Server_SetMovementState(const FMovementState& NewMovementState);
@@ -145,8 +145,6 @@ class HELIGAME_API UHeliMoveComp : public UPawnMovementComponent
 	bool bDrawRole;
 
 	FString GetRoleAsString(ENetRole inRole);
-
-	float LastTimeReplicatedMovementReceived = 0.f;
 
 public:
 	UHeliMoveComp(const FObjectInitializer& ObjectInitializer);

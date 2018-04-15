@@ -26,18 +26,18 @@ UHeliMoveComp::UHeliMoveComp(const FObjectInitializer& ObjectInitializer)
 	bUseAddForceForThrust = true;
 
 	bAddLift = true;
-	GravityWeight = 0.70f;
+	GravityWeight = 0.90f;
 
 	BaseThrust = 10000.f;
 
-	MinimumTiltInclinationAcceleration = 5000.f;
+	MinimumTiltInclinationAcceleration = 3000.f;
 
 	MaximumAngularVelocity = 100.f;
 
 	MaxInterpolationSpeed = 60.f;
 	MinInterpolationSpeed = 1.f;
 	CurrentInterpolationSpeed = MaxInterpolationSpeed;
-	bUseInterpolationForMovementReplication = false;
+	bUseInterpolationForMovementReplication = true;
 
 	bDrawRole = false;
 }
@@ -232,7 +232,7 @@ void UHeliMoveComp::SetMovementState(const FMovementState& TargetMovementState)
 	}
 
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (BaseComp && TargetMovementState.Timestamp >= LastTimeReplicatedMovementReceived)
+	if (BaseComp)
 	{
 		FRotator rotation = TargetMovementState.Rotation;
 		FVector location = TargetMovementState.Location;
@@ -243,8 +243,6 @@ void UHeliMoveComp::SetMovementState(const FMovementState& TargetMovementState)
 		BaseComp->SetWorldLocation(location);
 		BaseComp->SetPhysicsLinearVelocity(linearVelocity);
 		BaseComp->SetPhysicsAngularVelocityInDegrees(angularVelocity);
-
-		LastTimeReplicatedMovementReceived = TargetMovementState.Timestamp;
 	}
 }
 
@@ -256,7 +254,7 @@ void UHeliMoveComp::SetMovementStateSmoothly(const FMovementState& TargetMovemen
 	}
 
 	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
-	if (BaseComp && TargetMovementState.Timestamp >= LastTimeReplicatedMovementReceived)
+	if (BaseComp)
 	{
 		// NOTE(andrey): should we use slerp or rinterpto for rotation interpolation?
 		//Quat rotation = FQuat::Slerp(BaseComp->GetComponentRotation().Quaternion(), TargetPhysMovementState.Rotation.Quaternion(), 0.1f);
@@ -270,12 +268,10 @@ void UHeliMoveComp::SetMovementStateSmoothly(const FMovementState& TargetMovemen
 		BaseComp->SetWorldLocation(location);
 		BaseComp->SetPhysicsLinearVelocity(linearVelocity);
 		BaseComp->SetPhysicsAngularVelocityInDegrees(angularVelocity);
-
-		LastTimeReplicatedMovementReceived = TargetMovementState.Timestamp;
 	}
 }
 
-void UHeliMoveComp::MovementReplication()
+void UHeliMoveComp::SendMovementState()
 {
 	if ((GetPawnOwner() && GetPawnOwner()->IsLocallyControlled())) // && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy))
 	{
@@ -286,6 +282,18 @@ void UHeliMoveComp::MovementReplication()
 			{
 				return;
 			}
+
+			// TODO(andrey): don't try to replicate faster than server can handle, it will just consume resource... 30% of calls in prolling
+			/*
+			UE_LOG(LogTemp, Warning, TEXT("Role: %s, NetClientTickPerSecond: %f, WorldTime: %f, ReplicatedMovementState.Timestamp: %f, Difference: %f, LastTimeReplicatedMovementReceived: %f"), *GetRoleAsString(GetPawnOwner()->Role), GEngine->NetClientTicksPerSecond, GetWorld()->TimeSeconds, ReplicatedMovementState.Timestamp, GetWorld()->TimeSeconds - ReplicatedMovementState.Timestamp, LastTimeReplicatedMovementReceived);
+			
+			float serverDeltaTickRate = 1.f / GEngine->NetClientTicksPerSecond;
+			float differenceTime = GetWorld()->TimeSeconds - LastTimeReplicatedMovementSent;
+			if (differenceTime < serverTickRateInSeconds)
+			{
+				return;
+			}
+			*/						
 
 			Server_SetMovementState(FMovementState(
 				BaseComp->GetComponentLocation(),
@@ -373,7 +381,7 @@ void UHeliMoveComp::InitializeComponent()
 	if (heliGameUserSettings && GetPawnOwner() && !GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role == ENetRole::ROLE_SimulatedProxy)
 	{
 		SetNetworkSmoothingFactor(heliGameUserSettings->GetNetworkSmoothingFactor());
-		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::InitializeComponent ~ network smoothing factor changed to %f for simulated proxies!"), heliGameUserSettings->GetNetworkSmoothingFactor());
+		//UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::InitializeComponent ~ network smoothing factor changed to %f for simulated proxies!"), heliGameUserSettings->GetNetworkSmoothingFactor());
 	}
 }
 
@@ -394,13 +402,13 @@ void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 
 	bool bLocalPlayerAuthority = GetPawnOwner() && GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role >= ENetRole::ROLE_AutonomousProxy;
 
-	// add lift
+	// add lift only to pawns that simulate physics
 	if (bAddLift && bLocalPlayerAuthority) {
 		AddLift();
 	}
 
-	// apply received replicated movement state
-	if (!bLocalPlayerAuthority)
+	// apply received replicated movement state for whatever pawn that is NOT locally controlled
+	if (GetPawnOwner() && !GetPawnOwner()->IsLocallyControlled())
 	{
 		if (bUseInterpolationForMovementReplication)
 		{
@@ -416,7 +424,7 @@ void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	// Don't need to replicate movement in single player games
 	if (GEngine->GetNetMode(GetWorld()) != NM_Standalone)
 	{
-		MovementReplication();
+		SendMovementState();
 	}
 
 
@@ -431,6 +439,8 @@ void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 void UHeliMoveComp::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//DOREPLIFETIME(UHeliMoveComp, ReplicatedMovementState);
 
 	DOREPLIFETIME_CONDITION(UHeliMoveComp, ReplicatedMovementState, COND_SimulatedOnly);
 }

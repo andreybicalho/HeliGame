@@ -31,6 +31,9 @@ class HELIGAME_API UHostMenu : public UBaseMenuWidget
 	class UComboBoxString* NumberOfPlayersComboBox;
 
 	UPROPERTY(meta = (BindWidget))
+	class UComboBoxString *NumberOfBotsComboBox;
+
+	UPROPERTY(meta = (BindWidget))
 	class USpinBox* WarmupTimeSpinBox;
 
 	UPROPERTY(meta = (BindWidget))

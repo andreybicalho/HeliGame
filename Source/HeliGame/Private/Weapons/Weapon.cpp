@@ -3,7 +3,8 @@
 #include "Weapon.h"
 #include "HeliGame.h"
 #include "HeliPlayerController.h"
-#include "Helicopter.h"
+#include "HeliFighterVehicle.h"
+
 #include "Kismet/GameplayStatics.h"
 #include "Components/ArrowComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -113,7 +114,7 @@ int32 AWeapon::GetMaxAmmo() const
 }
 
 /** get pawn owner */
-AHelicopter* AWeapon::GetPawnOwner() const
+AHeliFighterVehicle* AWeapon::GetPawnOwner() const
 {
 	return MyPawn;
 }
@@ -131,13 +132,13 @@ bool AWeapon::HasInfiniteClip() const
 }
 
 /** set the weapon's owning pawn */
-void AWeapon::SetOwningPawn(AHelicopter* NewOwner)
+void AWeapon::SetOwningPawn(AHeliFighterVehicle* NewOwner)
 {
 	if (MyPawn != NewOwner) {
 		Instigator = NewOwner;
 		MyPawn = NewOwner;
 
-		// UE_LOG(LogHeliWeapon, Log, TEXT("AWeapon::SetOwningPawn(AHelicopter* NewOwner) --- > Weapon's owner was set, MyPawn will replicate"));
+		// UE_LOG(LogHeliWeapon, Log, TEXT("AWeapon::SetOwningPawn(AHeliFighterVehicle* NewOwner) --- > Weapon's owner was set, MyPawn will replicate"));
 
 		// net owner for RPC calls
 		SetOwner(NewOwner);
@@ -160,7 +161,7 @@ void AWeapon::AttachMeshToPawn()
 	{
 		FName AttachPoint = MyPawn->GetCurrentWeaponAttachPoint();
 
-		bool isAttachOk = Mesh1P->AttachToComponent(MyPawn->GetHeliMeshComponent(), FAttachmentTransformRules::KeepRelativeTransform, AttachPoint);
+		bool isAttachOk = Mesh1P->AttachToComponent(MyPawn->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform, AttachPoint);
 		// UE_LOG(LogHeliWeapon, Log, TEXT("AWeapon::AttachMeshToPawn(%s) ---> Weapon was Attached to HeliMesh."), *AttachPoint.ToString());
 
 		bIsEquipped = true;
@@ -174,7 +175,7 @@ void AWeapon::OnUnEquip()
 	if (HasAuthority())
 	{
 		// UE_LOG(LogHeliWeapon, Log, TEXT("AWeapon::OnUnEquip() ---> Set owning pawn to NULL"));
-		SetOwningPawn(NULL);
+		SetOwningPawn(nullptr);
 	}
 
 	if (IsAttachedToPawn())
