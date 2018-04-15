@@ -269,3 +269,12 @@ FString AHeliGameModeTDM::GetGameModeName()
 {
 	return FString(TEXT("Team Deathmatch"));
 }
+
+void AHeliGameModeTDM::InitBot(AHeliAIController *AIC, int32 botNum)
+{
+	AHeliPlayerState *botPlayerState = CastChecked<AHeliPlayerState>(AIC->PlayerState);
+	const int32 teamNum = ChooseTeam(botPlayerState);
+	botPlayerState->SetTeamNumber(teamNum);
+
+	Super::InitBot(AIC, botNum);
+}

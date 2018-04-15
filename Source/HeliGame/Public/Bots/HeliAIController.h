@@ -24,9 +24,11 @@ public:
 	virtual void Possess(class APawn* InPawn) override;
 	virtual void UnPossess() override;
 	virtual void BeginInactiveState() override;
+
+	UFUNCTION()
+	virtual void OnRep_PlayerState() override;
 	// End APlayerController interface
 
-	
 private:
 	UPROPERTY(transient)
 	UBlackboardComponent* BlackboardComponent;

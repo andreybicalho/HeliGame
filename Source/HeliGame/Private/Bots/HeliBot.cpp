@@ -48,6 +48,12 @@ void AHeliBot::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AHeliBot::InitBot, SpawnDelay, false);	
+}
+
+void AHeliBot::InitBot()
+{
 	if ((MainAudioComponent == nullptr) || (MainAudioComponent && !MainAudioComponent->IsPlaying()))
 	{
 		MainAudioComponent = PlaySound(MainLoopSound);
@@ -58,6 +64,7 @@ void AHeliBot::BeginPlay()
 	// setup health bar
 	SetupPlayerInfoWidget();
 }
+
 
 void AHeliBot::OnCrashImpact(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {

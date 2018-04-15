@@ -183,25 +183,7 @@ void AHelicopter::PossessedBy(class AController* InController)
 {
 	//UE_LOG(LogTemp, Display, TEXT("AHelicopter::PossessedBy ~ %s %s Role %d and RemoteRole %d"), InController->IsLocalPlayerController() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *InController->GetName(), (int32)InController->Role, (int32)InController->GetRemoteRole());
 
-	Super::PossessedBy(InController);
-
-	// [server] as soon as PlayerState is assigned, set team colors of this pawn for local player
-}
-
-void AHelicopter::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	// [client] as soon as PlayerState is assigned, set team colors of this pawn for local player
-	if (PlayerState)
-	{
-		AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(PlayerState);
-		if (heliPlayerState)
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("AHelicopter::OnRep_PlayerState ~ %s %s Role %d and RemoteRole %d - Team %d"), IsLocallyControlled() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), heliPlayerState->GetTeamNumber());			
-			SetupPlayerInfoWidget();
-		}
-	}
+	Super::PossessedBy(InController);	
 }
 
 /*

@@ -46,6 +46,7 @@ void UHostMenu::HostServer()
 	GameSessionParams.bAllowFriendFireDamage = true;
 	GameSessionParams.TimeBetweenMatches = TimeBetweenMatchesSpinBox->GetValue();
 	GameSessionParams.UserId = this->GetOwningLocalPlayer()->GetPreferredUniqueNetId();
+	GameSessionParams.NumberOfBots = FCString::Atoi(*NumberOfBotsComboBox->GetSelectedOption());
 
 	if (!ensure(MenuInterface != nullptr)) return;
 	MenuInterface->HostGame(GameSessionParams);

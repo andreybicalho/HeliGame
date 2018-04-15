@@ -618,3 +618,20 @@ UAudioComponent* AHeliFighterVehicle::PlaySound(USoundCue* Sound)
 
 	return AC;
 }
+
+void AHeliFighterVehicle::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	// [client] as soon as PlayerState is assigned, set team colors of this pawn for local player
+	if (PlayerState)
+	{
+		AHeliPlayerState *heliPlayerState = Cast<AHeliPlayerState>(PlayerState);
+		if (heliPlayerState)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("AHeliFighterVehicle::OnRep_PlayerState ~ %s %s Role %d and RemoteRole %d - Team %d"), IsLocallyControlled() ? *FString::Printf(TEXT("Local")) : *FString::Printf(TEXT("Remote")), *GetName(), (int32)Role, (int32)GetRemoteRole(), heliPlayerState->GetTeamNumber());
+			SetTeamNumber(heliPlayerState->GetTeamNumber());
+			SetupPlayerInfoWidget();
+		}
+	}
+}

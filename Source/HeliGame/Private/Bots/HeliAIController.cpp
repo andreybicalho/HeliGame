@@ -307,3 +307,17 @@ void AHeliAIController::SmoothLookAtEnemy(float DeltaTime, float InterpSpeed)
 	}
 	
 }
+
+void AHeliAIController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	AHeliFighterVehicle *helicopter = Cast<AHeliFighterVehicle>(GetPawn());
+	AHeliPlayerState* heliPlayerState = Cast<AHeliPlayerState>(PlayerState);
+	if (helicopter && heliPlayerState)
+	{
+		helicopter->UpdatePlayerInfo(FName(*heliPlayerState->GetPlayerName()), heliPlayerState->GetTeamNumber());
+
+		//UE_LOG(LogTemp, Warning, TEXT("AHeliAIController::BeginPlayingState - PlayerName: %s  TeamNumber: %d"), *, heliPlayerState->GetTeamNumber());
+	}
+}

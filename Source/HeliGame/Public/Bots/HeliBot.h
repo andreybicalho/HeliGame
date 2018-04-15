@@ -46,6 +46,8 @@ private:
 protected:
 	void OnDeath(float KillingDamage, FDamageEvent const &DamageEvent, APawn *PawnInstigator, AActor *DamageCauser) override;
 
+	void InitBot();
+
 public:
 	UPROPERTY(EditAnywhere, Category = "Behavior")
 	class UBehaviorTree *BotBehavior;

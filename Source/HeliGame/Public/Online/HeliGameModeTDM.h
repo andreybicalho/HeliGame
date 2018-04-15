@@ -65,5 +65,6 @@ protected:
 
 	/** check team constraints */
 	virtual bool IsSpawnpointAllowed(APlayerStart* SpawnPoint, AController* Player) const override;
-	
+
+	virtual void InitBot(class AHeliAIController *AIC, int32 botNum) override;
 };

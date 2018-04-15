@@ -1,7 +1,6 @@
 // Copyright 2017 Andrey Bicalho Santos. All Rights Reserved.
 
 #include "HealthBarUserWidget.h"
-#include "HeliGame.h"
 #include "HeliFighterVehicle.h"
 
 
@@ -18,7 +17,7 @@ void UHealthBarUserWidget::SetupWidget()
 	{
 		PlayerName = OwningPawn->GetPlayerName().ToString();
 
-		AHelicopter* myPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
+		AHeliFighterVehicle* myPawn = Cast<AHeliFighterVehicle>(GetOwningPlayerPawn());
 		if (myPawn && (myPawn != OwningPawn))
 		{
 			float distance = (myPawn->GetActorLocation() - OwningPawn->GetActorLocation()).Size();
@@ -38,7 +37,7 @@ void UHealthBarUserWidget::NativeTick(const FGeometry& MyGeometry, float InDelta
 	// scale with distance
 	if (OwningPawn.IsValid())
 	{
-		AHelicopter* myPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
+		AHeliFighterVehicle* myPawn = Cast<AHeliFighterVehicle>(GetOwningPlayerPawn());
 		if (myPawn && (myPawn != OwningPawn))
 		{
 			float distance = (myPawn->GetActorLocation() - OwningPawn->GetActorLocation()).Size();
@@ -52,7 +51,7 @@ void UHealthBarUserWidget::NativeTick(const FGeometry& MyGeometry, float InDelta
 
 void UHealthBarUserWidget::SetupCurrentColor()
 {
-	AHelicopter* OwningPlayerPawn = Cast<AHelicopter>(GetOwningPlayerPawn());
+	AHeliFighterVehicle* OwningPlayerPawn = Cast<AHeliFighterVehicle>(GetOwningPlayerPawn());
 	if (OwningPlayerPawn && OwningPawn.IsValid())
 	{
 		if (OwningPawn == OwningPlayerPawn)

@@ -121,6 +121,10 @@ class HELIGAME_API AHeliFighterVehicle : public APawn
 {
 	GENERATED_BODY()
 
+private:
+	/** [client] perform PlayerState related setup */
+	virtual void OnRep_PlayerState() override;
+
 protected:
 	/* Take damage & handle death */
 	virtual float TakeDamage(float Damage, struct FDamageEvent const &DamageEvent, class AController *EventInstigator, class AActor *DamageCauser) override;
