@@ -1,46 +1,38 @@
 # **Welcome to the HeliGame wiki!**
 
-HeliGame is a very simple, multiplayer six-degree-of-freedom, shooter game in which helicopter fighters can perform crazy maneuvers while shoot at their enemies. Any player will be able to host a match (hosting your own server) so that friends can join easily.
+The HeliGame, published as [**Birds of War**](https://andreybicalho.itch.io/birds-of-war), is a multiplayer six-degree-of-freedom shooter game in which helicopter fighters can perform crazy maneuvers while shoot at their enemies. You can play it on **LAN** with your friends and also against **AI**. Birds of War is **free to play.**
 
-# **Basic GDD:**
+### Features
 
-## General Features
+* Team deathmatch game mode
+* Realistic 3D graphics
 * Multiplayer features (networking, physics replication, server authoritative events, etc.)
 * Six-Degree-of-Freedom (6DoF) movement style
 * Realistic physics
-* Projectile weapons
-* Lobby system (Lobby room for players to connect)
-* Players can host a match  
-* Easy to find a game  
-* Chat and voice system  
-* Leaderboards 
-* Customizable controls
-* Different game modes 
-* 3D graphics + low poly
-* Huge maps
-
-## Gameplay Mechanics
-* Flying movements with Six-Degree-of-Freedom (6DoF)
-* Projectile Weapons
-* Players control a helicopter instead of a humanoid character
-* Variety of Weapons
-* Helicopter can fire with one type of weapon at a time
-* Maximum damage when hit the helicopter cockpit and lower at the other parts
+* Projectile weapons (bullet drop)
+* Damage based on the hitting material surface 
 * Crash damage (damage based on impact)
-* Crash make the helicopter hard to control
+* Players can host a server (also playing) 
+* Play against friends
+* Play against BOTs
+* Easy to find and join a game  
+* Huge maps  
 
-## UI Elements
-The game will have a main menu where players can host and find match, edit settings, choose between internet or LAN modes.
-There will be a Lobby room in order to prepare the match in which only the server can edit the settings.
-* Host a game, when hosting a match, the host will select a map, number of players, timers
-* Find Servers
-* Options menu for settings like mouse sensitivity, graphics, custom name
-* In game scoreboard
-* Lobby room
-* Leaderboard
+## **How Can I Play It?**
 
-## Game Modes
-Team based game
-* Team deathmatch
-* Survivor
-* Capture the flag
+### Download and Install
+1. Download and Install the [**Itch App**](https://itch.io/app).
+
+2. Add [**Birds of War**](https://andreybicalho.itch.io/birds-of-war) to your collection and install it.
+
+3. Make sure to always launch the game from the Itch app in order to get the **latest updates.**
+
+### FAQ
+
+* **I can't find any server.**
+
+If you are not finding your friend server try to disable your firewall, make sure your friend has it disabled as well, and follow these instructions to connect directly using your friend IP address: After your friend start hosting a game match, in the game menu, press '=' to prompt the console command and type 'TravelToIP yourFriendIPaddress', then press enter/return and you should jump straight to your friend game session. 
+
+* **Can I play it against my friends on the internet?**
+
+Although the game still doesn't have any full integration with game services like Steam, you still can play Birds of War against your friends on the internet by using some **VPN** like **Hamachi**.
