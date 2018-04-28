@@ -87,6 +87,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
 	int32 GetInvertedAim();
 
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
+	void SetPilotAssist(bool bInPilotAssist);
+
+	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls")
+	bool IsPilotAssist();
+
 	UFUNCTION(BlueprintCallable, Category = "InGameMenu|Controls|NetworkSmoothingFactor")
 	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
 

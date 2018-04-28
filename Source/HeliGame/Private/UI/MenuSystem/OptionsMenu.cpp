@@ -54,7 +54,6 @@ bool UOptionsMenu::Initialize()
 
 	if (!ensure(InvertedAimButton != nullptr)) return false;
 	InvertedAimButton->OnClicked.AddDynamic(this, &UOptionsMenu::SetInvertedAim);
-
 	if (!ensure(InvertedAimText != nullptr)) return false;
 	InitializeAimMode();	
 
@@ -65,6 +64,11 @@ bool UOptionsMenu::Initialize()
 	ResolutionComboBoxOnSelectionChanged_Delegate.BindUFunction(this, "ResolutionComboBox_OnSelectionChanged");
 	ResolutionComboBox->OnSelectionChanged.Add(ResolutionComboBoxOnSelectionChanged_Delegate);
 	InitializeResolutionComboBox();
+
+	if (!ensure(PilotAssistButton != nullptr)) return false;
+	PilotAssistButton->OnClicked.AddDynamic(this, &UOptionsMenu::SetPilotAssist);
+	if (!ensure(PilotAssistText != nullptr)) return false;
+	InitializePilotAssist();
 
 	return true;
 }
@@ -116,6 +120,24 @@ void UOptionsMenu::InitializeMouseAndKeyboardSense()
 	{
 		MouseSensitivity->SetValue(heliGameUserSettings->GetMouseSensitivity());
 		KeyboardSensitivity->SetValue(heliGameUserSettings->GetKeyboardSensitivity());
+	}
+}
+
+void UOptionsMenu::InitializePilotAssist()
+{
+	UHeliGameUserSettings *heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	if (heliGameUserSettings)
+	{
+		if (heliGameUserSettings->GetPilotAssist() > 0)
+		{
+			PilotAssistText->SetText(FText::FromString(FString(TEXT("Pilot Assist ON"))));
+			PilotAssist = true;
+		}
+		else
+		{
+			PilotAssistText->SetText(FText::FromString(FString(TEXT("Pilot Assist OFF"))));
+			PilotAssist = false;
+		}
 	}
 }
 
@@ -178,6 +200,28 @@ void UOptionsMenu::SetInvertedAim()
 		InvertedAim = true;
 		InvertedAimText->SetText(FText::FromString(FString(TEXT("Inverted Aim"))));
 		heliGameUserSettings->SetInvertedAim(-1);
+	}
+}
+
+void UOptionsMenu::SetPilotAssist()
+{
+	UHeliGameUserSettings *heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	if (!heliGameUserSettings)
+	{
+		return;
+	}
+
+	if (PilotAssist)
+	{
+		PilotAssist = false;
+		PilotAssistText->SetText(FText::FromString(FString(TEXT("Pilot Assist OFF"))));
+		heliGameUserSettings->SetPilotAssist(-1);
+	}
+	else
+	{
+		PilotAssist = true;
+		PilotAssistText->SetText(FText::FromString(FString(TEXT("Pilot Assist ON"))));
+		heliGameUserSettings->SetPilotAssist(1);
 	}
 }
 

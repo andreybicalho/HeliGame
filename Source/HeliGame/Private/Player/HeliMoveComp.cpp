@@ -39,6 +39,9 @@ UHeliMoveComp::UHeliMoveComp(const FObjectInitializer& ObjectInitializer)
 	CurrentInterpolationSpeed = MaxInterpolationSpeed;
 	bUseInterpolationForMovementReplication = true;
 
+	bAutoRollStabilization = false;
+	AutoRollInterpSpeed = 1.f;
+
 	bDrawRole = false;
 }
 
@@ -283,13 +286,12 @@ void UHeliMoveComp::SendMovementState()
 				return;
 			}
 
-			// TODO(andrey): don't try to replicate faster than server can handle, it will just consume resource... 30% of calls in prolling
 			/*
-			UE_LOG(LogTemp, Warning, TEXT("Role: %s, NetClientTickPerSecond: %f, WorldTime: %f, ReplicatedMovementState.Timestamp: %f, Difference: %f, LastTimeReplicatedMovementReceived: %f"), *GetRoleAsString(GetPawnOwner()->Role), GEngine->NetClientTicksPerSecond, GetWorld()->TimeSeconds, ReplicatedMovementState.Timestamp, GetWorld()->TimeSeconds - ReplicatedMovementState.Timestamp, LastTimeReplicatedMovementReceived);
-			
-			float serverDeltaTickRate = 1.f / GEngine->NetClientTicksPerSecond;
-			float differenceTime = GetWorld()->TimeSeconds - LastTimeReplicatedMovementSent;
-			if (differenceTime < serverTickRateInSeconds)
+			 // TODO(andrey): don't try to replicate faster than server can handle, it will just consume resource. 
+			 // recently I've notice a huge % amount of Server_SetMovementState calls while profiling									
+			float serverDeltaTickRate = GEngine->NetClientTicksPerSecond;
+			float differenceTime = GetWorld()->TimeSeconds - LastTimeReplicatedMovementWasSent;
+			if (differenceTime < serverDeltaTickRate)
 			{
 				return;
 			}
@@ -328,14 +330,14 @@ void UHeliMoveComp::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
 		// turn interpolation off	
 		CurrentInterpolationSpeed = MaxInterpolationSpeed;
 		bUseInterpolationForMovementReplication = false;
-		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor Deactivated!"));
+		//UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor Deactivated!"));
 	}
 	else if (inNetworkSmoothingFactor >= 100.f)
 	{
 		// minimum interpolation we allow
 		CurrentInterpolationSpeed = MinInterpolationSpeed;
 		bUseInterpolationForMovementReplication = true;
-		UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor is 100%, CurrentInterpolationSpeed = %f"), MinInterpolationSpeed);
+		//UE_LOG(LogTemp, Display, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ Network Smoothing Factor is 100%, CurrentInterpolationSpeed = %f"), MinInterpolationSpeed);
 	}
 	else
 	{
@@ -347,7 +349,7 @@ void UHeliMoveComp::SetNetworkSmoothingFactor(float inNetworkSmoothingFactor)
 		CurrentInterpolationSpeed = MaxInterpolationSpeed - smoothFactorNormalized;
 		bUseInterpolationForMovementReplication = true;
 
-		UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ inNetworkSmoothingFactor = %f, smoothFactorNormalized = %f, CurrentInterpolationSpeed = %f"), inNetworkSmoothingFactor, smoothFactorNormalized, CurrentInterpolationSpeed);
+		//UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::SetNetworkSmoothingFactor ~ inNetworkSmoothingFactor = %f, smoothFactorNormalized = %f, CurrentInterpolationSpeed = %f"), inNetworkSmoothingFactor, smoothFactorNormalized, CurrentInterpolationSpeed);
 	}
 }
 
@@ -371,6 +373,31 @@ FString UHeliMoveComp::GetRoleAsString(ENetRole inRole)
 }
 
 
+void UHeliMoveComp::AutoRollStabilization(float deltaTime)
+{
+	UPrimitiveComponent* BaseComp = Cast<UPrimitiveComponent>(UpdatedComponent);
+	if (BaseComp && BaseComp->IsSimulatingPhysics())
+	{
+		FRotator CurrentRotation = BaseComp->GetComponentRotation();
+
+		float TargetRoll = FMath::FInterpTo(CurrentRotation.Roll, 0.f, deltaTime, AutoRollInterpSpeed);
+
+		FRotator TargetRotation = FRotator(CurrentRotation.Pitch, CurrentRotation.Yaw, TargetRoll);
+
+		BaseComp->SetAllPhysicsRotation(TargetRotation);
+	}	
+}
+
+void UHeliMoveComp::SetAutoRollStabilization(bool bNewAutoRollStabilization)
+{
+	bAutoRollStabilization = bNewAutoRollStabilization;
+}
+
+bool UHeliMoveComp::IsAutoRollingStabilization()
+{
+	return bAutoRollStabilization;
+}
+
 /* overrides */
 void UHeliMoveComp::InitializeComponent()
 {
@@ -380,8 +407,8 @@ void UHeliMoveComp::InitializeComponent()
 	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
 	if (heliGameUserSettings && GetPawnOwner() && !GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role == ENetRole::ROLE_SimulatedProxy)
 	{
+		SetAutoRollStabilization(heliGameUserSettings->GetPilotAssist() > 0 ? true : false);
 		SetNetworkSmoothingFactor(heliGameUserSettings->GetNetworkSmoothingFactor());
-		//UE_LOG(LogTemp, Warning, TEXT("UHeliMoveComp::InitializeComponent ~ network smoothing factor changed to %f for simulated proxies!"), heliGameUserSettings->GetNetworkSmoothingFactor());
 	}
 }
 
@@ -425,6 +452,11 @@ void UHeliMoveComp::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	if (GEngine->GetNetMode(GetWorld()) != NM_Standalone)
 	{
 		SendMovementState();
+	}
+
+	if (bAutoRollStabilization)
+	{
+		AutoRollStabilization(DeltaTime);
 	}
 
 

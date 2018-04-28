@@ -22,6 +22,9 @@ class HELIGAME_API UHeliGameUserSettings : public UGameUserSettings
 
 	UPROPERTY(config)
 	int32 InvertedAim = 1;
+	
+	UPROPERTY(config)
+	int32 PilotAssist = -1;
 
 	UPROPERTY(config)
 	float NetworkSmoothingFactor = 1000;
@@ -49,6 +52,10 @@ public:
 	void SetInvertedAim(int32 inInvertedAim);
 
 	int32 GetInvertedAim();
+
+	void SetPilotAssist(int32 bInPilotAssist);
+
+	int32 GetPilotAssist();
 
 	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
 

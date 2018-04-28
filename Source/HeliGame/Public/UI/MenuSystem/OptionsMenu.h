@@ -61,6 +61,14 @@ class HELIGAME_API UOptionsMenu : public UBaseMenuWidget
 	bool InvertedAim;
 
 	UPROPERTY(meta = (BindWidget))
+	class UButton* PilotAssistButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock *PilotAssistText;
+
+	bool PilotAssist;
+
+	UPROPERTY(meta = (BindWidget))
 	class UButton* ApplySettingsButton;
 
 	void InitializeResolutionComboBox();
@@ -68,6 +76,8 @@ class HELIGAME_API UOptionsMenu : public UBaseMenuWidget
 	void InitializeAimMode();
 
 	void InitializeMouseAndKeyboardSense();
+
+	void InitializePilotAssist();
 
 protected:
 	bool Initialize() override;
@@ -93,6 +103,9 @@ private:
 
 	UFUNCTION() 
 	void SetInvertedAim();
+
+	UFUNCTION()
+	void SetPilotAssist();
 
 	UFUNCTION()
 	void CustomPlayerName_OnTextCommitted();
