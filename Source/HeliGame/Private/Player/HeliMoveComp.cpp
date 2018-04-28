@@ -406,9 +406,13 @@ void UHeliMoveComp::InitializeComponent()
 	// if this is a remote proxies get network smoothing factor
 	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
 	if (heliGameUserSettings && GetPawnOwner() && !GetPawnOwner()->IsLocallyControlled() && GetPawnOwner()->Role == ENetRole::ROLE_SimulatedProxy)
+	{		
+		SetNetworkSmoothingFactor(heliGameUserSettings->GetNetworkSmoothingFactor());
+	}
+
+	if (heliGameUserSettings)
 	{
 		SetAutoRollStabilization(heliGameUserSettings->GetPilotAssist() > 0 ? true : false);
-		SetNetworkSmoothingFactor(heliGameUserSettings->GetNetworkSmoothingFactor());
 	}
 }
 
