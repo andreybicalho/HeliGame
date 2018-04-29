@@ -20,6 +20,7 @@ void UHeliGameUserSettings::SetToDefaults()
 	MouseSensitiviy = 1.f;
 	KeyboardSensitivity = 1.f;
 	InvertedAim = 1;
+	PilotAssist = -1;
 	NetworkSmoothingFactor = -1;
 }
 
@@ -73,3 +74,12 @@ void UHeliGameUserSettings::SetPlayerName(const FString& NewPlayerName)
 	PlayerName = NewPlayerName;
 }
 
+void UHeliGameUserSettings::SetPilotAssist(int32 bInPilotAssist)
+{	
+	PilotAssist = bInPilotAssist;
+}
+
+int32 UHeliGameUserSettings::GetPilotAssist()
+{
+	return PilotAssist;
+}

@@ -8,6 +8,8 @@
 #include "HeliGameInstance.h"
 #include "HeliGameUserSettings.h"
 #include "HeliGameMode.h"
+#include "HeliMoveComp.h"
+
 #include "Online.h"
 #include "OnlineAchievementsInterface.h"
 #include "OnlineEventsInterface.h"
@@ -724,6 +726,36 @@ int32 AHeliPlayerController::GetInvertedAim()
 	}
 
 	return 1;
+}
+
+void AHeliPlayerController::SetPilotAssist(bool bInPilotAssist)
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());
+	AHelicopter* helicopter = Cast<AHelicopter>(GetPawn());	
+
+	if (heliGameUserSettings)
+	{
+		UHeliMoveComp* heliMoveComp = Cast<UHeliMoveComp>(helicopter->GetMovementComponent());
+		if (heliMoveComp)
+		{
+			heliMoveComp->SetAutoRollStabilization(bInPilotAssist);
+		}
+
+		heliGameUserSettings->SetPilotAssist(bInPilotAssist == true ? 1 : -1);
+		heliGameUserSettings->ApplySettings(false);
+	}
+}
+
+bool AHeliPlayerController::IsPilotAssist()
+{
+	UHeliGameUserSettings* heliGameUserSettings = Cast<UHeliGameUserSettings>(GEngine->GetGameUserSettings());	
+
+	if (heliGameUserSettings)
+	{
+		return heliGameUserSettings->GetPilotAssist() > 0 ? true : false;
+	}
+
+	return false;
 }
 
 float AHeliPlayerController::GetNetworkSmoothingFactor()

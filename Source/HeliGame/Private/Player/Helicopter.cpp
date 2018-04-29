@@ -2,7 +2,6 @@
 
 #include "Helicopter.h"
 #include "HeliGame.h"
-//#include "HeliMovementComponent.h"
 #include "HeliMoveComp.h"
 #include "HeliProjectile.h"
 #include "HeliPlayerState.h"

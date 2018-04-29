@@ -144,7 +144,17 @@ class HELIGAME_API UHeliMoveComp : public UPawnMovementComponent
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Helpers|Replication", meta = (AllowPrivateAccess = "true"))
 	bool bDrawRole;
 
-	FString GetRoleAsString(ENetRole inRole);
+	FString GetRoleAsString(ENetRole inRole);	
+
+	/* whether to use auto roll stabilization or not */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovementSettings", meta = (AllowPrivateAccess = "true"))
+	bool bAutoRollStabilization;
+
+	/* controls how fast 'auto roll' will reach the stabilized rotation */
+	UPROPERTY(Category = "MovementSettings", EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	float AutoRollInterpSpeed;
+
+	void AutoRollStabilization(float deltaTime);
 
 public:
 	UHeliMoveComp(const FObjectInitializer& ObjectInitializer);
@@ -164,6 +174,10 @@ public:
 	void SetNetworkSmoothingFactor(float inNetworkSmoothingFactor);
 
 	bool IsNetworkSmoothingFactorActive();
+
+	void SetAutoRollStabilization(bool bNewAutoRollStabilization);
+
+	bool IsAutoRollingStabilization();
 
 	/* overrides */
 public:
