@@ -549,7 +549,7 @@ FHitResult AWeapon::WeaponTrace(const FVector& TraceFrom, const FVector& TraceTo
 	
 	// actors to ignore
 	TArray<TWeakObjectPtr<AActor>> IgnoredActors;
-	IgnoredActors.Add(Cast<AActor>(this));
+	// IgnoredActors.Add(Cast<AActor>(this)); // Implicit conversions from const pointers to non-const TWeakObjectPtrs has been deprecated.
 	IgnoredActors.Add(GetPawnOwner());
 	TraceParams.AddIgnoredActors(IgnoredActors);
 
