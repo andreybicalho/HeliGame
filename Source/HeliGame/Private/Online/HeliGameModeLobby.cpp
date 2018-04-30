@@ -164,8 +164,8 @@ void AHeliGameModeLobby::RequestFinishAndExitToMainMenu()
 
 		if (!Controller->IsLocalController())
 		{			
-			const FString RemoteReturnReason = TEXT("AHeliGameModeLobby::RequestFinishAndExitToMainMenu: controller is remote");
-			Controller->ClientReturnToMainMenu(RemoteReturnReason);
+			const FText RemoteReturnReason = FText::FromString("AHeliGameModeLobby::RequestFinishAndExitToMainMenu: controller is remote");
+			Controller->ClientReturnToMainMenuWithTextReason(RemoteReturnReason);
 		}
 		else
 		{

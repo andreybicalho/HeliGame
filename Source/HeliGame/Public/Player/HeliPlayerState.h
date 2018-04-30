@@ -121,9 +121,6 @@ public:
 	UFUNCTION(Reliable, NetMulticast)
 	void BroadcastDeath(class AHeliPlayerState* KillerPlayerState, const UDamageType* KillerDamageType, class AHeliPlayerState* KilledPlayerState);
 
-	/** gets player name for log and scoreboards */
-	FString GetPlayerName() const;
-
 	/** Set whether the player is a quitter */
 	void SetQuitter(bool bInQuitter);
 

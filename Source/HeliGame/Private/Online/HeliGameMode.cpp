@@ -431,10 +431,9 @@ void AHeliGameMode::RequestFinishAndExitToMainMenu()
 		}
 
 		if (!Controller->IsLocalController())
-		{
-			//const FString RemoteReturnReason = NSLOCTEXT("NetworkErrors", "HostHasLeft", "Host has left the game.").ToString();
-			const FString RemoteReturnReason = TEXT("AHeliGameMode::RequestFinishAndExitToMainMenu: controller is remote");
-			Controller->ClientReturnToMainMenu(RemoteReturnReason);
+		{			
+			const FText remoteReturnReason = FText::FromString("AHeliGameMode::RequestFinishAndExitToMainMenu: controller is remote");
+			Controller->ClientReturnToMainMenuWithTextReason(remoteReturnReason);
 		}
 		else
 		{

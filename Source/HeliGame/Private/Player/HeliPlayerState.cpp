@@ -42,7 +42,7 @@ void AHeliPlayerState::CopyProperties(APlayerState* PlayerState)
 	if (MyPlayerState)
 	{
 		MyPlayerState->TeamNumber = TeamNumber;
-		MyPlayerState->PlayerName = PlayerName;
+		MyPlayerState->SetPlayerName(GetPlayerName());
 		MyPlayerState->bPlayerReady = bPlayerReady;
 	}
 }
@@ -169,11 +169,6 @@ float AHeliPlayerState::GetLevel()
 void AHeliPlayerState::SetLevel(float NewLevel)
 {
 	Level = NewLevel;
-}
-
-FString AHeliPlayerState::GetPlayerName() const
-{
-	return PlayerName;
 }
 
 void AHeliPlayerState::OnRep_TeamNumber()
